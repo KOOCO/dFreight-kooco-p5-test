@@ -36,8 +36,14 @@ namespace Dolphin.Freight.Common
         public async Task<List<SysCodeDto>> GetSysCodeDtosByTypeAsync(QueryDto query) 
         {
             var sysCodes = await _sysCideRepository.GetListAsync();
-            var rs = sysCodes.Where(x => x.CodeType.Equals(query.QueryType)).ToList();
+            var rs = sysCodes.Where(x => x.CodeType.Contains(query.QueryType)).ToList();
             var list = ObjectMapper.Map<List<SysCode>, List<SysCodeDto>>(rs);
+            return list;
+        }
+        public async Task<List<SysCodeDto>> GetSysCodeByTypeAsync()
+        {
+            var sysCodes = await _sysCideRepository.GetListAsync();
+            var list = ObjectMapper.Map<List<SysCode>, List<SysCodeDto>>(sysCodes);
             return list;
         }
         public async Task<List<ReferenceItemDto>> GetReferenceItemsByTypeAsync(QueryDto query) {

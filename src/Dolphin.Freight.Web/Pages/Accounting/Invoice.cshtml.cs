@@ -10,8 +10,10 @@ using Dolphin.Freight.Settinngs.Substations;
 using Dolphin.Freight.TradePartners;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using QueryInvoiceDto = Dolphin.Freight.Accounting.Invoices.QueryInvoiceDto;
 
@@ -57,6 +59,8 @@ namespace Dolphin.Freight.Web.Pages.Accounting
         public InvoiceBasicDto InvoiceBasicDto { get; set; }
         [BindProperty]
         public InvoiceMblDto InvoiceMblDto { get; set; }
+        public List<SelectListItem> TradePartnerLookupList { get; set; }
+        public List<SelectListItem> SysCodeLookupList { get; set; }
 
         public string backUrl { get; set; }
         private readonly IInvoiceAppService _invoiceAppService;
@@ -68,6 +72,7 @@ namespace Dolphin.Freight.Web.Pages.Accounting
         private readonly ISubstationAppService _substationAppService;
         private readonly ITradePartnerAppService _tradePartnerAppService;
         private readonly IPortAppService _portAppService;
+        private readonly IAjaxDropdownAppService _ajaxDropdownAppService;
         public InvoiceModel(ITradePartnerAppService tradePartnerAppService,
                             ISubstationAppService substationAppService,
                             IInvoiceAppService invoiceAppService, 
@@ -76,7 +81,8 @@ namespace Dolphin.Freight.Web.Pages.Accounting
                             IInvoiceBillAppService invoiceBillAppService, 
                             IPortAppService portAppService, 
                             OceanImportHblAppService oceanImportHblAppService,
-                            OceanImportMblAppService oceanImportMblAppService
+                            OceanImportMblAppService oceanImportMblAppService,
+                            IAjaxDropdownAppService ajaxDropdownAppService
                             )
         {
             _invoiceAppService = invoiceAppService;
@@ -88,6 +94,7 @@ namespace Dolphin.Freight.Web.Pages.Accounting
             _substationAppService = substationAppService;
             _tradePartnerAppService = tradePartnerAppService;
             _portAppService = portAppService;
+            _ajaxDropdownAppService = ajaxDropdownAppService;
         }
         public async Task OnGetAsync()
         {
@@ -149,6 +156,9 @@ namespace Dolphin.Freight.Web.Pages.Accounting
                     InvoiceBasicDto.VesselNameVoyage = InvoiceBasicDto.VesselNameVoyage + InvoiceMblDto.Voyage;
                 }
             }
+
+            await FillTradePartnerAsync();
+            await FillSysCodeAsync();
         }
         private async Task InitOceanExport() 
         {
@@ -272,5 +282,25 @@ namespace Dolphin.Freight.Web.Pages.Accounting
             rs.Add("a1", "ejo");
             return new JsonResult(rs);
         }
+
+        #region FillTradePartnerAsync()
+        private async Task FillTradePartnerAsync()
+        {
+            var tradePartnerLookup = await _tradePartnerAppService.GetTradePartnersLookupAsync();
+            TradePartnerLookupList = tradePartnerLookup.Items
+                                                .Select(x => new SelectListItem(x.TPName + " / " + x.TPCode, x.Id.ToString(), false))
+                                                .ToList();
+        }
+        #endregion
+
+        #region FillSysCodeAsync()
+        private async Task FillSysCodeAsync()
+        {
+            var sysLookup = await _ajaxDropdownAppService.GetSysCodeByTypeAsync();
+            SysCodeLookupList = sysLookup
+                                         .Select(x => new SelectListItem(x.ShowName, x.Id.ToString(), false))
+                                         .ToList();
+        }
+        #endregion
     }
 }

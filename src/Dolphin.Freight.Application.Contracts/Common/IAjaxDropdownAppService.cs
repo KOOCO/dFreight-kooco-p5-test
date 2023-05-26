@@ -12,6 +12,7 @@ namespace Dolphin.Freight.Common
     {
         Task<List<TradePartnerDto>> GetAllTradePartners(QueryDto query);
         Task<List<SysCodeDto>> GetSysCodeDtosByTypeAsync(QueryDto query);
+        Task<List<SysCodeDto>> GetSysCodeByTypeAsync();
         Task<List<ReferenceItemDto>> GetReferenceItemsByTypeAsync(QueryDto query);
 
     }
