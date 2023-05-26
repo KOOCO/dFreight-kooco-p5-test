@@ -1,0 +1,298 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Reports.ProfitSummaryModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div class="wrap">
+        
+
+         <div class="header header-normal">
+            <table>
+                <tbody><tr>
+                    <td class="w-15 logo">
+                        <img src="/Pages/Reports/logo.png">
+                    </td>
+                    <td class="w-48">
+                        <h1 class="auto-font-size office-name">
+                            <span> </span>
+                        </h1>
+                        <div class="auto-font-size office-des">
+                            <span>
+                                @{
+                                    if (Model.InfoModel.Address != "")
+                                    {
+                                        @Model.InfoModel.Address
+                                        <br />
+                                    }
+                                }
+                                TEL: @Model.InfoModel.Tel<br>
+                                EMAIL: @Model.InfoModel.Email
+                                    <br /><strong>Prepared by @Model.InfoModel.LastName @Model.InfoModel.FirstName @Model.InfoModel.DateTime (CST)</strong>
+                                    
+                                <input type="hidden" name="Office" value="@Model.InfoModel.Office" />
+                                <input type="hidden" name="Address" value="@Model.InfoModel.Address" />
+                                <input type="hidden" name="TEL" value="@Model.InfoModel.Tel" />
+                                <input type="hidden" name="EMAIL" value="@Model.InfoModel.Email" />
+                                <input type="hidden" name="LastName" value="@Model.InfoModel.LastName" />
+                                <input type="hidden" name="FirstName" value="@Model.InfoModel.FirstName" />
+                                <input type="hidden" name="DateTime" value="@Model.InfoModel.DateTime" />
+                            </span>
+                        </div>
+                    </td>
+                    <td class="w-2">&nbsp;</td>
+                    <td class="w-35 title border-deep-blue text-center">
+                        <h2 class="blue-lg">PRE-ALERT</h2>
+                    </td>
+                </tr>
+            </tbody></table>
+        </div>
+        <div class="con">
+            <table class="table-padding-double border text-12">
+                <colgroup>
+                    <col class="w-10 border-r">
+                    <col class="w-40 border-r">
+                    <col class="w-12 border-r">
+                    <col class="w-38">
+                </colgroup>
+                <tbody><tr class="border-b">
+                    <td class="text-bold">TO</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="TO" value="@Model.InfoModel.TO" id="id_to" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">JOBNO</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="JOBNO" value="@Model.InfoModel.JOBNO" id="id_job_no" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">ATTN</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="ATTN" value="@Model.InfoModel.ATTN" id="id_attn" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+            </tbody></table>
+            <table class="table-padding-double border text-12 margin-t-md">
+                <colgroup>
+                    <col class="w-10 border-r">
+                    <col class="w-40 border-r">
+                    <col class="w-10 border-r">
+                    <col class="w-40">
+                </colgroup>
+                <tbody><tr class="border-b">
+                    <td class="text-bold">MB/L</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="MBL" value="@Model.InfoModel.MBL" id="id_MBL_NO" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">HB/L</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="HBL" value="@Model.InfoModel.HBL" id="id_HBL_NO" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">SHPR</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="SHPR" value="@Model.InfoModel.SHPR" id="id_shipper_name" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">CNEE</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="CNEE" value="@Model.InfoModel.CNEE" id="id_consignee_name" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">CARR</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="CARR" value="@Model.InfoModel.CARR" id="id_carrier_name" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">VSL/VOV</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="VSLVOV" value="@Model.InfoModel.VSLVOV" id="id_vessel_voyage" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">POR</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="POR" value="@Model.InfoModel.POR" id="id_POR_location" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">POL</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="POL" value="@Model.InfoModel.POL" id="id_POL_location" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">ETD</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="ETD" value="@Model.InfoModel.ETD" id="id_ETD_date" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">2<sup>ND</sup> V/V</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="_2NDVV" value="@Model.InfoModel._2NDVV" id="id_second_vv" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">ETD KAO</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="ETDKAO" value="@Model.InfoModel.ETDKAO" id="id_ETD_KAO_date" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">POD</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="POD" value="@Model.InfoModel.POD" id="id_POD_location" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">ETA</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="ETA" value="@Model.InfoModel.ETA" id="id_ETA_date" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">DEST</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="DEST" value="@Model.InfoModel.DEST" id="id_DEL_location" class="ng-isolate-scope"></div>
+                    </td>
+                    <td class="text-bold">DEST ETA</td>
+                    <td>
+                        <div class="item-edit"><input type="text" name="DESTETA" value="@Model.InfoModel.DESTETA" id="id_FETA_date" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">VOL</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="VOL" value="@Model.InfoModel.VOL" id="id_vol" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">CNTR NO</td>
+                    <td colspan="3">
+                        <div class="item-edit">
+                            <textarea name="CNTRNO" cols="40" rows="8" class="text-scroll ng-isolate-scope" id="id_container_no_area">
+                                    @{
+                                        if (Model.InfoModel.CNTRNO != "")
+                                        {
+                                            @Model.InfoModel.CNTRNO
+                                        }
+                                    }
+                            </textarea>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">COMM</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="COMM" value="@Model.InfoModel.COMM" id="id_commodity_list" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">PONBR</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="po_num_list" value="@Model.InfoModel.PONBR" id="id_po_num_list" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">PKGS</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="PKGS" value="@Model.InfoModel.PKGS" id="id_packages" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">G. WT</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="GWT" value="@Model.InfoModel.GWT" id="id_gross_weight" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">MSRMT</td>
+                    <td colspan="3">
+                        <div class="item-edit"><input type="text" name="MSRMT" value="@Model.InfoModel.MSRMT" id="id_measure" class="ng-isolate-scope"></div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">RMK</td>
+                    <td class="text-bold" colspan="3">
+                        <div class="item-edit">
+                            <textarea name="remark" cols="40" rows="8" class="text-scroll ng-isolate-scope" id="id_remark">
+                                    @{
+                                        if (Model.InfoModel.RMK != "")
+                                        {
+                                            @Model.InfoModel.RMK
+                                        }
+                                    }
+                            </textarea>
+                        </div>
+                    </td>
+                </tr>
+            </tbody></table>
+        </div>
+    </div>
+    </div>
+</div>
+</form>

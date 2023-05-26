@@ -1,0 +1,366 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Reports.CargoModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div class="wrap">
+        
+
+         <div class="header header-normal">
+            <table>
+                <tbody><tr>
+                    <td class="w-15 logo">
+                        <img src="/Pages/Reports/logo.png">
+                    </td>
+                    <td class="w-48">
+                        <h1 class="auto-font-size office-name">
+                            <span> </span>
+                        </h1>
+                        <div class="auto-font-size office-des">
+                            <span>
+                                @{
+                                    if (Model.InfoModel.Address != "")
+                                    {
+                                        @Model.InfoModel.Address
+                                        <br />
+                                    }
+                                }
+                                TEL: @Model.InfoModel.Tel<br>
+                                EMAIL: @Model.InfoModel.Email
+                                    <br /><strong>Prepared by @Model.InfoModel.LastName @Model.InfoModel.FirstName @Model.InfoModel.DateTime (CST)</strong>
+                                    
+                                <input type="hidden" name="Office" value="@Model.InfoModel.Office" />
+                                <input type="hidden" name="Address" value="@Model.InfoModel.Address" />
+                                <input type="hidden" name="TEL" value="@Model.InfoModel.Tel" />
+                                <input type="hidden" name="EMAIL" value="@Model.InfoModel.Email" />
+                                <input type="hidden" name="LastName" value="@Model.InfoModel.LastName" />
+                                <input type="hidden" name="FirstName" value="@Model.InfoModel.FirstName" />
+                                <input type="hidden" name="DateTime" value="@Model.InfoModel.DateTime" />
+                            </span>
+                        </div>
+                    </td>
+                    <td class="w-2">&nbsp;</td>
+                    <td class="w-35 title border-deep-blue text-center">
+                        <h2 class="blue-lg">CARGO MANIFEST</h2>
+                    </td>
+                </tr>
+            </tbody></table>
+        </div>
+        <div class="con oe-cargo-manifest">
+            <table>
+                <tr>
+                    <td class="td w-28">
+                        <div class="space_area">&nbsp;</div>
+                        <table>
+                            <tr>
+                                <td class="highlight-block">
+                                    <div class="title">FROM :</div>
+                                    <div class="data">
+                                        <div class="item-pdf auto-font-size __width-lg"><span>HARD CORE TECHNOLOGY</span></div>
+                                        <div class="item-edit">
+                                            <input type="text" name="from_trade_partner" value="HARD CORE TECHNOLOGY" template-id="f0630a0033b51694885fc9630d60b8c8641779266395f18fca7d07172ad92cf6:Form.from_trade_partner" id="id_from_trade_partner">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="highlight-block">
+                                    <div class="title">TO :</div>
+                                    <div class="data">
+                                        <div class="item-pdf auto-font-size __col-textarea">
+                                            <span>ABC<br>
+18747 S LAUREL PARK RD, <br>
+RANCHO DOMINGUEZ CA 90220<br>
+TEL: 310-679-6688 EXT 121<br>
+UNITED STATES</span>
+                                        </div>
+                                        <div class="item-edit">
+                                            <textarea name="to_trade_partner_area" cols="40" rows="5" class="text-scroll no-adjustment" template-id="f0630a0033b51694885fc9630d60b8c8641779266395f18fca7d07172ad92cf6:Form.to_trade_partner_area" id="id_to_trade_partner_area">
+ABC
+18747 S LAUREL PARK RD, 
+RANCHO DOMINGUEZ CA 90220
+TEL: 310-679-6688 EXT 121
+UNITED STATES</textarea>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="td w-2"></td>
+                    <td class="td w-70">
+                        <div class="space_area">&nbsp;</div>
+                        <table>
+                        </table>
+                        <table class="border line-height-sm table-padding-double">
+                            <tr class="border-b">
+                                <td class="w-18 bg-light border-r">MASTER B/L NO.</td>
+                                <td class="w-42">TEST000123456</td>
+                                <td class="w-12 bg-light border-r border-l">FILE NO.</td>
+                                <td class="w-28">
+                                    <div class="item-edit"><input type="text" name="filing_no" value="OEX-22110001" template-id="f0630a0033b51694885fc9630d60b8c8641779266395f18fca7d07172ad92cf6:Form.filing_no" id="id_filing_no"></div>
+                                    <div class="item-pdf">OEX-22110001</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="bg-light border-r">BOOKING NO.</td>
+                                <td>ABC112</td>
+                                <td class="bg-light border-r border-l">CARRIER</td>
+                                <td>MACK PLC</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="bg-light border-r">VESSEL</td>
+                                <td>
+                                    <div class="item-edit"><input type="text" name="vessel_name" value=". AARYA" template-id="f0630a0033b51694885fc9630d60b8c8641779266395f18fca7d07172ad92cf6:Form.vessel_name" id="id_vessel_name"></div>
+                                    <div class="item-pdf">. AARYA</div>
+                                </td>
+                                <td class="bg-light border-r border-l">VOYAGE</td>
+                                <td>
+                                    <div class="item-edit"><input type="text" name="voyage" value="V222" template-id="f0630a0033b51694885fc9630d60b8c8641779266395f18fca7d07172ad92cf6:Form.voyage" id="id_voyage"></div>
+                                    <div class="item-pdf">V222</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="bg-light border-r">P.O.L</td>
+                                <td>
+                                    <div class="item-edit"><input type="text" name="POL_location" value="SHENZHENWAN (CHINA)" template-id="f0630a0033b51694885fc9630d60b8c8641779266395f18fca7d07172ad92cf6:Form.POL_location" id="id_POL_location"></div>
+                                    <div class="item-pdf">SHENZHENWAN (CHINA)</div>
+                                </td>
+                                <td class="bg-light border-r border-l">ETD</td>
+                                <td>11-22-2022</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="bg-light border-r">P.O.D</td>
+                                <td>
+                                    <div class="item-edit"><input type="text" name="POD_location" value="LOS ANGELES, CA (UNITED STATES)" template-id="f0630a0033b51694885fc9630d60b8c8641779266395f18fca7d07172ad92cf6:Form.POD_location" id="id_POD_location"></div>
+                                    <div class="item-pdf">LOS ANGELES, CA (UNITED STATES)</div>
+                                </td>
+                                <td class="bg-light border-r border-l">ETA</td>
+                                <td>11-25-2022</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="bg-light border-r">CNTR NO. / SEAL # / SIZE</td>
+                                <td colspan="3">APLU77784848 / S32234444 / 20FL</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <div>&nbsp;</div>
+            <div class="checkbox item-edit">
+                <label>
+                    <input type="checkbox" name="show_mark_and_description" class="item-edit" ng-model="vm.isShowMarkAndDescription" hc-user-preference="oe_cargo_manifest_show_mark_and_description" id="id_show_mark_and_description"> Show Mark and Description
+                </label>
+            </div>
+            
+
+            <table class="table-padding">
+                <colgroup>
+                    <col class="w-12"><!--HBL-->
+                    <col class="w-13"><!--Weight-->
+                    <col class="w-20"><!--Shipper-->
+                    <col class="w-20"><!--Consignee-->
+                    <col class="w-23"><!--GOODS-->
+                    <col class="w-12"><!--TERM-->
+                </colgroup>
+                <thead>
+                    <tr class="border-t border-b bg-light">
+                        <th class="col-padding text-left">HOUSE B/L
+                            <br>PCS
+                        </th>
+                        <th class="col-padding text-center">WEIGHT
+                            <br>MEASUREMENT
+                        </th>
+                        <th class="col-padding text-left">SHIPPERS NAME & ADDRESS</th>
+                        <th class="col-padding text-left">CONSIGNEE NAME & ADDRESS</th>
+                        <th class="col-padding text-left">
+                            <div class="margin-t"></div>
+                            NATURE OF GOODS
+                            <div class="item-edit">
+                                <label class="text-10">
+                                    <input type="checkbox" name="is_show_pcs_and_amount" class="item-edit" ng-model="vm.isShowPcsAndAmount" hc-user-preference="oe_cargo_manifest_is_show_pcs_and_amount" ng-change="vm.onShowPcsAndAmountChange()" id="id_is_show_pcs_and_amount"> Show commodity PCS and amount
+                                </label>
+                            </div>
+                        </th>
+                        <th class="col-padding text-center">TERM</th>
+                    </tr>
+                </thead>
+                
+                    
+                    
+                    <tr>
+                        <td><input type="checkbox" name="is_show_info_85985" class="item-edit" ng-model="vm.hcInfos[85985].__checked" ng-change="vm.onShowInfoFieldChange()" id="id_is_show_info_85985" checked> SZWBC222110003<br>
+0 CARTON(S)</td>
+                        <td class="text-center"></td>
+                        <td>
+                            
+                            <div class="item-edit"><textarea name="shipper_85985" cols="40" rows="5" class="text-scroll" template-id="4f039ed2086a82d4cbd2af11a8e4e27ccca482749067717daf2079b67e2a0956:FormExtend.shipper_85985" id="id_shipper_85985">
+COOL CONTAINERS</textarea></div>
+                            <div class="item-pdf">COOL CONTAINERS</div>
+                        </td>
+                        <td>
+                            
+                            <div class="item-edit"><textarea name="consignee_85985" cols="40" rows="5" class="text-scroll" template-id="4f039ed2086a82d4cbd2af11a8e4e27ccca482749067717daf2079b67e2a0956:FormExtend.consignee_85985" id="id_consignee_85985">
+</textarea></div>
+                            <div class="item-pdf"></div>
+                        </td>
+                        <td>
+                            
+                            <div class="item-edit">
+                                <textarea name="good_items_85985" cols="40" rows="5" class="text-scroll" template-id="4f039ed2086a82d4cbd2af11a8e4e27ccca482749067717daf2079b67e2a0956:FormExtend.good_items_85985" ng-model="vm.goodItems[85985]" id="id_good_items_85985">
+</textarea>
+                            </div>
+                            <div class="item-pdf"></div>
+                        </td>
+                        <td class="text-center">
+                            PP<br>
+
+                            
+                            <input type="checkbox" name="show_non_stackable_85985" class="item-edit" id="id_show_non_stackable_85985">
+                            
+                                <strong>NON-STACKABLE</strong>
+                            
+                        </td>
+                    </tr>
+                        
+                        <tr class="border-b-grey" ng-show="vm.isShowMarkAndDescription">
+                            <th class="text-left col-padding-double valign-top" colspan="3">MARK
+                                
+                                <div class="item-edit"><textarea name="mark_85985" cols="40" rows="5" class="text-scroll" template-id="4f039ed2086a82d4cbd2af11a8e4e27ccca482749067717daf2079b67e2a0956:FormExtend.mark_85985" id="id_mark_85985">
+</textarea></div>
+                                <div class="item-pdf text-light col-padding-t"></div>
+                            </th>
+                            <th class="text-left col-padding-double valign-top" colspan="3">DESCRIPTION
+                                
+                                <div class="item-edit"><textarea name="description_85985" cols="40" rows="5" class="text-scroll" template-id="4f039ed2086a82d4cbd2af11a8e4e27ccca482749067717daf2079b67e2a0956:FormExtend.description_85985" id="id_description_85985">
+</textarea></div>
+                                <div class="item-pdf text-light col-padding-t"></div>
+                            </th>
+                        </tr>
+                        
+                    
+                
+                
+                <input type="hidden" name="total_package" ng-value="vm.totalPackage" id="id_total_package">
+                <input type="hidden" name="total_weight_kg" ng-value="vm.totalWeightKG" id="id_total_weight_kg">
+                <input type="hidden" name="total_weight_lb" ng-value="vm.totalWeightLB" id="id_total_weight_lb">
+                <input type="hidden" name="total_measure_cbm" ng-value="vm.totalMeasureCBM" id="id_total_measure_cbm">
+                <input type="hidden" name="total_measure_cft" ng-value="vm.totalMeasureCFT" id="id_total_measure_cft">
+                <input type="hidden" name="total_count" ng-value="vm.totalCount" id="id_total_count">
+                
+                <tr class="border-t border-b bg-light">
+                    <td colspan="2">
+                        <strong>Total
+                            <span class="item-edit"> [[ vm.totalPackage ]] </span>
+                            <span class="item-pdf"> None </span>
+                            (PCS)
+                        </strong>
+                    </td>
+                    <td>
+                        
+                            <span class="item-edit">[[ vm.totalWeightKG ]]</span>
+                            <span class="item-pdf">None</span> KG
+                        
+                        <br>
+                        
+                            <span class="item-edit">[[ vm.totalWeightLB ]]</span>
+                            <span class="item-pdf">None</span> LB
+                        
+                    </td>
+                    <td>
+                        
+                            <span class="item-edit">[[ vm.totalMeasureCBM ]]</span>
+                            <span class="item-pdf">None</span> CBM
+                        
+                        <br>
+                        
+                            <span class="item-edit">[[ vm.totalMeasureCFT ]]</span>
+                            <span class="item-pdf">None</span> CFT
+                        
+                    </td>
+                    <td class="text-center" colspan="2">
+                        <span class="item-edit">[[ vm.totalCount ]] </span>
+                        <span class="item-pdf">None </span>
+                        BL(S)
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

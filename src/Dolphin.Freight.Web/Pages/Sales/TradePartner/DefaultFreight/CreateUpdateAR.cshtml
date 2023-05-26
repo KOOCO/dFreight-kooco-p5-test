@@ -1,0 +1,112 @@
+﻿@page
+@using Dolphin.Freight.Accounting;
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@inject IStringLocalizer<FreightResource> L
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.DefaultFreight.CreateUpdateARModel
+@{
+    Layout = null;
+}
+<form method="post" action="/Sales/TradePartner/DefaultFreight/CreateUpdateAR">
+    <abp-modal>
+        @if (Model.Id == null)
+        {
+            <abp-modal-header title="@L["Create"]"></abp-modal-header>
+        }
+        else
+        {
+            <abp-modal-header title="@L["Update"]"></abp-modal-header>
+        }
+        <abp-modal-body>
+            @if (Model.Id != null)
+            {
+                <input name="ARDto.id" type="hidden" value="@Model.Id" />
+            }
+            <input name="ARDto.tradePartnerId" type="hidden" value="@Model.TradePartnerId" />
+            <input name="ARDto.category" type="hidden" value="@Model.Category" />
+
+            @if (DefaultFreightCategory.OI.Equals(Model.Category) || DefaultFreightCategory.OE.Equals(Model.Category))
+            {
+                <label class="form-label">@L["Display:TradePartner:DefaultFreight:ShipMode"]</label>
+                <div class="input-group">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="true" name="ARDto.shipModeFCL" @String.Format("{0}", Model.ShipModeFCL == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox1">FCL</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="true" name="ARDto.shipModeLCL" @String.Format("{0}", Model.ShipModeLCL == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox2">LCL</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="true" name="ARDto.shipModeFAK" @String.Format("{0}", Model.ShipModeFAK == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox3">FAK</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox4" value="true" name="ARDto.shipModeBULK" @String.Format("{0}", Model.ShipModeBULK == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox4">BULK</label>
+                    </div>
+                </div>
+            }
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:FreightCode"]</label>
+            <select name="ARDto.freightCode" class="form-select form-control" required>
+                @foreach (var row in Model.FreightCodeList)
+                {
+                    if (row.Id == Model.FreightCode)
+                    {
+                        <option value="@row.Id" selected>@row.BillingName</option>
+                    }
+                    else
+                    {
+                        <option value="@row.Id">@row.BillingName</option>
+                    }
+                }
+            </select>
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:FreightDescription"]</label>
+            <input name="ARDto.freightDescription" class="form-control" value="@Model.FreightDescription" type="text" />
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Type"]</label>
+            <select name="ARDto.type" class="form-select form-control" required>
+                @foreach (var row in Enum.GetValues(typeof(DefaultFreightARType)))
+                {
+                    if (row.Equals(Model.Type))
+                    {
+                        <option value="@row" selected>@L["Display:TradePartner:DefaultFreight:" + row]</option>
+                    }
+                    else
+                    {
+                        <option value="@row">@L["Display:TradePartner:DefaultFreight:" + row]</option>
+                    }
+                }
+            </select>
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Unit"]</label>
+            <select name="ARDto.unit" class="form-select form-control" required>
+                @foreach (var row in Enum.GetValues(typeof(UnitType)))
+                {
+                    if (row.Equals(Model.Unit))
+                    {
+                        <option value="@row" selected>@row.ToString().Replace('_', ' ')</option>
+                    }
+                    else
+                    {
+                        <option value="@row">@row.ToString().Replace('_', ' ')</option>
+                    }
+                }
+            </select>
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Vol"]</label>
+            <input name="ARDto.vol" class="form-control" value="@Model.Vol" type="number" required />
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Rate"]</label>
+            <input name="ARDto.rate" class="form-control" value="@Model.Rate" type="number" required />
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:AgentAmount"]</label>
+            <input name="ARDto.agentAmount" class="form-control" value="@Model.AgentAmount" type="number" required />
+
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

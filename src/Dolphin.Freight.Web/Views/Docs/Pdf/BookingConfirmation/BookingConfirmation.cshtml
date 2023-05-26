@@ -1,0 +1,440 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.BookingConfirmation.BookingConfirmationIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+
+<div style="width:800px;background-color:white;" id="form" name="form">
+    <div>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <div style="border: 1px solid;width:120px;height:120px;">圖片</div>
+                    </td>
+                    <td>
+                        <h3><span>@Model.Office</span></h3>
+                        <div>
+                            <span>
+                                <br>
+                                @{
+                                    if (Model.Address != "")
+                                    {
+                                        @Model.Address
+
+                                        <br />
+                                    }
+                                }
+                                電話： @Model.Tel @{
+                                    if (Model.Fax != "")
+                                    {
+                                        <span>FAX:</span> @Model.Fax
+                                    }
+                                }
+                                <br />
+                                電子郵件： @Model.Email
+
+                                <br /><strong>製作人 @Model.LastName @Model.FirstName @Model.DateTime (CST)</strong>
+
+                            </span>
+                        </div>
+                    </td>
+                    <td style="width:50px">&nbsp;</td>
+                    <td>
+                        <div style="border: 1px solid;width:300px;height:120px;display:flex;align-items:center;justify-content:center;color:darkblue;border-color:darkblue">
+
+                            <p>&nbsp;</p>
+                            @{
+                                if (Model.ReportTitleChoice == "BC")
+                                {
+                                    <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;訂艙確認書</h3>
+                                }
+                                else if (Model.ReportTitleChoice == "BO")
+                                {
+                                    <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;訂艙委託書</h3>
+                                }
+                                else if (Model.ReportTitleChoice == "DN")
+                                {
+                                    <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;入貨通知</h3>
+                                }
+                                else
+                                {
+                                    <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;訂艙確認書</h3>
+                                }
+                            }
+
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <div class="container">
+            <div class="item-left">
+                &nbsp;
+            </div>
+            <div class="item-right">
+                <div style="display:inline-block;">
+                    <strong>船公司訂艙號碼 :</strong>
+                </div>
+                <div style="display:inline-block;">
+                    <span style="font-weight:bold;font-size:large;white-space: nowrap;">@Model.CarrierBookingNo</span>
+                </div>
+                <div style="display:inline-block;width:22px">&nbsp;</div>
+            </div>
+        </div>
+
+        <div>
+            <table style="border-collapse:collapse;border-spacing:0;width:800px">
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">託運人</td>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">訂艙資訊</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" rowspan="4" style="border-style:solid;border-width:1px;">
+                            @{
+                                if (Model.TradePartnerLayoutChoice == "default")
+                                {
+                                    //<span>@Model.ActualShipper</span>
+                                    <pre style="font-weight:bold;font-size:large;"><b>@Model.ActualShipper</b></pre>
+                                }
+                                else
+                                {
+                                    //<span>@Model.Shipping</span>
+                                    <pre style="font-weight:bold;font-size:large;"><b>@Model.Shipping</b></pre>
+                                }
+
+                            }
+                        </td>
+                        <td colspan="4" rowspan="6" style="border-style:solid;border-width:1px;">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td style="width:150px">HBL號碼</td>
+                                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.HblNo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:150px">我司訂艙號碼</td>
+                                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.OutBookingNo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:150px">訂艙日期</td>
+                                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.BookingDate</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:150px">出口參考號碼</td>
+                                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.ExportRefNo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="2" style="width:150px">PO號碼</td>
+                                        <td rowspan="2">:&nbsp;<pre style="font-weight:bold;"><b>@Model.PoNo</b></pre></td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:150px">ITN號碼</td>
+                                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.ItnNo</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                    </tr>
+                    <tr>
+                    </tr>
+                    <tr>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">收貨人</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" rowspan="5" style="border-style:solid;border-width:1px;" valign="top">
+                            @{
+                                if (Model.TradePartnerLayoutChoice == "default")
+                                {
+                                    //<span>@Model.Consignee</span>
+                                    <pre style="font-weight:bold;font-size:large;"><b>@Model.Consignee</b></pre>
+                                }
+                                else
+                                {
+                                    //<span>@Model.OverseaAgent</span>
+                                    <pre style="font-weight:bold;font-size:large;"><b>@Model.OverseaAgent</b></pre>
+                                }
+
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">代理</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;"><span style="font-weight:bold;white-space: nowrap;">@Model.Agent</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">通知人</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;"><span style="font-weight:bold;white-space: nowrap;">@Model.Notify</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <table style="border-collapse:collapse;border-spacing:0;width:800px">
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">船名與航線資訊</td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td style="width:200px">船名與航次</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.Vessel_Voyage</span></td>
+                        <td>船公司</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.Carrier</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>收貨地</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.PlaceOfReceipt</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>裝貨港</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.PortOfLoading</span></td>
+                        <td>ETD</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.ETD</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>中轉港</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.PortOfTransshipment</span></td>
+                        <td>ETA</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.TsETA</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>卸貨港</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.PortOfDischarge</span></td>
+                        <td>ETA</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.PodETA</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>交貨地</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.PlaceOfDelivery</span></td>
+                        <td>ETA</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.DelETA</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>最終目的地</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.FinalDestination</span></td>
+                        <td>ETA</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.FinalETA</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>運輸類型</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.MoveType</span></td>
+                        <td>最早收櫃日</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.EarlyReturn</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">貨物資訊</td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>商品</td>
+                        <td colspan="3">:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.Commodity</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>集裝箱</td>
+                        <td colspan="3">:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.Container</span></td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>重量</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.Weight</span></td>
+                        <td>危險品</td>
+                        <td>
+                            :&nbsp;
+                            <label>
+                                @{
+                                    if (Model.Dangerous == true)
+                                    {
+                                        <span>是</span>
+                                    }
+                                    else
+                                    {
+                                        <span>否</span>
+                                    }
+                                }
+                            </label>
+                        </td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>材積</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.Measurement</span></td>
+                        <td>信用狀</td>
+                        <td>
+                            :&nbsp;
+                            <label>
+                                @{
+                                    if (Model.LC == true)
+                                    {
+                                        <span>是</span>
+                                    }
+                                    else
+                                    {
+                                        <span>否</span>
+                                    }
+                                }
+                            </label>
+                        </td>
+                    </tr>
+                    <tr style="border-style:solid;border-width:1px;">
+                        <td>包裝種類</td>
+                        <td>:&nbsp;<span style="font-weight:bold;white-space: nowrap;">@Model.PKG CARTON(S)</span></td>
+                        <td>可堆放</td>
+                        <td>
+                            :&nbsp;
+                            <label>
+                                @{
+                                    if (Model.Stackable == true)
+                                    {
+                                        <span>是</span>
+                                    }
+                                    else
+                                    {
+                                        <span>否</span>
+                                    }
+                                }
+                            </label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        @{
+            if (Model.ReportTitleChoice != "BO")
+            {
+                <div id="cargodeliverylocation_1_temp_div" name="cargodeliverylocation_1_temp_div">
+                    <table style="border-collapse:collapse;border-spacing:0;width:800px">
+                        <tbody>
+                            <tr>
+                                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">貨物進倉地/重櫃交還地</td>
+                                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">結關日</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" rowspan="4" style="border-style:solid;border-width:1px;" valign="top">                                    
+                                    <pre style="font-weight:bold;font-size:large;"><b>@Model.CargoDeliveryLocation_1</b></pre>
+                                </td>
+                                <td colspan="4" rowspan="4" style="border-style:solid;border-width:1px;">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>港口</td>
+                                                <td colspan="3">：<span style="font-weight:bold;white-space: nowrap;">@Model.Port_Cutoff_Date</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>鐵路</td>
+                                                <td colspan="3">：<span style="font-weight:bold;white-space: nowrap;">@Model.Rail_Cutoff_Date</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>倉儲</td>
+                                                <td colspan="3">：<span style="font-weight:bold;white-space: nowrap;">@Model.Warehouse_Cutoff_Date</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>文件</td>
+                                                <td colspan="3">：<span style="font-weight:bold;white-space: nowrap;">@Model.Doc_Cutoff_Date</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                            <tr>
+                            </tr>
+                            <tr>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">提櫃地</td>
+                                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">提貨地</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" rowspan="5" style="border-style:solid;border-width:1px;" valign="top">
+                                    <pre style="font-weight:bold;font-size:large;"><b>@Model.EmptyPickUp</b></pre>
+                                </td>
+                                <td colspan="4" rowspan="3" style="border-style:solid;border-width:1px;">
+                                    <span style="font-weight:bold;font-size:large;white-space: nowrap;">@Model.CargoPickUp</span>
+                                </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                            <tr>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">卡車行</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-style:solid;border-width:1px;"><span style="font-weight:bold;white-space: nowrap;">@Model.Trucker</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div style="display:inline-block;" id="cargodeliverylocation_2_temp_div" name="cargodeliverylocation_2_temp_div">
+                    <table style="border-collapse:collapse;border-spacing:0;width:800px">
+                        <tbody>
+                            <tr>
+                                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">貨物進倉地/重櫃交還地</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <pre style="font-weight:bold;font-size:large;"><b>@Model.CargoDeliveryLocation_2</b></pre>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+
+        <div>
+            <table style="border-collapse:collapse;border-spacing:0;width:800px">
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">備註</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><span style="font-weight:bold;font-size:large;white-space: nowrap;">@Model.Remark</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="page-break-before:always">&nbsp;</div>
+
+        <br />
+        <div>
+            <table style="border-collapse:collapse;border-spacing:0;width:800px">
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">約定條款</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <span style="font-size: 12px;">
+                                Note: As a result of the Passage of the Homeland Security Act, U.S. Customs officials are enforcing the requirement that AES information and other shipping documentation be received prior to cargo loading the vessel. Failure to complete may result in your cargo not loading on intended vessel. You can file your SED electronically through the Census website at https://ace.cbp.dhs.gov/ or you can inquire about our AES filing service with a fee. All export/hazardous declaration must be in our possession by the day of the cut off prior to cargo loading, Any fines incurred due to lack of SED filing compliance will be for the amount of shipper/forwarder. All shipments to Hong Kong, China, Taiwan, Australia, if wooden pallet and/or crate are used, it MUST comply with the IPPC certification; or use plastic pallets. Charges and consequences due to non-compliance will be at customer's expense. For I.E.and return cargo, freight MUST be PREPAID. All shipments are subject to U.S. Customs inspection.
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <hr />
+    </div>
+</div>

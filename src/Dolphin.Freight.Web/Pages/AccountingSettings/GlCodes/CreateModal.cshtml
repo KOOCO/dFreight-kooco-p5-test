@@ -1,0 +1,81 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.Components
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model Dolphin.Freight.Web.Pages.AccountingSettings.GlCodes.CreateModalModel
+@inject IStringLocalizer<FreightResource> L
+@{
+    Layout = null;
+    <abp-script src="/Pages/AccountingSettings/GlCodes/init.js" />
+}
+<abp-modal>
+    <abp-modal-header title="@L["Create"].Value"></abp-modal-header>
+    <abp-modal-body>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="GlCode.Code" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "GlTypeId", FieldName = "GlTypeId",DefaultValue="", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "GlGroupId", FieldName = "GlGroupId",DefaultValue="", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="GlCode.Remark" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="GlCode.SubInfo" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="GlCode.AccountingGlCode" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-input asp-for="GlCode.IsUsed" />
+            </abp-column>
+            <abp-column size-md="_6">
+                <abp-input asp-for="GlCode.IsDeposit" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_6">
+                
+                <abp-input asp-for="GlCode.IsPayment" />
+            </abp-column>
+            <abp-column size-md="_6">
+                <abp-input asp-for="GlCode.IsRevaluation" />
+            </abp-column>
+        </abp-row>
+    </abp-modal-body>
+    <abp-modal-footer>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <abp-button class="btn btn-primary me-md-2" type="button" id="saveBtn">@L["Save"].Value</abp-button>
+        </div>
+        <form id="createForm" method="post" action="/AccountingSettings/GlCodes/CreateModal">
+            <input type="hidden" name="Code" id="formCode" />
+            <input type="hidden" name="GlTypeId" id="formGlTypeId" />
+            <input type="hidden" name="GlGroupId" id="formGlGroupId" />
+            <input type="hidden" name="Remark" id="formRemark" />
+            <input type="hidden" name="SubInfo" id="formSubInfo" />
+            <input type="hidden" name="AccountingGlCode" id="formAccountingGlCode" />
+            <input type="hidden" name="IsUsed" id="formIsUsed" />
+            <input type="hidden" name="IsDeposit" id="formIsDeposit" />
+            <input type="hidden" name="IsPayment" id="formIsPayment" />
+            <input type="hidden" name="IsRevaluation" id="formIsRevaluation" />
+        </form>
+    </abp-modal-footer>
+</abp-modal>

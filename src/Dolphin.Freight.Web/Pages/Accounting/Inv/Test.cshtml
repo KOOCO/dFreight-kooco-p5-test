@@ -1,0 +1,9 @@
+﻿@page
+@model Dolphin.Freight.Web.Pages.Accounting.Inv.TestModel
+@section Scripts{
+    <abp-script src="/Pages/Accounting/Inv/_InvoiceList.js"></abp-script>
+}
+
+@*@await Html.PartialAsync("~/Pages/Accounting/Inv/_InvoiceList.cshtml", "9449F3D7-DC8D-4443-B26D-285EBE69F18A")*@
+@await Html.PartialAsync("~/Pages/Accounting/Inv/_InvoiceList.cshtml", "")
+<button onclick="updateInvoiceList()">更新</button>

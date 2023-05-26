@@ -1,0 +1,57 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.AirExports.MawbListModel
+@inject IStringLocalizer<FreightResource> L
+@section styles
+{
+
+    <style>
+       /* th, td { white-space: nowrap; }*/
+    /*div.dataTables_wrapper {
+        width: 1100px;
+        margin: 0 auto;
+    }*/
+    </style>
+}
+@section scripts
+{
+    <abp-script src="/Pages/AirExports/MawbList.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item href="#" title=@L["Menu:Home"] />
+            <abp-breadcrumb-item title=@L["Menu:AirExport"] />
+            <abp-breadcrumb-item title=@L["Menu:AirExport.MawbList"] />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <abp-row>
+                <abp-column>
+                    <abp-card-title>@L["Menu:AirExport.MawbList"]</abp-card-title>
+                </abp-column>
+                <abp-column size-md="_6" class="text-end">
+                    <abp-button id="AddMawbButton"
+                                text=@L["Display:Button:New"]
+                                icon="plus"
+                                button-type="Outline_Secondary" />
+                    <abp-button id="FilterMawbButton"
+                                text=@L["Display:Button:Filter"]
+                                icon="filter"
+                                button-type="Outline_Secondary" />
+                    <abp-button id="ExportMawbExcelButton"
+                                text=@L["Display:Button:Excel"]
+                                icon="file-excel"
+                                button-type="Outline_Secondary" />
+                </abp-column>
+            </abp-row>
+        </abp-card-header>
+        <abp-card-body>
+                <abp-table striped-rows="true" id="MawbListTable" class="stripe row-border order-column" style="width:100%"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

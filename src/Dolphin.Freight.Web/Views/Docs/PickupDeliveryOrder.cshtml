@@ -1,0 +1,1076 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.PickupDeliveryOrder.PickupDeliveryOrderIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-50, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size: 10px;
+        font-style: oblique;
+        padding-top: 2px;
+        margin-left: 2px;
+    }
+
+    .item-pdf{
+        display: none;
+    }
+</style>
+<script language="JavaScript">
+function toggle(source) {
+    $('.ContainerListCheck').prop('checked', source.checked);
+}
+</script>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+
+<div class="wrap pickup-delivery oe-pickup-delivery ng-scope" ng-app="hcFormApp" ng-controller="oePdoController as vm">
+   <div class="item-edit topbar">
+      <div class="topbar-block">
+         Data Source :
+         <select class="select w-160px">
+            <option selected="selected" value="loadInitial">Shipment</option>
+            <option value="loadDraft">Last Modified</option>
+            <option value="loadEmptyFromDraft">Load empty fields from last modified</option>
+         </select>
+      </div>
+   </div>
+   <div class="header header-normal">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-15 logo">
+                        <img src="/Pages/Reports/logo.png">
+               </td>
+               <td class="w-48">
+                    <h1 class="auto-font-size office-name">
+                        <span>@Model.Office</span>
+                    </h1>
+                  <div class="auto-font-size office-des">
+                    <span>
+                        @{
+                            if (Model.Address != "")
+                            {
+                                @Model.Address
+                                <br />
+                            }
+                        }
+                        TEL: @Model.Tel FAX: @Model.Fax <br>
+                        EMAIL: @Model.Email
+                            <br /><strong>Prepared by @Model.LastName @Model.FirstName @Model.DateTime (CST)</strong>
+                                    
+                        <input type="hidden" name="Office" value="@Model.Office" />
+                        <input type="hidden" name="Address" value="@Model.Address" />
+                        <input type="hidden" name="TEL" value="@Model.Tel" />
+                        <input type="hidden" name="EMAIL" value="@Model.Email" />
+                        <input type="hidden" name="LastName" value="@Model.LastName" />
+                        <input type="hidden" name="FirstName" value="@Model.FirstName" />
+                        <input type="hidden" name="DateTime" value="@Model.DateTime" />
+                    </span>
+                  </div>
+               </td>
+               <td class="w-2">&nbsp;</td>
+               <td class="w-35 title border-deep-blue text-center">
+                  <div class="item-pdf">
+                     <h2 class="blue-lg"></h2>
+                  </div>
+                  <div class="item-edit">
+                     <select name="form_title" class="select" id="id_form_title">
+                        <option value="1">PICKUP &amp; DELIVERY ORDER</option>
+                        <option value="2">REQUEST FOR TRANSPORT</option>
+                     </select>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="text-10 margin-t table-padding-double">
+         <tbody>
+            <tr>
+               <td class="w-52">&nbsp;</td>
+               <td class="w-9 border-l border-t border-b"><strong>ISSUED AT :</strong></td>
+               <td class="w-10 border-t border-b border-r">
+                  <div class="item-pdf"></div>
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <input type="text" name="issue_at" value="@Model.issue_at" id="id_issue_at" class="ng-isolate-scope">
+                  </div>
+               </td>
+               <td class="w-11 border-t border-b"><strong>ISSUED BY :</strong></td>
+               <td class="w-18 border-t border-b border-r">
+                  <div class="item-pdf"></div>
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <input type="text" name="issue_by" value="@Model.issue_by" id="id_issue_by" class="ng-isolate-scope">
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="con">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-48 td">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">
+                                 <div class="item-pdf"></div>
+                                 <div class="item-edit">
+                                    <table>
+                                       <tbody>
+                                          <tr>
+                                             <td class="w-50">TRUCKER</td>
+                                          </tr>
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="trucker_area" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_trucker_area">
+                                    @{
+                                        if (Model.trucker_area != "")
+                                        {
+                                            @Model.trucker_area
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                                 <div class="item-pdf auto-font-size data-height-md __width-lg">
+                                    <span></span>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">
+                                 <div class="item-pdf">EMPTY PICK UP LOCATION</div>
+                                 <div class="item-edit">
+                                    <table>
+                                       <tbody>
+                                          <tr>
+                                             <td class="w-50">
+                                                <input type="checkbox" name="is_show_empty_pickup_area" id="id_is_show_empty_pickup_area" class="ng-untouched ng-valid ng-dirty ng-not-empty"> EMPTY PICK UP LOCATION
+                                             </td>
+                                          </tr>
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                              <div class="data">
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td>
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <textarea name="empty_pickup_area" cols="40" rows="7" class="text-scroll no-adjustment ng-isolate-scope" id="id_empty_pickup_area">
+                                                @{
+                                                    if (Model.empty_pickup_area != "")
+                                                    {
+                                                        @Model.empty_pickup_area
+                                                    }
+                                                }
+                                                </textarea>
+                                             </div>
+                                             <div class="item-pdf auto-font-size __height-area __width-lg">
+                                                <span></span>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                                 <table>
+                                    <tbody>
+                                       <tr class="text-12">
+                                          <td class="w-20">REF. NO. :</td>
+                                          <td class="w-80">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="empty_pickup_ref_no" value="@Model.empty_pickup_ref_no" class="tune ng-isolate-scope" id="id_empty_pickup_ref_no">
+                                             </div>
+                                             <div class="item-pdf">&nbsp;</div>
+                                          </td>
+                                       </tr>
+                                       <tr>
+                                          <td class="w-20">DATE:</td>
+                                          <td class="w-80">
+                                             <div class="item-edit w-96">
+                                                <table>
+                                                   <tbody>
+                                                      <tr>
+                                                         <td class="w-48 hover-toggle-icon-text-template">
+                                                            <input type="text" name="empty_pickup_date" value="@Model.empty_pickup_date" id="id_empty_pickup_date" class="ng-isolate-scope">
+                                                         </td>
+                                                         <td class="w-4">//</td>
+                                                         <td class="w-48 hover-toggle-icon-text-template">
+                                                            <input type="text" name="empty_pickup_time" value="@Model.empty_pickup_time" id="id_empty_pickup_time" class="ng-isolate-scope">
+                                                         </td>
+                                                      </tr>
+                                                   </tbody>
+                                                </table>
+                                             </div>
+                                             <div class="item-pdf">&nbsp; // &nbsp;</div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">
+                                 <div class="item-pdf">FREIGHT PICK UP LOCATION</div>
+                                 <div class="item-edit">
+                                    <table>
+                                       <tbody>
+                                          <tr>
+                                             <td class="w-50">FREIGHT PICK UP LOCATION</td>
+                                          </tr>
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                              <div class="data">
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td colspan="2">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <textarea name="cargo_pickup_area" cols="40" rows="7" class="text-scroll no-adjustment ng-isolate-scope" id="id_cargo_pickup_area">
+                                                @{
+                                                    if (Model.cargo_pickup_area != "")
+                                                    {
+                                                        @Model.cargo_pickup_area
+                                                    }
+                                                }
+                                                </textarea>
+                                             </div>
+                                             <div class="item-pdf auto-font-size __height-area __width-lg">
+                                                <span></span>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                                 <table>
+                                    <tbody>
+                                       <tr class="text-12">
+                                          <td class="w-20">REF. NO. :</td>
+                                          <td class="w-80">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="cargo_pickup_ref_no" value="@Model.cargo_pickup_ref_no" class="tune ng-isolate-scope" id="id_cargo_pickup_ref_no">
+                                             </div>
+                                             <div class="item-pdf">&nbsp;</div>
+                                          </td>
+                                       </tr>
+                                       <tr>
+                                          <td class="w-20">DATE:</td>
+                                          <td class="w-80">
+                                             <div class="item-edit w-96">
+                                                <table>
+                                                   <tbody>
+                                                      <tr>
+                                                         <td class="w-48 hover-toggle-icon-text-template">
+                                                            <input type="text" name="cargo_pickup_date" value="@Model.cargo_pickup_date" id="id_cargo_pickup_date" class="ng-isolate-scope">
+                                                         </td>
+                                                         <td class="w-4">//</td>
+                                                         <td class="w-48 hover-toggle-icon-text-template">
+                                                            <input type="text" name="cargo_pickup_time" value="@Model.cargo_pickup_time" id="id_cargo_pickup_time" class="ng-isolate-scope">
+                                                         </td>
+                                                      </tr>
+                                                   </tbody>
+                                                </table>
+                                             </div>
+                                             <div class="item-pdf">&nbsp; // &nbsp;</div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">
+                                 <div class="item-pdf">LOADED RETURN/DELIVERY TO</div>
+                                 <div class="item-edit">
+                                    <table>
+                                       <tbody>
+                                          <tr>
+                                             <td class="w-50">
+                                                <input type="checkbox" name="is_show_delivery_to_area" id="id_is_show_delivery_to_area" class="ng-untouched ng-valid ng-dirty ng-not-empty" checked> LOADED RETURN/DELIVERY TO
+                                             </td>
+                                          </tr>
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                              <div class="data">
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td colspan="2">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <textarea name="delivery_to_area" cols="40" rows="7" class="text-scroll no-adjustment ng-isolate-scope" id="id_delivery_to_area">
+                                                @{
+                                                    if (Model.delivery_to_area != "")
+                                                    {
+                                                        @Model.delivery_to_area
+                                                    }
+                                                }
+                                                </textarea>
+                                             </div>
+                                             <div class="item-pdf auto-font-size __height-area __width-lg">
+                                                <span></span>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                                 <table>
+                                    <tbody>
+                                       <tr class="text-12">
+                                          <td class="w-20">REF. NO. :</td>
+                                          <td class="w-80">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="delivery_to_ref_no" value="@Model.delivery_to_ref_no" class="tune ng-isolate-scope" id="id_delivery_to_ref_no">
+                                             </div>
+                                             <div class="item-pdf">&nbsp;</div>
+                                          </td>
+                                       </tr>
+                                       <tr>
+                                          <td class="w-20">DATE:</td>
+                                          <td class="w-80">
+                                             <div class="item-edit w-96">
+                                                <table>
+                                                   <tbody>
+                                                      <tr>
+                                                         <td class="w-48 hover-toggle-icon-text-template">
+                                                            <input type="text" name="delivery_to_date" value="@Model.delivery_to_date" id="id_delivery_to_date" class="ng-isolate-scope">
+                                                         </td>
+                                                         <td class="w-4">//</td>
+                                                         <td class="w-48 hover-toggle-icon-text-template">
+                                                            <input type="text" name="delivery_to_time" value="@Model.delivery_to_time" id="id_delivery_to_time" class="ng-isolate-scope">
+                                                         </td>
+                                                      </tr>
+                                                   </tbody>
+                                                </table>
+                                             </div>
+                                             <div class="item-pdf">&nbsp; // &nbsp;</div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+               <td class="w-4">&nbsp;</td>
+               <td class="w-48 td border-t data-lg">ContainerList
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="td w-49 border-b border-l">
+                              <div class="title">MB/L NO.</div>
+                              <div class="data data--highlight auto-font-size __width-sm">
+                                 <span>@Model.MBL_NO</span>
+                                 <input type="hidden" name="MBL_NO" value="@Model.MBL_NO"/>
+                              </div>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td w-49 border-b border-r">
+                              <div class="title">HB/L NO.</div>
+                              <div class="data data--highlight auto-font-size __width-sm">
+                                 <span>@Model.HBL_NO</span>
+                                 <input type="hidden" name="HBL_NO" value="@Model.HBL_NO"/>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b border-l">
+                              <div class="title">OUR REF. NO.</div>
+                              <div class="data auto-font-size __width-sm">
+                                 <span>@Model.OUR_REF_NO</span>
+                                 <input type="hidden" name="OUR_REF_NO" value="@Model.OUR_REF_NO"/>
+                              </div>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td border-b border-r">
+                              <div class="title">CARRIER BKG NO.</div>
+                              <div class="data">
+                                 <div class="item-pdf auto-font-size __width-sm">
+                                    <span></span>
+                                 </div>
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="carrier_bkg_no" value="@Model.carrier_bkg_no" id="id_carrier_bkg_no" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table class="border-l border-r">
+                     <tbody>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">
+                                 <div class="item-pdf">CARRIER</div>
+                                 <div class="item-edit">
+                                    <table>
+                                       <tbody>
+                                          <tr>
+                                             <td class="w-50 td">CARRIER</td>
+                                          </tr>
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="carrier" value="@Model.carrier" id="id_carrier" class="ng-isolate-scope">
+                                 </div>
+                                 <div class="item-pdf auto-font-size __width-lg">
+                                    <span>&nbsp;</span>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">VESSEL INFO.</div>
+                              <div class="data auto-font-size __width-lg"><span>@Model.VESSEL_INFO</span></div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="td border-b w-74 border-l">
+                              <div class="title">PLACE OF RECEIPT</div>
+                              <div class="data">
+                                 <div class="item-pdf auto-font-size __width-md"><span></span></div>
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="POR_location" value="@Model.POR_location" id="id_POR_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td border-b w-24 border-r">
+                              <div class="title">ETD</div>
+                              <div class="data">
+                                 @Model.POR_location_ETD
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b border-l">
+                              <div class="title">PORT OF LOADING</div>
+                              <div class="data">
+                                 <div class="item-pdf auto-font-size __width-md"><span>&nbsp;</span></div>
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="POL_location" value="@Model.POL_location" id="id_POL_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td border-b border-r">
+                              <div class="title">ETD</div>
+                              <div class="data">
+                                 @Model.POL_location_ETD
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b border-l">
+                              <div class="title">PORT OF DISCHARGE</div>
+                              <div class="data">
+                                 <div class="item-pdf auto-font-size __width-md"><span></span></div>
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="POD_location" value="@Model.POD_location" id="id_POD_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td border-b border-r">
+                              <div class="title">ETA</div>
+                              <div class="data">
+                                 @Model.POD_location_ETD
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table class="border-l border-r">
+                     <tbody>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">Container/Qty.</div>
+                              <div class="data">
+                                 <div class="item-pdf auto-font-size __width-lg"><span>&nbsp;</span></div>
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="container_qty" value="@Model.container_qty" id="id_container_qty" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="td border-b border-l w-70">
+                              <table>
+                                 <tbody>
+                                    <tr>
+                                       <td class="w-50 td">
+                                          <div class="title">TOTAL PACKAGES</div>
+                                          <div class="data">
+                                             <div class="item-pdf">0</div>
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="total_packages_count" value="@Model.total_packages_count" id="id_total_packages_count" class="ng-isolate-scope">
+                                             </div>
+                                          </div>
+                                       </td>
+                                       <td class="w-50 td">
+                                          <div class="title">&nbsp;</div>
+                                          <div class="data text-center">
+                                             <div class="item-pdf auto-font-size __width-pkg">
+                                                <span></span>
+                                             </div>
+                                             <div class="item-edit">
+                                                <select name="package_unit" class="select w-100" id="id_package_unit">
+                                                   <option value="AE">AEROSOL</option>
+                                                   <option value="AR">ARTICLES</option>
+                                                   <option value="AT">AUTO</option>
+                                                   <option value="BG">BAG(S)</option>
+                                                   <option value="BL">BALES</option>
+                                                   <option value="AL">BALL</option>
+                                                   <option value="BF">BALLOON</option>
+                                                   <option value="BS">BALLOTS</option>
+                                                   <option value="BR">BAR</option>
+                                                   <option value="BA">BARREL</option>
+                                                   <option value="B1">BASKET(S)</option>
+                                                   <option value="B0">BIB</option>
+                                                   <option value="BI">BIN</option>
+                                                   <option value="BK">BLOCKS</option>
+                                                   <option value="BD">BOARD</option>
+                                                   <option value="BB">BOBBIN</option>
+                                                   <option value="BT">BOLT</option>
+                                                   <option value="BO">BOTTLE</option>
+                                                   <option value="BC">BOTTLERACK</option>
+                                                   <option value="BX">BOX</option>
+                                                   <option value="BQ">BRIQUETTES</option>
+                                                   <option value="BJ">BUCKET</option>
+                                                   <option value="BU">BULK</option>
+                                                   <option value="VQ">BULK, LIQUEFIED GAS</option>
+                                                   <option value="VG">BULK,GAS</option>
+                                                   <option value="VL">BULK,LIQUID</option>
+                                                   <option value="BH">BUNCH</option>
+                                                   <option value="BE">BUNDLE</option>
+                                                   <option value="CG">CAGE</option>
+                                                   <option value="CI">CANISTER</option>
+                                                   <option value="CZ">CANVAS</option>
+                                                   <option value="CA">CAR</option>
+                                                   <option value="CM">CARD</option>
+                                                   <option value="CT" selected="">CARTON(S)</option>
+                                                   <option value="CS">CASES</option>
+                                                   <option value="CK">CASK</option>
+                                                   <option value="CH">CHEST</option>
+                                                   <option value="CC">CHURN</option>
+                                                   <option value="CF">COFFER</option>
+                                                   <option value="CJ">COFFIN</option>
+                                                   <option value="CL">COIL</option>
+                                                   <option value="TD">COLLAPSIBLE TUBE</option>
+                                                   <option value="CO">COLLIE</option>
+                                                   <option value="CN">CONTAINER</option>
+                                                   <option value="CV">COVER</option>
+                                                   <option value="CR">CRATE</option>
+                                                   <option value="CE">CREEL</option>
+                                                   <option value="CB">CUBITAINER</option>
+                                                   <option value="CU">CUP</option>
+                                                   <option value="CY">CYLINDER</option>
+                                                   <option value="DR">DRUM(S)</option>
+                                                   <option value="EN">ENVELOPE</option>
+                                                   <option value="FP">FILMPACK</option>
+                                                   <option value="FI">FIRKIN</option>
+                                                   <option value="FL">FLASK</option>
+                                                   <option value="FE">FLEXITANK</option>
+                                                   <option value="FO">FOOTLOCKER</option>
+                                                   <option value="FR">FRAME</option>
+                                                   <option value="FD">FRAMED CRATE</option>
+                                                   <option value="FC">FRUIT CRATE</option>
+                                                   <option value="GI">GIRDER</option>
+                                                   <option value="GZ">GIRDERS</option>
+                                                   <option value="GB">GLASS BOTTLE</option>
+                                                   <option value="GY">GUNNY BAGS</option>
+                                                   <option value="GL">GUNNY BALES</option>
+                                                   <option value="HR">HAMPER</option>
+                                                   <option value="HN">HANGER</option>
+                                                   <option value="HG">HOGSHEAD</option>
+                                                   <option value="13">IBC</option>
+                                                   <option value="IN">INGOT</option>
+                                                   <option value="IZ">INGOTS</option>
+                                                   <option value="IT">ITEM</option>
+                                                   <option value="JR">JAR</option>
+                                                   <option value="JG">JUG</option>
+                                                   <option value="JT">JUTEBAG</option>
+                                                   <option value="KG">KEG</option>
+                                                   <option value="LV">LIFT VAN</option>
+                                                   <option value="LG">LOG</option>
+                                                   <option value="LS">LOOSE</option>
+                                                   <option value="LT">LOT</option>
+                                                   <option value="MR">MASTER CARTON</option>
+                                                   <option value="MT">MAT</option>
+                                                   <option value="MX">MATCH BOX</option>
+                                                   <option value="MC">MILK CRATE</option>
+                                                   <option value="MB">MULTIPLE BAG(S)</option>
+                                                   <option value="MS">MULTIWALL SACK</option>
+                                                   <option value="NS">NEST</option>
+                                                   <option value="NT">NET</option>
+                                                   <option value="NO">NUMBERS</option>
+                                                   <option value="GT">PACKAGE(S)</option>
+                                                   <option value="PK">PACKAGES</option>
+                                                   <option value="PA">PACKS</option>
+                                                   <option value="PJ">PAIL</option>
+                                                   <option value="PE">PALLET(S)</option>
+                                                   <option value="PP">PAPER BAG</option>
+                                                   <option value="PC">PARCEL</option>
+                                                   <option value="PS">PIECE(S)</option>
+                                                   <option value="PI">PIPE</option>
+                                                   <option value="PH">PITCHER</option>
+                                                   <option value="PN">PLANK</option>
+                                                   <option value="PL">PLASTIC BAG</option>
+                                                   <option value="PB">PLASTIC BOTTLE</option>
+                                                   <option value="IH">PLASTIC CASK</option>
+                                                   <option value="PG">PLATE</option>
+                                                   <option value="4D">PLYWOOD</option>
+                                                   <option value="44">POLYBAG</option>
+                                                   <option value="44A">POLYBAG</option>
+                                                   <option value="PT">POT</option>
+                                                   <option value="PO">POUCH</option>
+                                                   <option value="QE">QE</option>
+                                                   <option value="RK">RACK</option>
+                                                   <option value="RT">REDNET</option>
+                                                   <option value="RL">REELS</option>
+                                                   <option value="RG">RING</option>
+                                                   <option value="RD">ROD</option>
+                                                   <option value="RO">ROLL</option>
+                                                   <option value="RS">ROLLS</option>
+                                                   <option value="SH">SACHET</option>
+                                                   <option value="SA">SACK</option>
+                                                   <option value="SE">SEA-CHEST</option>
+                                                   <option value="ST">SET</option>
+                                                   <option value="SC">SHALLOW CRATE</option>
+                                                   <option value="SZ">SHEET</option>
+                                                   <option value="SM">SHEETMETAL</option>
+                                                   <option value="SW">SHRINKWRAPPED</option>
+                                                   <option value="SK">SKID</option>
+                                                   <option value="SL">SLABS</option>
+                                                   <option value="SO">SOWS</option>
+                                                   <option value="SD">SPINDLE</option>
+                                                   <option value="SU">SUITCASE</option>
+                                                   <option value="TK">TANK</option>
+                                                   <option value="TY">TANK, CYLINDRICAL</option>
+                                                   <option value="TC">TEA-CHEST</option>
+                                                   <option value="TN">TIN</option>
+                                                   <option value="TT">TOTE</option>
+                                                   <option value="PU">TRAY PACK</option>
+                                                   <option value="TR">TRUNK</option>
+                                                   <option value="TS">TRUSS</option>
+                                                   <option value="TB">TUB</option>
+                                                   <option value="TU">TUBE</option>
+                                                   <option value="TO">TUN</option>
+                                                   <option value="UN">UNIT(S)</option>
+                                                   <option value="VP">VACUUMPACKED</option>
+                                                   <option value="VA">VAT</option>
+                                                   <option value="VI">VIAL</option>
+                                                   <option value="WB">WICKERBOTTLE</option>
+                                                   <option value="QP">WOODEN BOX</option>
+                                                   <option value="8C">WOODEN BUNDLE</option>
+                                                   <option value="WC">WOODEN CASE</option>
+                                                   <option value="WT">WOODEN CRATE</option>
+                                                   <option value="WP">WOODEN PALLET</option>
+                                                </select>
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td border-b border-r w-28">
+                              <div class="title">PORT CUT-OFF</div>
+                              <div class="data">
+                                 <small class="text-10">&nbsp;</small>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table>
+                     <tbody>
+                        <tr class="border-l border-r">
+                           <td class="td border-b">
+                              <div class="title">GROSS WEIGHT</div>
+                              <div class="data">
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td class="w-40 text-right">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="gross_weight_kgs" value="@Model.gross_weight_kgs" id="id_gross_weight_kgs" class="ng-isolate-scope">
+                                             </div>
+                                             <div class="item-pdf">0.00</div>
+                                          </td>
+                                          <td class="w-10 text-center">KGS</td>
+                                          <td class="w-40 text-right">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="gross_weight_lbs" value="@Model.gross_weight_lbs" id="id_gross_weight_lbs" class="ng-isolate-scope">
+                                             </div>
+                                             <div class="item-pdf">0.00</div>
+                                          </td>
+                                          <td class="w-10 text-center">LBS</td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr class="border-l border-r">
+                           <td class="td border-b">
+                              <div class="title">MEASUREMENT</div>
+                              <div class="data">
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td class="w-40 text-right">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="measurement_cbm" value="@Model.measurement_cbm" id="id_measurement_cbm" class="ng-isolate-scope">
+                                             </div>
+                                             <div class="item-pdf">0.00</div>
+                                          </td>
+                                          <td class="w-10 text-center">CBM</td>
+                                          <td class="w-40 text-right">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="measurement_cft" value="@Model.measurement_cft" id="id_measurement_cft" class="ng-isolate-scope">
+                                             </div>
+                                             <div class="item-pdf">0.00</div>
+                                          </td>
+                                          <td class="w-10 text-center">CFT</td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table>
+                     <tbody>
+                        <tr class="border-l border-r">
+                           <td class="td border-b">
+                              <div class="title">COMMODITY</div>
+                              <div class="data">
+                                 @Model.COMMODITY
+                                 <input type="hidden" name="COMMODITY" value="@Model.COMMODITY"/>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr class="border-l border-r">
+                           <td class="td border-b">
+                              <div class="title">PO NO.</div>
+                              <div class="data">
+                                 @Model.PO_NO
+                                 <input type="hidden" name="PO_NO" value="@Model.PO_NO"/>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table>
+                     <tbody>
+                        <tr class="border-l border-r">
+                           <td class="td border-b">
+                              <div class="title">
+                                 <div class="item-pdf">BILL TO</div>
+                                 <div class="item-edit">
+                                    <table>
+                                       <!-- Show bill to section immediately while checkbox checked in edit mode-->
+                                       <tbody>
+                                          <tr>
+                                             <td>
+                                                <label class="normal-style text-11 _margin-b-0">
+                                                Show:
+                                                <input type="checkbox" name="is_show_bill_to" id="id_is_show_bill_to" value="true" class="ng-untouched ng-valid ng-dirty ng-not-empty" checked>
+                                                Bill To Party
+                                                </label>
+                                             </td>
+                                          </tr>
+                                          <!-- ngIf: vm.isShowBillTo -->
+                                          <tr class="ng-scope">
+                                             <td class="w-15">BILL TO</td>
+                                          </tr>
+                                          <!-- end ngIf: vm.isShowBillTo -->
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                              <div class="data ng-scope">
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td>
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <textarea name="billing_to_area" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_billing_to_area">
+                                                @{
+                                                    if (Model.billing_to_area != "")
+                                                    {
+                                                        @Model.billing_to_area
+                                                    }
+                                                }
+                                                </textarea>
+                                             </div>
+                                             <div class="item-pdf auto-font-size __col-billto">
+                                                <span>HARD CORE TECHNOLOGY<br>
+                                                198 PEARSON GATEWAY APT. 555<br>
+                                                NORTH JAMES, KY 98809-9933<br>
+                                                WALNUT, CA 91789, UNITED STATES<br>
+                                                ATTN: JENNIFER JIMENEZ TEL: 585.592.4848 FAX: 649-277-5122</span>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td class="w-20">REF. NO. :</td>
+                                          <td class="w-80">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="billing_to_ref_no" value="@Model.billing_to_ref_no" class="tune ng-isolate-scope" id="id_billing_to_ref_no">
+                                             </div>
+                                             <div class="item-pdf">&nbsp;</div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="margin-t">
+         <tbody>
+            <tr class="border-b border-t bg-light text-8">
+               <th class="w-5 border-r text-center col-padding-double item-edit">
+                  <input type="checkbox" name="check_all_container" onClick="toggle(this)" checked>
+               </th>
+               <th class="w-15 border-r text-left col-padding-double">
+                  CONTAINER NO.
+               </th>
+               <th class="w-6 border-r text-center col-padding-double">
+                  TYPE
+               </th>
+               <th class="w-12 border-r text-left col-padding-double">
+                  SEAL NO.
+               </th>
+               <th class="w-15 border-r text-right col-padding-double">
+                  PACKAGE
+               </th>
+               <th class="w-24 border-r text-right col-padding-double">
+                  WEIGHT
+               </th>
+               <th class="w-12 border-r text-left col-padding-double">
+                  PICKUP NO.
+               </th>
+               <th class="w-10 text-center col-padding-double">
+                  L.F.D
+               </th>
+            </tr>
+
+
+            @if(Model.ContainerList != null && Model.ContainerList.Count > 0)
+            {
+                for (int i = 0; i < Model.ContainerList.Count; i++)
+                {
+                    var container = Model.ContainerList[i];
+                       
+                    <tr class="border-b">
+                       <td class="td td-item border-r text-center item-edit"><input type="checkbox" class="ContainerListCheck" name="ContainerList[@(i.ToString())].chk" value="true" checked=""></td>
+                       <td class="td td-item border-r">@container.CONTAINER_NO</td>
+                       <td class="td td-item text-center border-r">@container.TYPE</td>
+                       <td class="td td-item border-r">@container.SEAL_NO</td>
+                       <td class="td td-item text-right border-r">@container.PACKAGE</td>
+                       <td class="td td-item text-right border-r">@container.WEIGHT</td>
+                       <td class="td td-item border-r">@container.PICKUP_NO</td>
+                       <td class="td td-item text-center">@container.LFD</td>
+                       
+                        <input type="hidden" name="ContainerList[@(i.ToString())].CONTAINER_NO" value="@container.CONTAINER_NO" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].TYPE" value="@container.TYPE" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].SEAL_NO" value="@container.SEAL_NO" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].PACKAGE" value="@container.PACKAGE" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].WEIGHT" value="@container.WEIGHT" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].PICKUP_NO" value="@container.PICKUP_NO" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].LFD" value="@container.LFD" />
+                    </tr>                   
+                }                             
+            }
+            else
+            {
+                <tr class="border-b">
+                   <td class="td td-item border-r text-center item-edit"><input type="checkbox" class="ContainerListCheck" name="ContainerList[0].chk" value="true" checked=""></td>
+                   <td class="td td-item border-r"></td>
+                   <td class="td td-item text-center border-r"></td>
+                   <td class="td td-item border-r"></td>
+                   <td class="td td-item text-right border-r"></td>
+                   <td class="td td-item text-right border-r"></td>
+                   <td class="td td-item border-r"></td>
+                   <td class="td td-item text-center"></td>
+                </tr>         
+            }
+         </tbody>
+      </table>
+      <table class="margin-t">
+         <tbody>
+            <tr class="border">
+               <td class="td border-r" rowspan="2">
+                  <div class="data padding-t-xs auto-font-size auto-link __col-remark">
+                     <span>P.O.D REQUIRED WITH BILLING INVOICE<br>
+                     PLEASE FAX PROOF OF DELIVERY TO 999-000-5555<br>
+                     <br>
+                     PLEASE FAX PROOF OF DELIVERY TO 999-000-5555<br>
+                     15631563</span>
+                  </div>
+               </td>
+               <td class="title col-padding-double">DESCRIPTION / INSTRUCTION</td>
+            </tr>
+            <tr class="border-r border-l border-b">
+               <td class="border-b">
+                  <div class="data padding-t-xs">
+                     <div class="item-pdf auto-font-size __col-ins-des">
+                        <span></span>
+                     </div>
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <textarea name="instruction_description" cols="40" rows="9" class="text-scroll no-adjustment ng-isolate-scope" id="id_instruction_description">
+                        @{
+                            if (Model.instruction_description != "")
+                            {
+                                @Model.instruction_description
+                            }
+                        }
+                        </textarea>
+                     </div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <!-- Footer -->
+      <table class="margin-t">
+         <tbody>
+            <tr>
+               <td class="w-40">
+                  <div class="text-bold">
+                     <div class="text-16">
+                        <span class="item-edit">
+                        <input type="checkbox" name="do_not_break_pallet" id="id_do_not_break_pallet" class="ng-untouched ng-valid ng-dirty ng-not-empty">
+                        </span>
+                        &nbsp;DO NOT BREAK DOWN PALLET
+                     </div>
+                     <strong style="font-size:10px">You are requested to inform us immediately of any occurrence.
+                     <br>Thank You for your service !</strong>
+                  </div>
+               </td>
+               <td class="w-60 td text-right">
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+</div>
+
+    </div>
+</div>
+</form>

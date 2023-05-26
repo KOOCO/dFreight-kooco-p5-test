@@ -1,0 +1,755 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.Reports.ShipmentViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+        $('#zin').on('click', function(){
+            zoom += 0.1;
+            $('#form').css('transform', 'scale(' + zoom + ')');
+        });
+
+        $('#zout').on('click', function(){
+            zoom -= 0.1;
+            $('#form').css('transform', 'scale(' + zoom + ')');
+        });
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                    @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                    @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+                @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div class="wrap">
+
+
+         
+        <div class="con">
+            <div class="text-left" style="position:relative;top:120px;"><img src="/Pages/Reports/logo.png" width="140px;"></div>
+            <div class="text-center">
+                <strong class="_text-14">BUREAU OF CUSTOMS AND<br>BORDER PROTECTION</strong><br>
+                
+                    Port of Los Angeles/Long Beach<br>
+                    301 E. Ocean Blvd. 8th floor<br>
+                    Long Beach, CA 90802<br>
+                    (562) 366-5562
+                
+            </div>
+            <h1 class="_text-20 text-underline text-center margin-t">COVER LETTER</h1>
+            <table class="table-padding-double text-12 table-valign-top">
+                <colgroup>
+                    <col class="w-7">
+                    <col class="w-20">
+                    <col class="w-13">
+                    <col class="w-20">
+                    <col class="w-18">
+                    <col class="w-10">
+                    <col class="w-12">
+                </colgroup>
+                <tr>
+                    <td colspan="7" class="text-bold text-12 text-center">VEHICLE INFORMATION</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="text-bold text-underline">YEAR</div>
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_year" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_year" id="id_vehicle_year">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-bold text-underline">MAKE</div>
+                        <div class="item-pdf auto-font-size __width-make">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_make" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_make" id="id_vehicle_make">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-bold text-underline">MODEL</div>
+                        <div class="item-pdf auto-font-size __width-model">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_model" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_model" id="id_vehicle_model">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-bold text-underline">VIN#</div>
+                        <div class="item-pdf auto-font-size __width-vin">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_vin" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_vin" id="id_vehicle_vin">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-bold text-underline">TITLE#</div>
+                        <div class="item-pdf auto-font-size __width-title">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_title" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_title" id="id_vehicle_title">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-bold text-underline">STATE</div>
+                        <div class="item-pdf auto-font-size __width-state">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_state" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_state" id="id_vehicle_state">
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="text-bold text-underline text-left">VALUE</div>
+                        <div class="item-pdf auto-font-size __width-value">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_value" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_value" id="id_vehicle_value">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_year_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_year_2" id="id_vehicle_year_2">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="item-pdf auto-font-size __width-make">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_make_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_make_2" id="id_vehicle_make_2">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="item-pdf auto-font-size __width-model">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_model_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_model_2" id="id_vehicle_model_2">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="item-pdf auto-font-size __width-vin">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_vin_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_vin_2" id="id_vehicle_vin_2">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="item-pdf auto-font-size __width-title">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_title_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_title_2" id="id_vehicle_title_2">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="item-pdf auto-font-size __width-state">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_state_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_state_2" id="id_vehicle_state_2">
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="item-pdf auto-font-size __width-value">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vehicle_value_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vehicle_value_2" id="id_vehicle_value_2">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table-padding-double margin-t-lg">
+                <colgroup>
+                    <col class="w-40">
+                    <col class="w-60">
+                </colgroup>
+                <tr>
+                    <td class="text-11">Container loading location (name, address & phone #):</td>
+                    <td class="text-12 border-b">
+                        <div class="item-pdf auto-font-size __width-cntr-location">
+                            <span>HARD CORE TECHNOLOGY</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="container_loading_location_name" value="HARD CORE TECHNOLOGY" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.container_loading_location_name" id="id_container_loading_location_name">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-sm td">(i.e., warehouse, business, or residence)</td>
+                    <td class="text-12 border-b">
+                        <div class="item-pdf auto-font-size __width-cntr-location">
+                            <span>198 PEARSON GATEWAY APT. 555 NORTH JAMES, KY 98809-9933</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="container_loading_location_address" value="198 PEARSON GATEWAY APT. 555 NORTH JAMES, KY 98809-9933" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.container_loading_location_address" id="id_container_loading_location_address">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="margin-t text-11">
+                ROLLOVER
+                <div class="inline-block w-20 border-b">
+                    <div class="item-pdf auto-font-size __width-rollover">
+                        <span> </span>
+                    </div>
+                    <div class="item-edit">
+                        <input type="text" name="rollover" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.rollover" id="id_rollover">
+                    </div>
+                </div>
+                 (please check if a cover letter was previously validated)
+            </div>
+            <div class="border-t-strong margin-t-lg text-11 text-center col-padding text-bold margin-b-sm">EXPORTER INFORMATION</div>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-15">
+                    <col class="w-2">
+                    <col class="w-32">
+                    <col class="w-17">
+                    <col class="w-7">
+                    <col class="w-7">
+                </colgroup>
+                <tr>
+                    <td>Exporter (USPPI)Name</td>
+                    <td>:</td>
+                    <td class="border-b" colspan="4">
+                        <div class="item-pdf auto-font-size __width-exporter-name">
+                            <span>COOL CONTAINERS</span>
+                        </div>
+                        <div class="item-edit">
+                            <hc-form-trade-partner-info-picker
+                                select-class="select2-xl select2-oneabbr w-40"
+                                field-preset="name_address_detail"
+                                on-changed="vm.updateExporterInfo(info, address, cityName, stateCode, zipCode, phone, fax)"
+                            ></hc-form-trade-partner-info-picker>
+
+                            <input type="text" name="exporter_name" value="COOL CONTAINERS" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.exporter_name" class="w-50" id="id_exporter_name">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>U.S. Address</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-address-street">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="exporter_address" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.exporter_address" id="id_exporter_address">
+                        </div>
+                    </td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-address-city">
+                            <span> </span></div>
+                        <div class="item-edit">
+                            <input type="text" name="exporter_city" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.exporter_city" id="id_exporter_city">
+                        </div>
+                    </td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-address-state">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="exporter_state" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.exporter_state" id="id_exporter_state">
+                        </div>
+                    </td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="exporter_zip_code" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.exporter_zip_code" id="id_exporter_zip_code">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td text-10 text-center" colspan="2">&nbsp;</td>
+                    <td class="td text-10 text-center">Street</td>
+                    <td class="td text-10 text-center">City</td>
+                    <td class="td text-10 text-left">State</td>
+                    <td class="td text-10 text-left">Zip</td>
+                </tr>
+            </table>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-15">
+                    <col class="w-2">
+                    <col class="w-32">
+                    <col class="w-5">
+                    <col class="w-26">
+                </colgroup>
+                <tr>
+                    <td>Phone</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="exporter_phone" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.exporter_phone" id="id_exporter_phone">
+                        </div>
+                    </td>
+                    <td>Fax :</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="exporter_fax" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.exporter_fax" id="id_exporter_fax">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-15">
+                    <col class="w-2">
+                    <col class="w-42">
+                    <col class="w-6">
+                    <col class="w-15">
+                </colgroup>
+                <tr>
+                    <td>Agent/Forwarder</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-agent-name">
+                            <span>HARD CORE TECHNOLOGY</span>
+                        </div>
+                        <div class="item-edit">
+                            <hc-form-trade-partner-info-picker
+                                select-class="select2-xl select2-oneabbr w-40"
+                                field-preset="name_address_detail"
+                                on-changed="vm.updateAgentInfo(info, address, cityName, stateCode, zipCode, phone, fax)"
+                            ></hc-form-trade-partner-info-picker>
+
+                            <input type="text" name="agent_name" value="HARD CORE TECHNOLOGY" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.agent_name" class="w-50" id="id_agent_name">
+                        </div>
+                    </td>
+                    <td>Contact :</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-agent-contact">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="agent_contact" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.agent_contact" id="id_agent_contact">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-27">
+                    <col class="w-2">
+                    <col class="w-30">
+                    <col class="w-6">
+                    <col class="w-15">
+                </colgroup>
+                <tr>
+                    <td>Loading location (if different from forwarder)</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-loading-location">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <hc-form-trade-partner-info-picker
+                                select-class="select2-xl select2-oneabbr w-40"
+                                field-preset="name_address_detail"
+                                on-changed="vm.updateWarehouseInfo(info, address, cityName, stateCode, zipCode, phone, fax)"
+                            ></hc-form-trade-partner-info-picker>
+
+                            <input type="text" name="loading_location_name" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_name" class="w-50" id="id_loading_location_name">
+                        </div>
+                    </td>
+                    <td>Contact :</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-agent-contact">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="loading_location_contact" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_contact" id="id_loading_location_contact">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-15">
+                    <col class="w-2">
+                    <col class="w-32">
+                    <col class="w-17">
+                    <col class="w-7">
+                    <col class="w-7">
+                </colgroup>
+                <tr>
+                    <td>Address</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-address-street">
+                            <span>198 PEARSON GATEWAY APT. 555 NORTH JAMES, KY 98809-9933</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="loading_location_address" value="198 PEARSON GATEWAY APT. 555 NORTH JAMES, KY 98809-9933" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_address" id="id_loading_location_address">
+                        </div>
+                    </td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-address-city">
+                            <span>WALNUT</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="loading_location_city" value="WALNUT" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_city" id="id_loading_location_city">
+                        </div>
+                    </td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-address-street">
+                            <span>CA</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="loading_location_state" value="CA" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_state" id="id_loading_location_state">
+                        </div>
+                    </td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                            91789
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="loading_location_zip_code" value="91789" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_zip_code" id="id_loading_location_zip_code">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td text-10 text-center" colspan="2">&nbsp;</td>
+                    <td class="td text-10 text-center">Street</td>
+                    <td class="td text-10 text-center">City</td>
+                    <td class="td text-10 text-left">State</td>
+                    <td class="td text-10 text-left">Zip</td>
+                </tr>
+            </table>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-15">
+                    <col class="w-2">
+                    <col class="w-32">
+                    <col class="w-5">
+                    <col class="w-26">
+                </colgroup>
+                <tr>
+                    <td>Phone</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="loading_location_phone" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_phone" id="id_loading_location_phone">
+                        </div>
+                    </td>
+                    <td>Fax :</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="loading_location_fax" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.loading_location_fax" id="id_loading_location_fax">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="border-t-strong margin-t-lg text-11 text-center col-padding text-bold margin-b-sm">EXPORT INFORMATION</div>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-18">
+                    <col class="w-2">
+                    <col class="w-20">
+                    <col class="w-21">
+                    <col class="w-2">
+                    <col class="w-37">
+                </colgroup>
+                <tr>
+                    <td>Booking#</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-bookingno">
+                            <span>ABC112</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="carrier_bkg_no" value="ABC112" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.carrier_bkg_no" id="id_carrier_bkg_no">
+                        </div>
+                    </td>
+                    <td>Vessel Name & Voyage#</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-vessel">
+                            <span>. AARYA / V222</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="vessel_voyage" value=". AARYA / V222" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.vessel_voyage" id="id_vessel_voyage">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Vessel Departure Date</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                            11-22-2022
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="ETD_date" value="11-22-2022" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.ETD_date" id="id_ETD_date">
+                        </div>
+                    </td>
+                    <td>U.S. Port of Export</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-vessel">
+                            <span>SHENZHENWAN (CHINA)</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="POL_location" value="SHENZHENWAN (CHINA)" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.POL_location" id="id_POL_location">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-30">
+                    <col class="w-2">
+                    <col class="w-31">
+                    <col class="w-15">
+                    <col class="w-2">
+                    <col class="w-20">
+                </colgroup>
+                <tr>
+                    <td>City and Country of Ultimate Destination</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-destination">
+                            <span>BOW CITY, AB (CANADA)</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="FDEST_location" value="BOW CITY, AB (CANADA)" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.FDEST_location" id="id_FDEST_location">
+                        </div>
+                    </td>
+                    <td>Port of Unloading</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-unloading">
+                            <span>LOS ANGELES, CA (UNITED STATES)</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="POD_location" value="LOS ANGELES, CA (UNITED STATES)" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.POD_location" id="id_POD_location">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-13">
+                    <col class="w-2">
+                    <col class="w-18">
+                    <col class="w-10">
+                    <col class="w-2">
+                    <col class="w-20">
+                    <col class="w-13">
+                    <col class="w-2">
+                    <col class="w-20">
+                </colgroup>
+                <tr>
+                    <td>Steamship Line</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-steamship">
+                            <span>MACK PLC</span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="steamship_line" value="MACK PLC" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.steamship_line" id="id_steamship_line">
+                        </div>
+                    </td>
+                    <td>Terminal</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-terminal">
+                            <span>123</span>
+                        </div>
+                        <div class="item-edit">
+                            <hc-form-trade-partner-info-picker
+                                select-class="select2-xl select2-oneabbr w-90"
+                                field-preset="name_only"
+                                on-changed="vm.updateTerminalInfo(info)"
+                            ></hc-form-trade-partner-info-picker>
+
+                            <input type="text" name="terminal" value="123" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.terminal" id="id_terminal">
+                        </div>
+                    </td>
+                    <td>Container#</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-containerno">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="container_no_1" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.container_no_1" id="id_container_no_1">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6"></td>
+                    <td>Container#</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-containerno">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="container_no_2" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.container_no_2" id="id_container_no_2">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="border-t-strong margin-t-lg text-11 text-center col-padding text-bold margin-b-sm">AES INFORMATION</div>
+            <table class="table-padding-double text-12">
+                <colgroup>
+                    <col class="w-6">
+                    <col class="w-2">
+                    <col class="w-42">
+                    <col class="w-10">
+                    <col class="w-2">
+                    <col class="w-38">
+                </colgroup>
+                <tr>
+                    <td>XTN#</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                            SZWBC222110003
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="xtn" value="SZWBC222110003" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.xtn" id="id_xtn">
+                        </div>
+                    </td>
+                    <td class="text-right">ITN#</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                             
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="itn_no" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.itn_no" id="id_itn_no">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="high-light-text margin-t text-12">
+                I certify under penalty of perjury under the laws of the United States of America (Title 18 U.S.C. § 1001) that the foregoing is true and correct. Title 18 U.S.C. § 1001 prohibits making fales statements, lying to or conceling information from a federal official by oral affirmation, written statement or mere denial.
+            </div>
+            <table class="table-padding-double text-12 margin-t">
+                <colgroup>
+                    <col class="w-22">
+                    <col class="w-2">
+                    <col class="w-50">
+                    <col class="w-6">
+                    <col class="w-2">
+                    <col class="w-18">
+                </colgroup>
+                <tr>
+                    <td>AUTHORIZED SIGNATURE</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf auto-font-size __width-signature">
+                            <span> </span>
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="signature" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.signature" id="id_signature">
+                        </div>
+                    </td>
+                    <td class="text-right">Date</td>
+                    <td>:</td>
+                    <td class="border-b">
+                        <div class="item-pdf">
+                            04-16-2023
+                        </div>
+                        <div class="item-edit">
+                            <input type="text" name="current_date" value="04-16-2023" template-id="a26a0873eb4186b69eadf1cb62d93dce6f96805c22277c386da56ddd869b336a:Form.current_date" id="id_current_date">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">&nbsp;</td>
+                    <td class="td text-10 text-center">Exporter/Agent</td>
+                    <td colspan="3">&nbsp;</td>
+                </tr>
+            </table>
+            <input type="hidden" name="reportid" value="@Model.ReportId" id="id_current_reportid">
+        </div>
+    </div>
+    </div>
+    </div>
+</div>
+</form>

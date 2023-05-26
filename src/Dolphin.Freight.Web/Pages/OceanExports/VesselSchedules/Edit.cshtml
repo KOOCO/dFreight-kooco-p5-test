@@ -1,0 +1,544 @@
+﻿@page
+
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.Components
+@using Dolphin.Freight.Web.Pages.Shared.Memos;
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.OceanExports.VesselSchedules.EditModel
+@inject IStringLocalizer<FreightResource> L
+@section scripts
+    {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var l = abp.localization.getResource('Freight');
+            var showMsg = '@Model.ShowMsg';
+            if (showMsg == 'True') abp.message.success(l("Message:SuccessAdd"));
+            //系統參數
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'BlTypeId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "BlTypeId", $("#mBlTypeId").val())
+
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'OblTypeId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "OblTypeId", $("#mOblTypeId").val())
+
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'FreightTermId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "FreightTermId", $("#mFreightTermId").val())
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'ShipModeId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "ShipModeId", $("#mShipModeId").val())
+                }
+            });
+
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'SvcTermFromId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "SvcTermFromId", $("#mSvcTermFromId").val())
+                    initSysCodeTag(result, "SvcTermToId", $("#mSvcTermToId").val())
+                }
+            });
+            //分站
+            dolphin.freight.settings.substations.substation.getSubstations({}).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSubstationsTag(result, "OfficeId", $("#mOfficeId").val())
+                }
+            });
+            //貿易夥伴
+            dolphin.freight.tradePartners.tradePartner.getList({}).done(function (result) {
+                var selectItems = result.items;
+                initTradePartnerSelect(selectItems, "MblCarrierId", $("#mMblCarrierId").val());
+                initTradePartnerSelect(selectItems, "BlAcctCarrierId", $("#mBlAcctCarrierId").val());
+                initTradePartnerSelect(selectItems, "ShippingAgentId", $("#mShippingAgentId").val());
+                initTradePartnerSelect(selectItems, "MblOverseaAgentId", $("#mMblOverseaAgentId").val());
+                initTradePartnerSelect(selectItems, "MblNotifyId", $("#mMblNotifyId").val());
+                initTradePartnerSelect(selectItems, "ForwardingAgentId", $("#mForwardingAgentId").val());
+                initTradePartnerSelect(selectItems, "CoLoaderId", $("#mCoLoaderId").val());
+                initTradePartnerSelect(selectItems, "DeliveryToId", $("#mDeliveryToId").val());
+                initTradePartnerSelect(selectItems, "EmptyPickupId", $("#mEmptyPickupId").val());
+
+            });
+            //港口
+            dolphin.freight.settings.ports.port.getList({}).done(function (result) {
+                console.log(result.items);
+                if (result != null && result.items != null && result.items.length > 0) {
+                    initPortsTag(result.items, "PorId", $("#mPorId").val())
+                    initPortsTag(result.items, "PolId", $("#mPolId").val())
+                    initPortsTag(result.items, "PodId", $("#mPodId").val())
+                    initPortsTag(result.items, "DelId", $("#mDelId").val())
+                    initPortsTag(result.items, "FdestId", $("#mFdestId").val())
+
+                }
+            });
+            $("#saveEditBtn").click(function () {
+                $("#mOfficeId").val($("#OfficeId").val());
+                $("#mMblSalesTypeId").val($("#MblSalesTypeId").val());
+                $("#mSvcTermFromId").val($("#SvcTermFromId").val());
+                $("#mSvcTermToId").val($("#SvcTermToId").val());
+                $("#mShipModeId").val($("#ShipModeId").val());
+                $("#mFreightTermId").val($("#FreightTermId").val());
+                $("#mBlTypeId").val($("#BlTypeId").val());
+                $("#mMblCarrierId").val($("#MblCarrierId").val());
+                $("#mBlAcctCarrierId").val($("#BlAcctCarrierId").val());
+                $("#mShippingAgentId").val($("#ShippingAgentId").val());
+                $("#mMblOverseaAgentId").val($("#MblOverseaAgentId").val());
+                $("#mMblNotifyId").val($("#MblNotifyId").val());
+                $("#mMblReferralById").val($("#MblReferralById").val());
+                $("#mEmptyPickupId").val($("#EmptyPickupId").val());
+                $("#mDeliveryToId").val($("#DeliveryToId").val());
+                $("#mCoLoaderId").val($("#CoLoaderId").val());
+                $("#mForwardingAgentId").val($("#ForwardingAgentId").val());
+                $("#mCareOfId").val($("#CareOfId").val());
+                $("#mPorId").val($("#PorId").val());
+                $("#mPolId").val($("#PolId").val());
+                $("#mPodId").val($("#PodId").val());
+                $("#mDelId").val($("#DelId").val());
+                $("#mFdestId").val($("#FdestId").val());
+                $('#editForm').submit();
+            });
+            $('#editForm').on('abp-ajax-success', function (result, rs) {
+                event.preventDefault();
+                var l = abp.localization.getResource('Freight');
+                abp.message.success(l("Message:SuccessEdit"));
+            });
+            $("#addBtn").click(function () {
+                addTr()
+            })
+        });
+        var cardIndex = 0;
+        function addHBtn() {
+            if (cardIndex == 0) {
+                var divHtml = addCardRight('new_' + cardIndex, 'new HB/L', '', '#f3c200');
+                $("#hblCard").show();
+                $("#hblCardDiv").append(divHtml)
+                cardIndex++;
+            } else {
+                var l = abp.localization.getResource('Freight');
+                abp.message.info(l("Message:AddHBLErr"));
+            }
+
+        }
+        function addCardRight(hblId, hblNo, soNo, bgColor) {
+            var cardHtml = "<div id='card_" + hblId + "' class='card mt-3' onclick=''>"
+            cardHtml = cardHtml + "<div class='card-body'  style='background:" + bgColor + ";color:#FFFFFF;'>"
+            cardHtml = cardHtml + "<p class='card-text'> " + hblNo + ".</p>"
+            cardHtml = cardHtml + "<p class='card-text'> " + soNo + ".</p>"
+            cardHtml = cardHtml + " </div> </div>"
+            return cardHtml;
+        }
+        function addTr() {
+            addTrTag("", "", "", "", "", "");
+        }
+        function addTrTag(value1, value2, value3, value4, value5, value6) {
+            trindex++;
+            var trhtml = "<tr id='tr_" + trindex + "'><td><input type='checkbox' name='f0' id='f0_" + trindex + "'  value='" + trindex + "'    /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f1' id='f1_" + trindex + "' class='form-control' value='" + value1 + "'/> </td>"
+            trhtml = trhtml + "<td><input type='text' name='f2' id='f2_" + trindex + "' class='form-control' value='" + value2 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f3' id='f3_" + trindex + "' class='form-control' value='" + value3 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f4' id='f4_" + trindex + "' class='form-control' value='" + value4 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f5' id='f5_" + trindex + "' class='form-control' value='" + value5 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f6' id='f6_" + trindex + "' class='form-control' value='" + value6 + "' /></td>"
+            trhtml = trhtml + "</tr>"
+            $("#trtbody").append(trhtml);
+        }
+    </script>
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:OceanExports"] />
+            <abp-breadcrumb-item title=@L["Menu:VesselSchedules.Create"] href="#" />
+        </abp-breadcrumb>
+    </div>
+    <nav class="submenu">
+        <ol>
+            <li class="menu-item active">
+                <a href="javascript:void(0)">@L["Tab:Basic"]</a>
+            </li>
+            <li class="menu-item  ">
+                <a href="Edit2?Id=@Model.Id">@L["Tab:Accounting"]</a>
+            </li>
+            <li class="menu-item ">
+                <a href="Edit3?Id=@Model.Id">@L["Tab:Doc"]</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="page-content-area">
+    <form submit-button="true" data-ajaxForm="true" id="editForm">
+        <abp-row>
+            <abp-column size-md="_9">
+                <div class="board-wrap">
+                    <abp-card class="card board-item">
+                        <abp-card-header class="card-header active" style="background:#555555;color:#FFFFFF;">
+
+                            <abp-card-title>
+                                @L["VesselSchedule"] @Model.VesselSchedule.ReferenceNo <span id="title0"></span>
+                                <span id="title0" style="font-size:0.8em;"></span>
+                                <span id="title2" style="font-size:0.8em;"></span>
+                                <span id="title3" style="font-size:0.8em;"></span>
+                                <span id="title4" style="font-size:0.8em;"></span>
+                                <span id="title5" style="font-size:0.8em;"> </span>
+                            </abp-card-title>
+
+
+                            <!--
+                            <div class="btn-group dropdown">
+                                <button class="btn btn-secondary dropdown-toggle"  type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                    請選擇
+                                </button>
+                                <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                                    <a class='dropdown-item' href='#'>
+                                           <li class="fa fa-lock"></li> 鎖定
+                                        </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-trash"></i> 刪除
+                            </a>
+                                    <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                            <li class="fa fa-lock"></li> aaa
+                            </a>
+
+                                </div>
+                            </div>
+                            -->
+                            <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="btn btn-collapse " type="button" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
+                            </button>
+                        </abp-card-header>
+                        <abp-card-body class="collapse show" id="mblDiv">
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.ReferenceNo" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "OfficeId", FieldName = "OfficeId",DefaultValue="" , IsShowLabel = true , IsRequired = true })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "BlTypeId", FieldName = "BlTypeId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.PostDate" disabled=true />
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.SoNo" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.ItnNo" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "MblCarrierId", FieldName = "MblCarrierId",DefaultValue="" , IsShowLabel = true , IsRequired = false  })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "BlAcctCarrierId", FieldName = "BlAcctCarrierId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ShippingAgentId", FieldName = "ShippingAgentId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "MblOverseaAgentId", FieldName = "MblOverseaAgentId",DefaultValue="" , IsShowLabel = true , IsRequired = false  })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "MblNotifyId", FieldName = "MblNotifyId",DefaultValue="" , IsShowLabel = true , IsRequired = false  })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ForwardingAgentId", FieldName = "ForwardingAgentId" , DefaultValue="" , IsShowLabel = true , IsRequired = false  })
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CoLoaderId", FieldName = "CoLoaderId",DefaultValue="" , IsShowLabel = true , IsRequired = false  })
+                                </abp-column>
+                                <abp-column size-md="_3">
+
+                                </abp-column>
+                                <abp-column size-md="_6">
+
+                                </abp-column>
+                            </abp-row>
+
+                            <abp-row>
+                                <abp-column>
+                                    &nbsp;
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.VesselName" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.Voyage" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "DeliveryToId", FieldName = "DeliveryToId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "EmptyPickupId", FieldName = "EmptyPickupId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+
+
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "PolId", FieldName = "PolId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.PolEtd" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "PorId", FieldName = "PorId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.PorEtd" />
+                                </abp-column>
+
+
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "PodId", FieldName = "PodId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.PodEta" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "DelId", FieldName = "DelId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.DelEta" />
+                                </abp-column>
+
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "FdestId", FieldName = "FdestId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.FdestEta" />
+                                </abp-column>
+                                <abp-column size-md="_6">
+                                    &nbsp;
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column>
+                                    &nbsp;
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "FreightTermId", FieldName = "FreightTermId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ShipModeId", FieldName = "ShipModeId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "SvcTermFromId", FieldName = "SvcTermFromId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "SvcTermToId", FieldName = "SvcTermToId",DefaultValue="" , IsShowLabel = false , IsRequired = false })
+                                </abp-column>
+
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "OblTypeId", FieldName = "OblTypeId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.RailCutOffTime" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.PortCutOffTime" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.VgmCutOffTime " />
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.OnBoardDate" />
+                                </abp-column>
+                                <abp-column size-md="_9">
+
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.SubBlNo" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.ServiceContactNo" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.ForwardRefNo" />
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "TransPort1Id", FieldName = "TransPort1Id",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    <abp-input asp-for="VesselSchedule.Trans1Eta" />
+                                </abp-column>
+                                <abp-column size-md="_9">
+
+                                </abp-column>
+
+                            </abp-row>
+                            <abp-row>
+
+                            </abp-row>
+                            <abp-row>
+
+                                <abp-column size-md="_12">
+                                    <div>
+                                        集裝箱清單
+                                        <abp-button class="btn btn-success me-md-2" type="button" id="addBtn">+</abp-button>
+                                        <abp-button class="btn btn-outline-danger me-md-2" type="button" id="deleteBtn">-</abp-button>
+                                    </div>
+                                    <table width="100%" border="1" style="border-block-color:#333333;padding-left:10px;margin:4px;">
+                                        <tr style="border:1;border-block-color:#333333;padding-left:10px;margin-left:4px;">
+                                            <th width="5%"><input type="checkbox" id="checkAll" /></th>
+                                            <th width="12%">@L["Display:PackageNo"]</th>
+                                            <th width="12%">@L["Display:PackageSize"]</th>
+                                            <th width="12%">@L["Display:Seal"]</th>
+                                            <th width="12%">@L["Display:SoNo"]</th>
+                                            <th width="8%">@L["Display:PackageType"]</th>
+                                            <th width="16%">@L["Display:Weight"]</th>
+                                            <th width="16%">@L["Display:Volume"]</th>
+                                            <th width="7%">@L["Display:Package"]</th>
+                                        </tr>
+                                        <tbody id="trtbody">
+                                        </tbody>
+
+                                    </table>
+
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column>
+                                    @L["Title:Memo"]
+                                    <abp-card>
+                                        <abp-card-body>
+                                            <partial name="Memos/_Memo" model="new _MemoModel(Model.Id, Dolphin.Freight.Common.FreightPageType.VS)" />
+                                        </abp-card-body>
+                                    </abp-card>
+                                </abp-column>
+                            </abp-row>
+                        </abp-card-body>
+                    </abp-card>
+                    <br />
+                </div>
+            </abp-column>
+            <abp-column size-md="_3">
+
+
+                <div class="card-wrap">
+
+                    <button class="btn btn-block btn-add">
+                        <i class="fa-solid fa-plus"></i>@L["Btn:AddSO"].Value
+                    </button>
+
+                    <div class="function-wrap">
+
+                        <div class="form">
+                            <div class="form-group">
+                                <label for="cardOrderSet">卡片排序</label>
+                                <select class="form-control selectpicker" id="cardOrderSet">
+                                    <option selected>請選擇</option>
+                                    <option value="建立日期">建立日期</option>
+                                    <option value="HB/L 號碼">HB/L 號碼</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="sr-only" for="cardOrder">Preference</label>
+                                <select class="form-control selectpicker" id="cardOrder">
+                                    <option selected>請選擇</option>
+                                    <option value="遞增">遞增</option>
+                                    <option value="遞減">遞減</option>
+                                </select>
+                            </div>
+                            <fieldset class="form-group">
+                                <legend class="col-form-label">卡片顯示</legend>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1"
+                                           value="option1">
+                                    <label class="form-check-label"
+                                           for="inlineCheckbox1">託運人與收貨人</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2"
+                                           value="option2">
+                                    <label class="form-check-label" for="inlineCheckbox2">名稱標籤</label>
+                                </div>
+                            </fieldset>
+
+                            <button type="submit" class="btn btn-dark btn-block btn-update">
+                                <i class="fa-solid fa-arrows-rotate"></i>更新
+                            </button>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="cardAnchor" id="hblCardDiv">
+                    </div>
+
+                </div>
+
+
+            </abp-column>
+        </abp-row>
+        <abp-row class="mt-3">
+            <abp-column>
+                <input type="hidden" name="VesselSchedule.OfficeId" id="mOfficeId" value="@Model.VesselSchedule.OfficeId" />
+                <input type="hidden" name="VesselSchedule.SvcTermFromId" id="mSvcTermFromId" value="@Model.VesselSchedule.SvcTermFromId" />
+                <input type="hidden" name="VesselSchedule.SvcTermToId" id="mSvcTermToId" value="@Model.VesselSchedule.SvcTermToId" />
+                <input type="hidden" name="VesselSchedule.ShipModeId" id="mShipModeId" value="@Model.VesselSchedule.ShipModeId" />
+                <input type="hidden" name="VesselSchedule.FreightTermId" id="mFreightTermId" value="@Model.VesselSchedule.FreightTermId" />
+                <input type="hidden" name="VesselSchedule.BlTypeId" id="mBlTypeId" value="@Model.VesselSchedule.BlTypeId" />
+                <input type="hidden" name="VesselSchedule.OblTypeId" id="mOblTypeId" value="@Model.VesselSchedule.OblTypeId" />
+
+                <input type="hidden" name="VesselSchedule.MblCarrierId" id="mMblCarrierId" value="@Model.VesselSchedule.MblCarrierId" />
+                <input type="hidden" name="VesselSchedule.BlAcctCarrierId" id="mBlAcctCarrierId" value="@Model.VesselSchedule.BlAcctCarrierId" />
+                <input type="hidden" name="VesselSchedule.ShippingAgentId" id="mShippingAgentId" value="@Model.VesselSchedule.ShippingAgentId" />
+                <input type="hidden" name="VesselSchedule.MblOverseaAgentId" id="mMblOverseaAgentId" value="@Model.VesselSchedule.MblOverseaAgentId" />
+                <input type="hidden" name="VesselSchedule.MblNotifyId" id="mMblNotifyId" value="@Model.VesselSchedule.MblNotifyId" />
+                <input type="hidden" name="VesselSchedule.EmptyPickupId" id="mEmptyPickupId" value="@Model.VesselSchedule.EmptyPickupId" />
+                <input type="hidden" name="VesselSchedule.DeliveryToId" id="mDeliveryToId" value="@Model.VesselSchedule.DeliveryToId" />
+                <input type="hidden" name="VesselSchedule.CoLoaderId" id="mCoLoaderId" value="@Model.VesselSchedule.CoLoaderId" />
+                <input type="hidden" name="VesselSchedule.ForwardingAgentId" id="mForwardingAgentId" value="@Model.VesselSchedule.ForwardingAgentId" />
+                <input type="hidden" name="VesselSchedule.PorId" id="mPorId" value="@Model.VesselSchedule.PorId" />
+                <input type="hidden" name="VesselSchedule.PolId" id="mPolId" value="@Model.VesselSchedule.PolId" />
+                <input type="hidden" name="VesselSchedule.PodId" id="mPodId" value="@Model.VesselSchedule.PodId" />
+                <input type="hidden" name="VesselSchedule.DelId" id="mDelId" value="@Model.VesselSchedule.DelId" />
+                <input type="hidden" name="VesselSchedule.FdestId" id="mFdestId" value="@Model.VesselSchedule.FdestId" />
+                <input type="hidden" name="VesselSchedule.TransPort1Id" id="mTransPort1Id" value="@Model.VesselSchedule.TransPort1Id" />
+
+                <abp-button class="btn btn-primary me-md-2" type="button" id="saveEditBtn">@L["Save"].Value</abp-button>
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                &nbsp;
+            </abp-column>
+        </abp-row>
+    </form>
+</div>

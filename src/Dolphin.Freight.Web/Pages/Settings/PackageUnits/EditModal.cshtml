@@ -1,0 +1,56 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.Components
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model Dolphin.Freight.Web.Pages.Settings.PackageUnits.EditModalModel
+@inject IStringLocalizer<FreightResource> L
+@{
+    Layout = null;
+    <abp-script src="/Pages/Settings/PackageUnits/init.js" />
+}
+<abp-modal>
+    <abp-modal-header title="@L["Edit"].Value"></abp-modal-header>
+        <abp-modal-body>
+        <abp-input asp-for="Id" />
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="PackageUnit.PackageCode" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="PackageUnit.PackageName" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "AmsNoId", FieldName = "AmsNoId",DefaultValue="@Model.PackageUnit.AmsNoId", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "EManifestId", FieldName = "EManifestId",DefaultValue="@Model.PackageUnit.EManifestId", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="PackageUnit.Description" />
+            </abp-column>
+        </abp-row>
+    </abp-modal-body>
+    <abp-modal-footer>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <abp-button class="btn btn-primary me-md-2" type="button" id="saveBtn">@L["Save"].Value</abp-button>
+        </div>
+        <form id="createForm" method="post" action="/Settings/PackageUnits/EditModal">
+            <input type="hidden" name="Id"  value="@Model.Id" />
+            <input type="hidden" name="PackageCode" id="formPackageCode" value="@Model.PackageUnit.PackageCode" />
+            <input type="hidden" name="PackageName" id="formPackageName" value="@Model.PackageUnit.PackageName" />
+            <input type="hidden" name="AmsNoId" id="formAmsNoId" value="@Model.PackageUnit.AmsNoId" />
+            <input type="hidden" name="EManifestId" id="formEManifestId" value="@Model.PackageUnit.EManifestId" />
+            <input type="hidden" name="Description" id="formDescription" value="@Model.PackageUnit.Description" />
+        </form>
+    </abp-modal-footer>
+</abp-modal>

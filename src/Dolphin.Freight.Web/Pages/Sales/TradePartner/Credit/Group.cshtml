@@ -1,0 +1,70 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.Credit.GroupModel
+@inject IStringLocalizer<FreightResource> L
+@section scripts{
+    <abp-script src="/Pages/Sales/TradePartner/Credit/Group.js" />
+    <script>
+        $(function () {
+            $('#TradePartnerCreditButton').click(function () {
+                location.href = "../Credit";
+            });
+
+            //var createModal = new abp.ModalManager({
+            //    viewUrl: '/Sales/TradePartner/Credit/ModalWithCreateCreditLimitGroup'
+            //});
+
+            //createModal.onResult(function () {
+            //    console.log('createModal onResult');
+            //});
+
+            //$('#AddTradePartnerGroupButton').click(function (e) {
+            //    //e.preventDefault();
+            //    createModal.open();
+            //});
+
+        });
+    </script>
+
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:TradePartner"] />
+            <abp-breadcrumb-item title=@L["Menu:TradePartner.CreditEntry"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <div class="board-wrap">
+        <abp-row>
+            <abp-column>
+                <abp-card-title>@L["Menu:TradePartner.CreditEntry.GroupList"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                <abp-button id="AddTradePartnerGroupButton"
+                            icon="plus"
+                            text=@L["Display:Button:New"]
+                            button-type="Outline_Secondary" />
+                <abp-button id="ExportTradePartnerCreditGroupExcelButton"
+                            text=@L["Display:Button:Excel"]
+                            icon="file-excel"
+                            button-type="Outline_Secondary" />
+            </abp-column>
+        </abp-row>
+        <hr />
+        <abp-button id="TradePartnerCreditButton"
+                    text=@L["Display:Button:TradePartner"]
+                    button-type="Outline_Secondary" />
+        <abp-button id="TradePartnerGroupButton"
+                    text=@L["Display:Button:Group"]
+                    button-type="Secondary" />
+        <br />
+        <abp-card>
+            <abp-card-body>
+                <abp-table striped-rows="true" id="CreditLimtGroupsTable"></abp-table>
+            </abp-card-body>
+        </abp-card>
+    </div>
+</div>

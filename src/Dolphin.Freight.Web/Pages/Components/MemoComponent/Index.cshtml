@@ -1,0 +1,81 @@
+﻿@using Dolphin.Freight.Web.Pages.Components
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model ComponentData
+@inject IStringLocalizer<FreightResource> L
+<abp-card class="card board-item">
+    <abp-card-header style="background:#cccccc;color:#FFFFFF;">
+        @L["Title:Memo"] 
+    </abp-card-header>
+    <abp-card-content>
+        <abp-row>
+            <abp-column size-md="_9">
+                <div style="padding:5px;">
+                        <abp-button class="btn btn-success me-md-2" type="button"   onclick="openMemoModel('@Model.TagName')" >+</abp-button>
+                </div>
+                
+                <table width="100%" border="1" style="border-block-color:#333333;padding-left:10px;margin:4px;">
+                    <tr style="border:1;border-block-color:#333333;padding-left:10px;margin-left:4px;">
+                        <th width="5%"></th>
+                        <th width="30%">@L["Title:MemoSubject"]</th>
+                        <th width="25%">@L["Title:UpdateTime"]</th>
+                        <th width="25%">@L["Title:UpdateTime"]</th>
+                        <th width="15%">@L["Display:Function"]</th>
+                    </tr>
+                    <tbody id="memo_tbody_@Model.TagName">
+                    </tbody>
+
+                </table>
+            </abp-column>
+            <abp-column size-md="_3">
+                <abp-row>
+                    <abp-column>
+                        <textarea   rows="4" class="form-control" id="memoContent_@Model.TagName" readonly></textarea>
+                    </abp-column>
+                </abp-row>
+                <!-- 
+                <abp-row>
+                    <abp-column>
+                        <button type="button" class="btn btn-success" onclick="saveMemoModal('@Model.TagName')">@L["Btn:Upload"].Value</button>
+                    </abp-column>
+                </abp-row>
+                -->
+            </abp-column>
+            
+        </abp-row>
+    </abp-card-content>
+ </abp-card>
+<div class="modal" tabindex="-1" id="modal_memo_@Model.TagName">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@L["Title:Memo"]</h5>
+                <button type="button" class="close"  onclick="closeMemoModal('modal_memo_@Model.TagName')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <abp-row>
+                    <abp-column>
+                        <label for="memoSubject_@Model.TagName" class="form-label">@L["Title:MemoSubject"]</label>
+                        <input type="text" class="form-control"  id="eMemoSubject_@Model.TagName" />
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column>
+                        <label for="memoContent_@Model.TagName" class="form-label">@L["Title:MemoContent"]</label>
+                        <textarea class="form-control" id="eMemoContent_@Model.TagName"></textarea>
+                        <input type="hidden" id="eFid_@Model.TagName" value="@Model.DefaultValue" />
+                        <input type="hidden" id="eFtype_@Model.TagName" value="@Model.SelectType" />
+                        <input type="hidden" id="eMemoId_@Model.TagName" value="" />
+                    </abp-column>
+                </abp-row>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveMemoModal('@Model.TagName')">@L["Btn:Save"].Value</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeMemoModal('modal_memo_@Model.TagName')">@L["Btn:Cancel"].Value</button>
+            </div>
+        </div>
+    </div>
+</div>

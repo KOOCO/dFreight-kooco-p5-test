@@ -1,0 +1,261 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.UsdaHeatTreatment.UsdaHeatTreatmentIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .border-t, .text-sm, textarea, .text-bold {
+        font-size: 10px;
+    }
+
+    .col-padding-sm, .text-sm, .text-12, .border-t, .border-b, .text-bold {
+        line-height: 1.42857143;
+    }
+
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+<div class="wrap certificate-heat-treatment">
+   <div class="item-edit topbar">
+      <div class="topbar-block">
+         Data Source :
+         <select class="select w-160px">
+            <option selected="selected" value="loadInitial">Shipment</option>
+            <option value="loadDraft">Last Modified</option>
+            <option value="loadEmptyFromDraft">Load empty fields from last modified</option>
+         </select>
+      </div>
+   </div>
+   <div class="con">
+      <table class="text-sm">
+         <colgroup>
+            <col class="w-85">
+            <col class="w-15">
+         </colgroup>
+         <tbody>
+            <tr>
+               <td>
+                  WARNING: No changes, corrections, alterations, nor additions are permitted to this Form. Failure to comply is a violation of 7 CFR Part 353 and/or other applicable regulations or laws, is subject to civil and criminal penalties under 7 U.S.C. s 7734, and may be prosecuted under 18 U.S.C. s 1001and/or other applicable laws.
+               </td>
+               <td class="text-bold text-right">OMB No. 0579-0147</td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="text-center border-t border-b table-padding-double margin-t-sm text-12">
+         <colgroup>
+            <col class="w-20">
+            <col class="w-40">
+            <col class="w-40">
+         </colgroup>
+         <tbody>
+            <tr>
+               <td>
+                    <img src="/Pages/Reports/usda.png" style="width: 80%;">
+               </td>
+               <td class="border-r">
+                  U.S. DEPARTMENT OF AGRICULTURE<br>Animal and Plant Health Inspection ServicePlant Protection and Quarantine
+               </td>
+               <td class="text-bold text-16">
+                  Conifer Solid Wood packing Material to the People's Republic of China
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="text-16 bg-light text-bold text-center col-padding-sm">CERTIFICATE OF HEAT TREATMENT</div>
+      <div class="col-padding-sm text-12 border-t border-b">TO:  State Administration for Entry-Exit Inspection and Quarantine (SAIQ) of the People's Republic of China</div>
+      <div class="col-padding-sm text-12 text-italic text-center border-b">This is to certify that the conifer packing material in this shipment has been heat treated through a treatment process that increased the minimum core wood temperature to 56 degrees Celsius for 30 minutes.</div>
+      <div class="text-12 bg-light text-bold text-center col-padding-double">SHIPMENT INFORMATION</div>
+      <table class="table-padding-double border-t">
+         <colgroup>
+            <col class="w-50">
+            <col class="w-50">
+         </colgroup>
+         <tbody>
+            <tr>
+               <td class="border-r border-b">
+                  1. Name and Address of Exporter:
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="NameAndAddressOfExporte" cols="40" rows="7" class="text-scroll no-adjustment ng-isolate-scope" id="id_shipper_area">
+                            @{
+                                if (Model.NameAndAddressOfExporte != "")
+                                {
+                                    @Model.NameAndAddressOfExporte
+                                }
+                            }</textarea>
+                  </div>
+               </td>
+               <td rowspan="2" class="td">
+                  2. Name and Address of Consignee:
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="NameAndAddressOfConsignee" cols="40" rows="10" class="text-scroll no-adjustment ng-isolate-scope" id="id_notify_area">
+                            @{
+                                if (Model.NameAndAddressOfConsignee != "")
+                                {
+                                    @Model.NameAndAddressOfConsignee
+                                }
+                            }</textarea>
+                  </div>
+               </td>
+            </tr>
+            <tr>
+               <td>
+                  3. Signature of Exporter
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <input type="text" name="SignatureOfExporter" value="@Model.SignatureOfExporter" class="ng-isolate-scope">
+                  </div>
+               </td>
+            </tr>
+            <tr class="border-t">
+               <td colspan="2">
+                  By signing block 3, the exporter acknowledges any intentional false statement in this Certificate of Heat Treatment or misrepresentation relative to this heat treatment certificate is a violation of law, subject to civil penalties of up to $250,000 (7 U.S.C. s 7734(b)), punishable by a fine of not more than $10,000, or imprisonment of not more than 5 years, or both.  (18 U.S.C. s1001)
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="text-12 bg-light text-bold text-center col-padding-double border-t">SHIPMENT IDENTIFICATION</div>
+      <table class="table-padding-double border-t">
+         <colgroup>
+            <col class="w-30">
+            <col class="w-70">
+         </colgroup>
+         <tbody>
+            <tr>
+               <td colspan="2">4. Description of Consignment:</td>
+            </tr>
+            <tr>
+               <td class="text-right text-12 td">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="DescriptionOfConsignment1" cols="40" rows="10" class="text-right text-scroll no-adjustment ng-isolate-scope" id="id_description_of_consignment">
+                         @{
+                            if (Model.DescriptionOfConsignment1 != "")
+                            {
+                                @Model.DescriptionOfConsignment1
+                            }
+                        }</textarea>
+                  </div>
+               </td>
+               <td class="text-12 td padding-l-md">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="DescriptionOfConsignment2" cols="40" rows="10" class="text-scroll no-adjustment ng-isolate-scope" id="id_description_of_consignment_commodity">
+                         @{
+                            if (Model.DescriptionOfConsignment2 != "")
+                            {
+                                @Model.DescriptionOfConsignment2
+                            }
+                        }</textarea>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="text-12 bg-light text-bold text-center col-padding-double border-t">ENDORSEMENT OF CERTIFICATION <span class="text-italic text-10 text-light">(Official Use Only)</span></div>
+      <table class="table-padding-double border-t">
+         <colgroup>
+            <col class="w-70">
+            <col class="w-30">
+         </colgroup>
+         <tbody>
+            <tr class="border-b">
+               <td class="text-center text-italic td border-r" rowspan="3">(Official Stamp)</td>
+               <td class="border-b padding-b-md">5. Date of Issue<br>&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="border-b padding-b-md">6.Issuing Office <span class="text-italic">(City and State)</span><br>&nbsp;</td>
+            </tr>
+            <tr class="border-b">
+               <td class="padding-b-md">Other Information<br>&nbsp;</td>
+            </tr>
+            <tr class="border-b">
+               <td class="padding-b-md" colspan="2">8. Signature of Endorsing Official<br>&nbsp;</td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="border-b col-padding-double text-12">
+         No financial liability shall attach to the United States Department of Agriculture or to any officer or representative of the service with respect to this certificate.
+      </div>
+      <div class="border-b text-sm col-padding-double">
+         According to the Paperwork Reduction Act of 1995. no persons are required to respond to a collection of information unless it displays a valid OMB control number. The valid OMB control number for this information collection is 0579-0147. The time required to complete this information collection is estimated to average .017 minutes/hours per response, including the time for reviewing instructions, searching a existing data sources, gathering and maintaining the data needed, and completing and reviewing the collection of information.
+      </div>
+      <table class="table-padding-double">
+         <colgroup>
+            <col class="w-15">
+            <col class="w-10">
+            <col class="w-75">
+         </colgroup>
+         <tbody>
+            <tr>
+               <td class="text-bold">PPQ FORM 553<br>(AUG 2000)</td>
+               <td class="text-right td text-sm">NOTE:</td>
+               <td class="text-sm td">PPQ Form 553 is only available for public use through the USDA-APHIS-PPQ website at: WWW.APHIS.USDA.GOV<br>or the PPQ FAX Vault at: 1-877-770-5990.</td>
+            </tr>
+         </tbody>
+      </table>
+      <input type="hidden" name="reportid" value="@Model.ReportId" id="id_current_reportid">
+   </div>
+</div>
+    </div>
+</div>
+</form>

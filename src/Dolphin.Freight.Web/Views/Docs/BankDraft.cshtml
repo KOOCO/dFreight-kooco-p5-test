@@ -1,0 +1,571 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.BankDraft.BankDraftIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@*@section scripts
+{
+    <abp-script src="/Pages/Reports/Package.js" />
+}*@
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+</style>
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });    
+
+    function onToTradePartnerNameLoadFromChange(sel) {
+                if (sel.value === 'CONSIGNEE') {
+                    $('#id_totradepartnername').val($('#id_current_consignee').val());
+                }
+                else 
+                {
+                    $('#id_totradepartnername').val($('#id_current_notifyparty').val());
+                }
+            }
+
+    function onReferQuestionToChange(sel) {
+                if (sel.value === 'SHIPPER') {
+                    $('#id_referquestionname').val($('#id_current_referquestionshippername').val());
+                    $('#id_referquestionphone').val($('#id_current_referquestionshipperphone').val());
+                }
+                else 
+                {
+                    $('#id_referquestionname').val($('#id_current_referquestionfreightforwardername').val());
+                    $('#id_referquestionphone').val($('#id_current_referquestionfreightforwarderphone').val());
+                }
+            }
+</script>
+<form id="myForm" name="myForm" method="POST">
+<div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:800px;background-color:white;" id="form" name = "form">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div style="float:right;">
+            <div style="display:inline-block"><p style="color:red"><strong>Data Source : </strong></p></div>
+            <div style="display:inline-block">            
+                <select style="width:100px">
+                    <option selected="selected" value="shipment">Shipment</option>
+                    <option value="lastmodified">Last Modified</option>
+                    <option value="loademptyfieldsfromlastmodified">Load empty fields from last modified</option>
+                </select>
+            </div>
+        </div>
+        <br />
+        <center>
+            <hr/>
+        </center>
+        <div>&nbsp;</div>
+        <div style="display:inline-block;width:10px">&nbsp;</div>
+        <div style="display:inline-block;">
+            <table style="border-collapse:collapse;border-spacing:0;width:770px">
+	            <tbody>
+		            <tr>
+			            <td rowspan="16" style="border-style:solid;border-width:1px;width:30px">&nbsp;</td>
+			            <td rowspan="16" style="border-style:solid;border-width:1px;width:10px">&nbsp;</td>
+			            <td colspan="6" style="border-top:solid;border-right:solid;border-width:1px;">
+                            <div style="height:5px;">&nbsp;</div>
+                            <div style="display:inline-block;width:3px">&nbsp;</div>
+                            <div style="width:320px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                                <span style="font-size:16px;">
+                                    U.S.$&nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="amount" value="@Model.Amount" min="0" step="0.01" id="id_amount" style="width:230px;font-weight:bold;" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="13">
+                                </span>
+                            </div>
+                            <div style="display:inline-block;width:20px">&nbsp;</div>
+                            <div style="display:inline-block;width:180px;text-align: right;">Date&nbsp;</div>
+                            <div style="width:170px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                                <span style="font-size:16px;padding: 0 10px;">
+                                    &nbsp;<input type="text" name="date" value="@Model.Date" id="id_date" style="width:140px;font-weight:bold;">
+                                </span>
+                            </div>
+                        </td>
+		            </tr>
+                    <tr>
+                        <td colspan="6" style="border-right:solid;border-width:1px;">
+                            <div style="height:5px;">&nbsp;</div>
+                            <div style="display:inline-block;width:3px">&nbsp;</div>
+                            <div style="width:320px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                                <span style="font-size:16px;">
+                                    <input type="text" name="atsight" value="@Model.AtSight" id="id_atsight" style="width:282px;font-weight:bold;">
+                                </span>
+                            </div>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span>of this</span>
+                            <span><I>&nbsp;&nbsp;F&nbsp;&nbsp;I&nbsp;&nbsp;R&nbsp;&nbsp;S&nbsp;&nbsp;T&nbsp;&nbsp;</I></span>
+                            <span>of</span>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span>Exchange(Second unpaid)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" style="border-right:solid;border-width:1px;">
+                            <div style="height:5px;">&nbsp;</div>
+                            <div style="display:inline-block;width:3px">&nbsp;</div>
+                            <div style="display:inline-block;">
+                                <span>Pay to the Order of</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="text" name="shippername" value="@Model.ShipperName" id="id_shippername" style="width:330px;font-weight:bold;">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" style="border-right:solid;border-width:1px;">
+                            <div style="height:5px;">&nbsp;</div>
+                            <div style="display:inline-block;width:3px">&nbsp;</div>
+                            <div style="width:98%;height:20px;border-bottom:1px solid black;text-align: right;display:inline-block;">
+                                <span style="font-size:16px;padding: 0 10px;">
+                                    <strong>United States Dollars</strong>
+                                </span>
+                            </div>
+                            <div style="display:inline-block;width:3px">&nbsp;</div>
+                        </td>
+                    </tr>
+		            <tr>
+			            <td colspan="6" rowspan="12" style="border-bottom:solid;border-right:solid;border-width:1px;">
+                            <div>
+                                <div style="height:5px;">&nbsp;</div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <div style="display:inline-block;">
+                                    <input type="text" name="drawndoccredit" value="@Model.DrawnDocCredit" id="id_drawndoccredit" style="width:450px;font-weight:bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </div>
+                                <div style="display:inline-block;">
+                                    <span>DATE OF ISSUE</span>&nbsp;&nbsp;
+                                    <input type="text" name="issuedate" value="@Model.IssueDate" id="id_issuedate" style="width:100px;font-weight:bold;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="height:15px;">&nbsp;</div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <div style="display:inline-block;">
+                                    <input type="text" name="lcissuebank" value="@Model.LCIssueBank" placeholder="L/C Issue Bank" id="id_LCissuebank" style="width:450px;font-weight:bold;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="height:15px;">&nbsp;</div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <div style="display:inline-block;">
+                                    <span>for Value received and charge the same to account of</span>
+                                </div>
+                                <div style="display:inline-block;width:40px">&nbsp;</div>
+                                <div style="display:inline-block;">
+                                    <span>Load from</span>
+                                    <label>
+                                        <input type="radio" id="id_totradepartnerloadfrom_0" name="totradepartnerloadfrom" value="CONSIGNEE"  onchange="onToTradePartnerNameLoadFromChange(this)" checked> Consignee
+                                     </label>
+                                    <label>
+                                        <input type="radio" id="id_totradepartnerloadfrom_1" name="totradepartnerloadfrom" value="NOTIFY" onchange="onToTradePartnerNameLoadFromChange(this)"> Notify Party
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="height:3px;">&nbsp;</div>
+                                <div style="display:inline-block;width:8px">&nbsp;</div>
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <span>TO</span>
+                                </div>
+                                <div style="display:inline-block;width:8px">&nbsp;</div>
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <textarea name="tolcissuebank" cols="40" rows="5" id="id_tolcissuebank" style="width:245px;resize:none;font-weight:bold;">@Model.ToLCIssueBank</textarea>
+                                    <div style="height:5px;">&nbsp;</div>
+                                    <div style="border-bottom:1px solid black;width:260px"></div>
+                                </div>
+                                <div style="display:inline-block;width:75px">&nbsp;</div>
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <textarea name="totradepartnername" cols="40" rows="6" id="id_totradepartnername" style="width:300px;resize:none;font-weight:bold;">@Model.ToTradePartnerName</textarea>
+                                    <div style="height:5px;">&nbsp;</div>
+                                    <div style="border-bottom:1px solid black;width:320px"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="height:15px;">&nbsp;</div>
+                                <div style="display:inline-block;width:8px">&nbsp;</div>
+                                <div style="display:inline-block;">No.&nbsp;&nbsp;&nbsp;</div>
+                                <div style="width:270px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                                    <span style="font-size:16px;">
+                                        <input type="text" name="draftno" id="id_draftno" value="@Model.DraftNo" style="width:250px;font-weight:bold;">
+                                    </span>
+                                </div>
+                                <div style="display:inline-block;width:270px">&nbsp;</div>
+                                <div style="text-align:right;display:inline-block;">
+                                    <span style="font-size:12px;">
+                                        <strong>Authorized Signature</strong>
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="height:5px;">&nbsp;</div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <textarea name="bankpreference" cols="40" rows="2" placeholder="Bank Preference" id="id_bankpreference" style="width:300px;resize:none;font-weight:bold;">@Model.BankPreference</textarea>
+                                </div>
+                                <div style="display:inline-block;width:50px">&nbsp;</div>
+                                <div style="display:inline-block">
+                                    <div style="height:8px;">&nbsp;</div>
+                                    <input type="text" name="shippername2" value="@Model.ShipperName2" id="id_shippername2" style="width:340px;text-align:center;font-weight:bold;">
+                                </div>
+                            </div>
+                            <br />
+                            <br />
+                        </td>
+		            </tr>
+	            </tbody>
+            </table>
+            <center>
+                <div style="width:770px;height:7px;border-bottom:3px dashed black;text-align: center"></div>
+            </center>
+            <br />
+            <div>
+                <div style="display:inline-block;">
+                    <span>Gentlemen:</span>
+                    <select style="width:370px;height:30px;">
+                        @{
+                            var gentlemenList = (List<SelectListItem>)ViewBag.GentlemenList;
+
+                            for(int i=0;i< gentlemenList.Count;i++)
+                            {
+                                <option value="@gentlemenList[i].Value">@gentlemenList[i].Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div style="display:inline-block;width:30px">&nbsp;</div>
+                <div style="display:inline-block;">                   
+                    <div style="width:280px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                        <div style="display:inline-block;width:5px">&nbsp;</div>
+                        <input type="text" name="enclosedate" value="@Model.EncloseDate" id="id_enclosedate" style="width:260px;font-weight:bold;">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div style="display:inline-block;width:75px">&nbsp;</div>
+                <div style="display:inline-block;">
+                    <textarea name="gentlemennameaddress" cols="40" rows="4" id="id_gentlemennameaddress" style="width:350px;resize:none;font-weight:bold;">@Model.GentlemenNameAddress</textarea>
+                </div>
+                <div style="display:inline-block;width:160px">&nbsp;</div>
+                <div style="display:inline-block;vertical-align:top;">
+                    <span>Date</span>
+                </div>
+            </div>
+            <div style="height:10px;">&nbsp;</div>
+            <div>
+                <div style="display:inline-block;vertical-align:top;">
+                    <div style="display:inline-block;width:30px">&nbsp;</div>
+                    <div style="display:inline-block;text-align:center;">
+                        <span style="font-size:14px;">We enclose Draft<br />Number</span>
+                    </div>
+                    <div style="display:inline-block;width:8px">&nbsp;</div>
+                    <div style="display:inline-block;">
+                        <div style="width:138px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                            <input type="text" name="enclosedraftno" id="id_enclosedraftno" value="@Model.EncloseDraftNo" style="display:inline-block;width:130px;font-weight:bold;">
+                        </div>                        
+                    </div>
+                    <div style="display:inline-block;">
+                        <span style="font-size:14px;">and documents listed below</span>
+                    </div>
+                </div>
+                <div style="display:inline-block;width:30px">&nbsp;</div>
+                <div style="display:inline-block;">
+                    <input type="checkbox" name="encloseforcollection" id="id_encloseforcollection">for collection<br />
+                    <input type="checkbox" name="encloseforother" id="id_encloseforother">for
+                    <input type="text" name="encloseforotherinput"id="id_encloseforotherinput"><br />
+                    <input type="checkbox" name="encloseforpayment" id="id_encloseforpayment" checked="checked">for payment/negotiation under L/C
+                </div>
+            </div>
+            <br />
+            <table style="border-collapse:collapse;border-spacing:0;width:770px;">
+	            <tbody>
+		            <tr style="text-align:center;">
+			            <td style="border-style:solid;border-width:1px;width:78px;"><span style="font-size:14px">BILLS<br>OF LADING</span></td>
+			            <td style="border-style:solid;border-width:1px;width:74px;"><span style="font-size:14px">B/L<br>COPY</span></td>
+			            <td style="border-style:solid;border-width:1px;width:74px;"><span style="font-size:14px">COMM.<br>INV.</span></td>
+			            <td style="border-style:solid;border-width:1px;width:74px;"><span style="font-size:14px">INS.<br>CTF.</span></td>
+			            <td style="border-style:solid;border-width:1px;width:74px;"><span style="font-size:14px">CTF.<br>ORIG.</span></td>
+			            <td style="border-style:solid;border-width:1px;width:74px;"><span style="font-size:14px">CONS.<br>INV.</span></td>
+			            <td style="border-style:solid;border-width:1px;width:74px;"><span style="font-size:14px">PKNG.<br>LIST</span></td>
+			            <td style="border-style:solid;border-width:1px;width:74px;"><span style="font-size:14px">WGT.<br>CTF.</span></td>
+			            <td style="border-style:solid;border-width:1px;"><span style="font-size:14px">OTHER DOCUMENTS</span></td>
+		            </tr>
+		            <tr>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extrabl" id="id_extrabl" value="@Model.ExtraBl" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extrablcopy" id="id_extrablcopy" value="@Model.ExtraBlCopy" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extracomminv" id="id_extracomminv" value="@Model.ExtraCommInv" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extrainsctf" id="id_extrainsctf" value="@Model.ExtraInsCtf" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extractforig" id="id_extractforig" value="@Model.ExtraCtfOrig" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extraconsinv" id="id_extraconsinv" value="@Model.ExtraConsInv" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extrapknglist"id="id_extrapknglist" value="@Model.ExtraPkngList" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;text-align:center;">
+                            <input type="text" name="extrawgtctf" id="id_extrawgtctf" value="@Model.ExtraWgtCtf" style="width:70px;font-weight:bold;">
+                        </td>
+			            <td style="border-style:solid;border-width:1px;"><span style="font-size:14px">EXTRA SET OF COPIES FOR BANK FILE</span></td>
+		            </tr>
+	            </tbody>
+            </table>
+            <div style="height:3px;">&nbsp;</div>
+            <table style="border-collapse:collapse;border-spacing:0;width:770px;">
+	            <tbody>
+                    <tr>
+			            <td colspan="2" style="border-left:solid;border-right:solid;border-width:1px;text-align:center;">
+                            <div><span style="font-size:14px">Please handle in accordance with instructions marked "X"</span></div>                           
+                        </td>
+		            </tr>
+		            <tr>
+			            <td style="border-left:solid;border-right:solid;border-bottom:solid;border-width:1px;width:53%;">
+                            <div>
+                                <input type="checkbox" name="deliverinonemailing" id="id_deliverinonemailing">
+                                <span style="font-size:14px">Deliver all documents in one mailing.</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="deliverintwomailing" id="id_deliverintwomailing">
+                                <span style="font-size:14px">Deliver documents in two mailing.</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="deliverifdraft" id="id_deliverifdraft">
+                                <span style="font-size:14px">Deliver documents against payment if sight draft, or acceptance<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if time draft.</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="allchargesforaccount" id="id_allchargesforaccount">
+                                <span style="font-size:14px">All charges for account of drawee.</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="donotwaivecharges" id="id_donotwaivecharges">
+                                <span style="font-size:14px">Do not waive charges.</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div style="display:inline-block">
+                                <input type="checkbox" name="protestfornonpayment" id="id_protestfornonpayment">
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px">Protest<br />for</span>
+                                </div>
+                                <div style="display:inline-block;width:30px">&nbsp;</div>
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px"><u>non-payment</u><br />non-acceptance</span>
+                                </div>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="donotprotest" id="id_donotprotest">
+                                <span style="font-size:14px">Do not protest.</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="presentonarrival" id="id_presentonarrival">
+                                <span style="font-size:14px">Present on arrival of goods.</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="advisenonpaymentby" id="id_advisenonpaymentby">
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px">Advise</span>
+                                </div>
+                                <div style="display:inline-block;width:30px">&nbsp;</div>
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px"><u>non-payment</u><br />non-acceptance</span>
+                                </div>
+                                <div style="display:inline-block;width:10px">&nbsp;</div>
+                                <div style="display:inline-block;">
+                                    <span style="font-size:14px">By</span>
+                                </div>
+                                <div style="display:inline-block;width:10px">&nbsp;</div>
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px"><u>air mail</u><br />cable</span>
+                                </div>
+                                <div style="display:inline-block;width:10px">&nbsp;</div>
+                                <div style="display:inline-block;">
+                                    <span style="font-size:14px">giving reasons</span>
+                                </div>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>
+                                <input type="checkbox" name="advisepaymentby" id="id_advisepaymentby">
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px">Advise</span>
+                                </div>
+                                <div style="display:inline-block;width:30px">&nbsp;</div>
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px"><u>payment</u><br />acceptance</span>
+                                </div>
+                                <div style="display:inline-block;width:10px">&nbsp;</div>
+                                <div style="display:inline-block;">
+                                    <span style="font-size:14px">By</span>
+                                </div>
+                                <div style="display:inline-block;width:10px">&nbsp;</div>
+                                <div style="display:inline-block">
+                                    <span style="font-size:14px"><u>air mail</u><br />cable</span>
+                                </div>
+                            </div>
+                            <div style="height:8px;">&nbsp;</div>
+                        </td>
+			            <td style="border-left:solid;border-right:solid;border-bottom:solid;border-width:1px;width:47%;" valign="top">
+                            <div style="height:50px;">&nbsp;</div>
+                            <div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <span style="font-size:14px">IN CASE OF NEED refer to:</span>
+                            </div>
+                            <div style="height:5px;">&nbsp;</div>
+                            <div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <span style="font-size:14px">Name</span>
+                                <div style="display:inline-block;width:15px">&nbsp;</div>
+                                <div style="width:294px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                                    <input type="text" name="refertoname" value="@Model.ReferToName" id="id_refertoname" style="width:275px;font-weight:bold;">
+                                </div>                        
+                            </div>
+                            <div style="height:5px;">&nbsp;</div>
+                            <div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <div style="display:inline-block;"><span style="font-size:14px">Address</span></div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <div style="width:294px;height:45px;border-bottom:1px solid black;display:inline-block;">
+                                    <textarea name="refertoaddress" cols="40" rows="2" id="id_refertoaddress" style="width:275px;font-weight:bold;resize:none;">@Model.ReferToAddress</textarea>
+                                </div>                        
+                            </div>
+                            <div style="height:20px;">&nbsp;</div>
+                            <div>
+                                <div style="display:inline-block;width:3px">&nbsp;</div>
+                                <span style="font-size:14px">who is empower by us:</span>
+                            </div>
+                            <div style="height:3px;">&nbsp;</div>
+                            <div>         
+                                <div style="display:inline-block;width:30px">&nbsp;</div>
+                                <div style="display:inline-block;"><span style="font-size:14px">a</span><input type="checkbox" name="toactfullyonourbehalf" id="id_toactfullyonourbehalf"></div>
+                                <div style="display:inline-block;"><span style="font-size:14px">To act fully on our behalf, i.e., authorize reductions,</span></div>
+                                <div style="display:inline-block;"><span style="font-size:14px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extensions, free delivery waiving of protest, etc.</span></div>
+                            </div>
+                            <div>         
+                                <div style="display:inline-block;width:30px">&nbsp;</div>
+                                <div style="display:inline-block;"><span style="font-size:14px">b</span><input type="checkbox" name="toassistnottoalter" id="id_toassistnottoalter"></div>
+                                <div style="display:inline-block;"><span style="font-size:14px">To assist in obtaining acceptance or payment of </span></div>
+                                <div style="display:inline-block;"><span style="font-size:14px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;draft,as drawn, but not to alter its terms in any way.</span></div>
+                            </div>
+                        </td>
+		            </tr>
+		            <tr>
+			            <td colspan="2" style="border-style:solid;border-width:1px;">
+                            <div><span style="font-size:14px">OTHER INSTRUCTIONS :</span></div>
+                            <textarea name="otherinstructions" cols="40" rows="2" id="id_otherinstructions" style="width:730px;resize:none;font-weight:bold;">@Model.OtherInstructions</textarea>
+                        </td>
+		            </tr>
+	            </tbody>
+            </table>
+            <div><span style="font-size:14px">Please refer all questions conceming this collection to:</span></div>
+            <br />
+            <div style="display:inline-block;">
+                <div>
+                    <input type="radio" name="referquestionto" value="SHIPPER" id="id_referquestionto_shipper" onchange="onReferQuestionToChange(this)">Shipper
+                </div>
+                <div style="height:5px;">&nbsp;</div>
+                <div>
+                    <input type="radio" name="referquestionto" value="FORWARDER" id="id_referquestionto_forwarder" onchange="onReferQuestionToChange(this)" checked>Freight Forwarder.
+                </div>
+                <div style="height:5px;">&nbsp;</div>
+                <div style="display:inline-block;width:15px;">&nbsp;</div>
+                <div style="width:350px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                    <input type="text" name="referquestionname" id="id_referquestionname" value="@Model.ReferQuestionName" style="width:330px;font-weight:bold;">
+                </div>
+                <div style="height:5px;">&nbsp;</div>
+                <div style="display:inline-block;width:15px;">&nbsp;</div>
+                <div style="width:350px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                    <input type="text" name="referquestionphone" id="id_referquestionphone" value="@Model.ReferQuestionPhone" style="width:330px;font-weight:bold;">
+                </div>
+            </div>
+            <div style="display:inline-block;vertical-align:top;">
+                <div style="height:5px;">&nbsp;</div>
+                <div style="display:inline-block;width:20px;">&nbsp;</div>
+                <div style="width:350px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                    <input type="text" name="shippername3" value="@Model.ShipperName3" id="id_shipper_name3" style="width:330px;font-weight:bold;">
+                </div>
+                <div style="height:20px;">&nbsp;</div>
+                <div style="display:inline-block;width:20px;">&nbsp;</div>
+                <div style="width:350px;height:25px;border-bottom:1px solid black;display:inline-block;">
+                    <input type="text" name="authorizedsignatureinput" id="id_authorizedsignatureinput" value="@Model.AuthorizedSignatureInput" style="width:160px;font-weight:bold;">
+                    <div style="display:inline-block;width:50px;">&nbsp;</div>
+                    <span style="font-size:12px;">
+                        <strong>Authorized Signature</strong>
+                    </span>
+                </div>
+                <div style="height:5px;">&nbsp;</div>
+                <div style="display:inline-block;width:20px;">&nbsp;</div>
+                <div style="display:inline-block;">
+                    <input type="text" name="usercompany" value="@Model.UserCompany" id="id_usercompany" style="width:330px;font-weight:bold;">
+                </div>
+            </div>
+            <div>&nbsp;</div>
+            <div><span style="font-size:15px">FORM B-2 - C</span></div>
+        </div>
+        <br /><br />
+    </div>
+    <input type="hidden" name="consignee" value="@Model.Consignee" id="id_current_consignee">
+    <input type="hidden" name="notifyparty" value="@Model.NotifyParty" id="id_current_notifyparty">
+    <input type="hidden" name="referquestionshippername" value="@Model.ReferQuestionShipperName" id="id_current_referquestionshippername">
+    <input type="hidden" name="referquestionshipperphone" value="@Model.ReferQuestionShipperPhone" id="id_current_referquestionshipperphone">
+    <input type="hidden" name="referquestionfreightforwardername" value="@Model.ReferQuestionFreightForwarderName" id="id_current_referquestionfreightforwardername">
+    <input type="hidden" name="referquestionfreightforwarderphone" value="@Model.ReferQuestionFreightForwarderPhone" id="id_current_referquestionfreightforwarderphone">
+
+    <input type="hidden" name="reportid" value="@Model.ReportId" id="id_current_reportid">
+</div>
+</form>

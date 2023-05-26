@@ -1,0 +1,36 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Customer.IndexModel
+@inject IStringLocalizer<FreightResource> L
+
+@section scripts{
+    <abp-script src="/Pages/Accounting/Payment/Customer/Index.js"></abp-script>
+    @*<abp-script src="/Pages/Accounting/Inv/_InvoiceList.js"></abp-script>*@
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Accounting"] />
+            <abp-breadcrumb-item title=@L["Menu:Payment"] />
+            <abp-breadcrumb-item title=@L["Menu:Customer"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <div class="title">
+                @L["Menu:Customer"]
+            </div>
+            <abp-button id="NewButton"
+                        text="@L["Create"].Value"
+                        icon="plus"
+                        class="btn btn-add" />
+    </abp-card-header>
+    <abp-card-body>
+            <abp-table striped-rows="true" id="CustomerListTable"></abp-table>
+    </abp-card-body>
+</abp-card>
+</div>

@@ -1,0 +1,289 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.Reports.BoxViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" class="wrap" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div class="wrap">
+        
+         
+       
+            <div class="text-center">
+                <div class="text-lg text-bold">Booking Packing List</div>
+            </div>
+     
+            <table class="table-padding-xs">
+                <colgroup>
+                    <col class="w-20">
+                    <col class="w-10">
+                    <col class="w-30">
+                    <col class="w-10">
+                    <col class="w-30">
+                </colgroup>
+                <tr class="border-b-grey">
+                    <td>
+                        <hc-form-trade-partner-info-picker
+                            select-class="select2me selec2-right"
+                            field-preset="name_address_detail"
+                            on-changed="vm.updateShipperInfo(info, address)"
+                        ></hc-form-trade-partner-info-picker>
+                    </td>
+                    <td>SHIPPER</td>
+                    <td> <div class="item-edit"><input type="text" name="shipper_name" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.shipper_name" id="id_shipper_name"></div></td>
+                    <td>SHIPPER ADD</td>
+                    <td><div class="item-edit"><input type="text" name="shipper_address" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.shipper_address" id="id_shipper_address"></div></td>
+                </tr>
+                <tr class="border-b-grey">
+                    <td>
+                        <hc-form-trade-partner-info-picker
+                            select-class="select2me selec2-right"
+                            field-preset="name_address_detail"
+                            on-changed="vm.updateConsigneeInfo(info, address)"
+                        ></hc-form-trade-partner-info-picker>
+                    </td>
+                    <td>CONSIGNEE</td>
+                    <td> <div class="item-edit"><input type="text" name="consignee_name" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.consignee_name" id="id_consignee_name"></div></td>
+                    <td>CONSIGNEE ADD</td>
+                    <td><div class="item-edit"><input type="text" name="consignee_address" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.consignee_address" id="id_consignee_address"></div></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>INV.NO</td>
+                    <td> <div class="item-edit"><input type="text" name="inv_no" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.inv_no" id="id_inv_no"></div></td>
+                    <td>DATE</td>
+                    <td><div class="item-edit"><input type="text" name="issue_date" value="04-14-2023" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.issue_date" id="id_issue_date"></div></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>FROM</td>
+                    <td> <div class="item-edit"><input type="text" name="POL_location" value="SHENZHENWAN (CHINA)" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.POL_location" id="id_POL_location"></div></td>
+                    <td>TO</td>
+                    <td><div class="item-edit"><input type="text" name="POD_location" value="LOS ANGELES, CA (UNITED STATES)" template-id="8eaf67b639ef10fadac605b415c92371daf4ca8d998298f271c6cfffc23baa2e:Form.POD_location" id="id_POD_location"></div></td>
+                </tr>
+            </table>
+            <table class="table-padding-double margin-t">
+                <colgroup>
+                    <col class="w-2"> <!-- checkbox -->
+                    <col class="w-8"> <!-- Booking No. -->
+                    <col class="w-5"> <!-- Number of PKG -->
+                    <col class="w-7"> <!-- PKG -->
+                    <col class="w-14"> <!-- Commodity description -->
+                    <col class="w-8"> <!-- HTS -->
+                    <col class="w-6"> <!-- PCS -->
+                    <col class="w-8"> <!-- Net Weight(KG) -->
+                    <col class="w-8"> <!-- Gross Weight(KG) -->
+                    <col class="w-6"> <!-- Unit price -->
+                    <col class="w-8"> <!-- Amount -->
+                    <col class="w-20"> <!-- Commodity details -->
+                </colgroup>
+                <tr class="border-t border-b col-bg-grey">
+                    <th class="col-padding-double"></th>
+                    <th class="col-padding-double text-left">Booking NO.</th>
+                    <th class="col-padding-double text-left"></th>
+                    <th class="col-padding-double text-right">PKG</th>
+                    <th class="col-padding-double text-left">Commodity description</th>
+                    <th class="col-padding-double text-right">HTS</th>
+                    <th class="col-padding-double text-right">PCS</th>
+
+                    <th class="col-padding-double text-right">
+                        Net Weight<br>
+                        <select name="net_weight_unit" class="select" ng-model="vm.netWeightUnit" ng-change="vm.updateTotalValue()" id="id_net_weight_unit">
+  <option value="KG">KG</option>
+
+  <option value="LB">LB</option>
+
+</select>
+                    </th>
+                    <th class="col-padding-double text-right">
+                        Gross Weight<br>
+                        <select name="gross_weight_unit" class="select" ng-model="vm.grossWeightUnit" ng-change="vm.updateTotalValue()" id="id_gross_weight_unit">
+  <option value="KG">KG</option>
+
+  <option value="LB">LB</option>
+
+</select>
+                    </th>
+                    <th class="col-padding-double text-right">Unit price</th>
+                    <th class="col-padding-double text-right">Amount</th>
+                    <th class="col-padding-double text-left">Commodity details</th>
+                </tr>
+
+                
+                <input type="hidden" name="total_package" ng-value="vm.totalPackage" id="id_total_package">
+                <input type="hidden" name="total_pcs" ng-value="vm.totalPCS" id="id_total_pcs">
+                <input type="hidden" name="total_net_weight" ng-value="vm.totalNetWeight" id="id_total_net_weight">
+                <input type="hidden" name="total_gross_weight" ng-value="vm.totalGrossWeight" id="id_total_gross_weight">
+                <input type="hidden" name="total_amount" ng-value="vm.totalAmount" id="id_total_amount">
+                
+
+                
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="item_info_chk_24048" ng-model="vm.itemInfoSet[0].checked" ng-change="vm.updateTotalValue()" id="id_item_info_chk_24048">
+                        </td>
+                        <td>SZWBC222110001</td>
+                        <td class="text-right"></td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-pkg"><span>CARTON(S)</span></div>
+                        </td>
+                        <td>ERRWR</td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-hts"><span></span></div>
+                        </td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-pcs"><span></span></div>
+                        </td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-weight">
+                                <span ng-if="vm.netWeightUnit === 'KG'">0.00</span>
+                                <span ng-if="vm.netWeightUnit === 'LB'">0.00</span>
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-weight">
+                                <span ng-if="vm.grossWeightUnit === 'KG'">0.00</span>
+                                <span ng-if="vm.grossWeightUnit === 'LB'">0.00</span>
+                            </div>
+                        </td>
+                        <td class="text-right"></td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-amount"><span>0.00</span></div>
+                        </td>
+                        <td></td>
+                    </tr>
+                
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="item_info_chk_24037" ng-model="vm.itemInfoSet[1].checked" ng-change="vm.updateTotalValue()" id="id_item_info_chk_24037">
+                        </td>
+                        <td>SZWBC222110002</td>
+                        <td class="text-right"></td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-pkg"><span>CARTON(S)</span></div>
+                        </td>
+                        <td>ABC</td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-hts"><span></span></div>
+                        </td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-pcs"><span>32323</span></div>
+                        </td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-weight">
+                                <span ng-if="vm.netWeightUnit === 'KG'">23.00</span>
+                                <span ng-if="vm.netWeightUnit === 'LB'">50.71</span>
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-weight">
+                                <span ng-if="vm.grossWeightUnit === 'KG'">2,222.00</span>
+                                <span ng-if="vm.grossWeightUnit === 'LB'">4,898.67</span>
+                            </div>
+                        </td>
+                        <td class="text-right">3434.00</td>
+                        <td class="text-right">
+                            <div class="auto-font-size __width-amount"><span>434.00</span></div>
+                        </td>
+                        <td></td>
+                    </tr>
+                
+                <tr class="border-t border-b text-bold col-bg-grey">
+                    <td colspan="2"></td>
+                    <td class="text-right">[[ vm.totalPackage ]]</td>
+                    <td colspan="3"></td>
+                    <td class="text-right">
+                        <div class="auto-font-size __width-pcs">
+                            <span>[[ vm.totalPCS ]]</span>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="auto-font-size __width-weight">
+                            <span>[[ vm.totalNetWeight | weightNumber | stripZero: vm.officeFormStripTrailingZero ]]</span>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="auto-font-size __width-weight">
+                            <span>[[ vm.totalGrossWeight | weightNumber | stripZero: vm.officeFormStripTrailingZero ]]</span>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td class="text-right">
+                        <div class="auto-font-size __width-amount">
+                            <span>[[ vm.totalAmount | number:2 | stripZero: vm.officeFormStripTrailingZero ]]</span>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <input type="hidden" name="reportid" value="@Model.ReportId" id="id_current_reportid">
+    </div> </div>
+</form>

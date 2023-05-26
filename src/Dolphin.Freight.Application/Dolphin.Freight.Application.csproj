@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Dolphin.Freight</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dolphin.Freight.Domain\Dolphin.Freight.Domain.csproj" />
+    <ProjectReference Include="..\Dolphin.Freight.Application.Contracts\Dolphin.Freight.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
+    <PackageReference Include="Volo.Abp.Account.Application" Version="5.3.4" />
+    <PackageReference Include="Volo.Abp.Identity.Application" Version="5.3.4" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="5.3.4" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="5.3.4" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="5.3.4" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="5.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\Memos\" />
+    <Folder Include="ImportExport\Attachments\" />
+    <Folder Include="Settings\AirOtherCharge\" />
+    <Folder Include="Settings\DisplaySetting\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Settings\AirOtherCharge\" />
+    <None Remove="Settings\DisplaySetting\" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,92 @@
+﻿@page
+@using Dolphin.Freight.Localization;
+@using Microsoft.Extensions.Localization
+@using Dolphin.Freight.TradePartner;
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@inject IStringLocalizer<FreightResource> L
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.ModalWithEditContactPersonModel
+@{
+    Layout = null;
+}
+<form method="post" abp-model="ContactPersonModel" asp-page="ModalWithEditContactPerson">
+    <abp-modal>
+        <abp-modal-header title="Edit Contact Person"></abp-modal-header>
+        <abp-modal-body>
+            <abp-input asp-for="ContactPersonModel.Id" type="hidden" />
+            <abp-input asp-for="ContactPersonModel.TradePartnerId" type="hidden" />
+            <abp-input asp-for="ContactPersonModel.ContactName" />
+            <abp-input asp-for="ContactPersonModel.ContactTitle" />
+            <abp-input asp-for="ContactPersonModel.ContactDivision" />
+            <abp-input asp-for="ContactPersonModel.ContactCellPhone" />
+            <abp-input asp-for="ContactPersonModel.ContactPhone" />
+            <abp-input asp-for="ContactPersonModel.ContactFax" />
+            <abp-input asp-for="ContactPersonModel.ContactEmailAddress" />
+
+            <div class="mb-3">
+                <label class="form-label">@L["DisplayName:ContactGender"]</label><br />
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactGenderRadio1" name="ContactPersonModel.ContactGender" type="radio" value="1" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactGenderRadio1">@L["DisplayName:Male"]</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactGenderRadio2" name="ContactPersonModel.ContactGender" type="radio" value="2" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactGenderRadio2">@L["DisplayName:Female"]</label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@L["DisplayName:ContactMarriage"]</label><br />
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactMarriageRadio1" name="ContactPersonModel.ContactMarriage" type="radio" value="1" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactMarriageRadio1">@L["DisplayName:Married"]</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactMarriageRadio2" name="ContactPersonModel.ContactMarriage" type="radio" value="2" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactMarriageRadio2">@L["DisplayName:Unmarried"]</label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@L["DisplayName:ContactSmokes"]</label><br />
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactSmokesRadio1" name="ContactPersonModel.ContactSmokes" type="radio" value="1" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactSmokesRadio1">@L["DisplayName:Yes"]</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactSmokesRadio2" name="ContactPersonModel.ContactSmokes" type="radio" value="2" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactSmokesRadio2">@L["DisplayName:No"]</label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@L["DisplayName:ContactDrink"]</label><br />
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactDrinkRadio1" name="ContactPersonModel.ContactDrink" type="radio" value="1" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactDrinkRadio1">@L["DisplayName:Yes"]</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="ContactPersonModel.ContactDrinkRadio2" name="ContactPersonModel.ContactDrink" type="radio" value="2" />
+                    <label class="form-check-label" for="ContactPersonModel.ContactDrinkRadio2">@L["DisplayName:No"]</label>
+                </div>
+            </div>
+
+            <abp-input asp-for="ContactPersonModel.ContactAge" type="number" />
+            <abp-input asp-for="ContactPersonModel.ContactGarment" />
+            <abp-input asp-for="ContactPersonModel.ContactHobby" />
+            <abp-input asp-for="ContactPersonModel.ContactInterest" />
+            <abp-input asp-for="ContactPersonModel.ContactMemorialDay" type="date" />
+            <abp-input asp-for="ContactPersonModel.ContactBirthday" type="date" />
+            <abp-select asp-for="ContactPersonModel.ContactConstellation" asp-items="@Model.ConstellationList" />
+            <abp-select asp-for="ContactPersonModel.ContactCountryId" asp-items="@Model.CountryList" />
+            <abp-input asp-for="ContactPersonModel.ContactCityCode" />
+            <abp-input asp-for="ContactPersonModel.ContactStateCode" />
+            <abp-input asp-for="ContactPersonModel.ContactPostCode" />
+            <abp-input asp-for="ContactPersonModel.ContactAddress" />
+
+            <abp-input asp-for="ContactPersonModel.ContactRemark" />
+            <abp-input asp-for="ContactPersonModel.IsRep" />
+            <abp-input asp-for="ContactPersonModel.IsEmailNotification" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

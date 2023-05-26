@@ -1,0 +1,405 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Http
+@model Dolphin.Freight.Web.ViewModels.ForwarderCargoReceipt.ForwarderCargoReceiptIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+@if (!string.IsNullOrEmpty(Model.BaseUrl))
+{
+    <base href="@Model.BaseUrl">
+}
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }     
+
+    .border-t, .text-sm, textarea, .text-bold, .border-b, .table-padding-double {
+        font-size: 8px;
+    }
+
+    .col-padding-sm, .text-sm, .text-12, .border-t, .border-b, .table-padding-double, .text-bold {
+        line-height: 1.42857143;
+    }
+</style>
+<link href="/Pages/Reports/Reports.css" rel="stylesheet">
+   <div style="background-color:black;display: flex;justify-content:center;">
+      <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+
+<div class="wrap oe-fcs">
+   <div class="con">
+      <table class="table-valign-top border-t">
+         <colgroup>
+            <col class="w-25">
+            <col class="w-25">
+            <col class="w-25">
+            <col class="w-25">
+         </colgroup>
+         <tbody>
+            <tr class="border-b">
+               <td class="border-r" colspan="2" rowspan="4">
+                  <div class="title">SUPPLIER / VENDOR</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        @Html.Raw((Model.SUPPLIER_VENDOR ?? "").Replace(Environment.NewLine, "<br/>"))
+                     </div>
+                  </div>
+               </td>
+               <td class="text-bold _text-20 col-padding-double" colspan="2">FORWARDER'S CARGO RECEIPT</td>
+            </tr>
+            <tr class="border-b">
+               <td class="col-padding" colspan="2">
+                  <span class="title mrgint-r-sm">FCR No.</span>
+                  <div class="inline-block">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.FCR_No</div>
+                  </div>
+               </td>
+            </tr>
+            <tr class="border-b">
+               <td class="border-r">
+                  <div class="title">PORT AND COUNTRY ORIGIN</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.PORT_AND_COUNTRY_ORIGIN</div>
+                  </div>
+               </td>
+               <td>
+                  <div class="title">DATE OF RECEIPT OF GOODS</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.DATE_OF_RECEIPT_OF_GOODS</div>
+                  </div>
+               </td>
+            </tr>
+            <tr class="border-b">
+               <td class="text-bold text-16" colspan="2">THIS IS NOT A DOCUMENT OF TITLE</td>
+            </tr>
+            <tr>
+               <td class="border-r border-b" colspan="2">
+                  <div class="title">CONSIGNEE</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        @Html.Raw((Model.CONSIGNEE ?? "").Replace(Environment.NewLine, "<br/>"))
+                     </div>
+                  </div>
+               </td>
+               <td class="text-bold col-padding" colspan="2">
+                  <span class="_text-14">FORWARDER:</span>
+                  <div class="logo text-center">
+                        <img src="/Pages/Reports/logo.png" class="w-20">
+                  </div>
+                  <div class="text-16 text-center">HARD CORE TECHNOLOGY</div>
+               </td>
+            </tr>
+            <tr>
+               <td class="border-r border-b" colspan="2">
+                  <div class="title">NOTIFY PARTY</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        @Html.Raw((Model.NOTIFY_PARTY ?? "").Replace(Environment.NewLine, "<br/>"))
+                     </div>
+                  </div>
+               </td>
+               <td class="col-padding border-b" colspan="2">
+                  This Forwarder's Cargo Receipt(FCR) is to be issued upon presentation of the corresponding dock
+                  receipt. This document is issued only to aid the Supplier/Vendor in seeking negotiation on the
+                  relevant letter of credit. This document does not grant any title to the goods described
+                  hereunder.<br><br>
+                  Goods will be containerized and shipped under ocean Bill(s) of Lading, to be issued by the carrier.
+               </td>
+            </tr>
+            <tr class="border-b">
+               <td class="border-r">
+                  <div class="title">VESSEL &amp; VOYAGE(intended)</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.VESSEL_VOYAGE</div>
+                  </div>
+               </td>
+               <td class="border-r">
+                  <div class="title">SAILING DATE</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.SAILING_DATE</div>
+                  </div>
+               </td>
+               <td colspan="2">
+                  <div class="title">NUMBER OF ORIGINAL FCR(s)</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.NUMBER_OF_ORIGINAL_FCR</div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table>
+         <tbody>
+            <tr class="border-b">
+               <td class="border-r">
+                  <div class="title">PLACE OF RECEIPT</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.PLACE_OF_RECEIPT</div>
+                  </div>
+               </td>
+               <td class="border-r">
+                  <div class="title">PORT OF LOADING</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.PORT_OF_LOADING</div>
+                  </div>
+               </td>
+               <td class="border-r">
+                  <div class="title">PORT OF DISCHARGE</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.PORT_OF_DISCHARGE</div>
+                  </div>
+               </td>
+               <td>
+                  <div class="title">PLACE OF DELIVERY</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">@Model.PLACE_OF_DELIVERY</div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="table-padding-double">
+         <tbody>
+            <tr class="text-sm border-b">
+               <th class="w-18 col-padding text-left">
+                  MARKS AND NUMBERS
+               </th>
+               <th class="w-22 col-padding text-left">
+                  NUMBER AND KIND OF PACKAGES
+               </th>
+               <th class="w-38 col-padding text-left">
+                  DESCRIPTION AND GOODS
+               </th>
+               <th class="w-12 col-padding text-right">
+                  GROSS WEIGHT
+               </th>
+               <th class="w-12 col-padding text-right">
+                  MEASUREMENT
+               </th>
+            </tr>
+            <tr>
+               <td class="td td-item" rowspan="2">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     @Html.Raw((Model.MARKS_AND_NUMBERS ?? "").Replace(Environment.NewLine, "<br/>"))
+
+                    @{
+                        var table_rows = (Model.MARKS_AND_NUMBERS ?? "").Replace(Environment.NewLine, "<br/>").Split(new string[] { "<br/>" }, StringSplitOptions.RemoveEmptyEntries).Length;
+
+                        if(table_rows < 25)
+                        {
+                            for (int i = 0; i < 25 - table_rows; i++)
+                            {
+                                <br/>
+                            }
+                        }
+                    }
+                  </div>
+               </td>
+               <td class="td td-item text-right" rowspan="2">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     @Html.Raw((Model.DESCRIPTION_AND_GOODS ?? "").Replace(Environment.NewLine, "<br/>"))
+                  </div>
+               </td>
+               <td class="td td-item" rowspan="2">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     @Html.Raw((Model.NUMBER_AND_KIND_OF_PACKAGES ?? "").Replace(Environment.NewLine, "<br/>"))
+                  </div>
+               </td>
+               <td class="td td-item text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     @Html.Raw((Model.GROSS_WEIGHT ?? "").Replace(Environment.NewLine, "<br/>"))
+                    </div>
+               </td>
+               <td class="td td-item text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     @Html.Raw((Model.MEASUREMENT ?? "").Replace(Environment.NewLine, "<br/>"))
+                     
+                    @{
+                        var table_rows2 = (Model.MEASUREMENT ?? "").Replace(Environment.NewLine, "<br/>").Split(new string[] { "<br/>" }, StringSplitOptions.RemoveEmptyEntries).Length;
+
+                        if(table_rows2 < 22)
+                        {
+                            for (int i = 0; i < 22 - table_rows2; i++)
+                            {
+                                <br/>
+                            }
+                        }
+                    }
+                  </div>
+               </td>
+            </tr>
+            <tr>
+               <td class="text-right" colspan="2">
+                   <strong class="text-red text-lg _opacity-50">@Model.addition_mark</strong>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="border-t border-b">
+         <tbody>
+            <tr>
+               <td class="td w-45 border-r">
+                  <div class="border-b col-padding-double">
+                     IN ACCORDANCE WITH INSTRUCTIONS FROM THE BUYER,<br>
+                     WE HAVE RECEIVED THE FOLLOWING DOCUMENTS ON:
+                  </div>
+                  <table class="table-padding-double">
+                     <colgroup>
+                        <col class="w-80">
+                        <col class="w-20">
+                     </colgroup>
+                     <tbody>
+                        <tr>
+                           <th class="text-right">ORIGINAL</th>
+                           <th class="text-center">COPY</th>
+                        </tr>
+                        <tr height="200">
+                           <td></td>
+                           <td></td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  The above documents plus Bill of Lading will be dispatched to consignee or other designated parties.
+                  The Supplier/Vendor wavies any right to ask for any bills of lading.
+               </td>
+               <td class="td w-55">
+                  <div class="remark_con padding-l-md">
+                     RECEIVED THE GOODS DESCRIBED ABOVE, IN APPARENT GOOD ORDER AND CONDITION<br>
+                     UNLESS OTHERWISE STATED. THE GOODS ARE TO BE DELIVERED TO THE CONSIGNEE<br>
+                     AT THE PLACE OF DELIVERY AND THE CONSIGNEE NEED NOT SURRENDER ANY ORIGINAL<br>
+                     OF THE FORWARDER'S CARGO RECEIPT WHEN THEY TAKE CARGO DELIVERY. THE CONSIGNEE HAS THE
+                     IRREVOCABLE RIGHT TO DISPOSE OF THE GOODS ONCE THE GOODS ARE RECEIVED BY THE ABOVE-MENTIONED
+                     FORWARDER FROM THE SUPPLIER/VENDOR.<br><br>
+                     IN WITNESS WHEREOF. THE ABOVE-MENTIONED NUMBER OF ORIGINAL
+                  </div>
+                  <div class="text-center">
+                     FOR
+                     <div class="_text-14 text-bold">HARD CORE TECHNOLOGY</div>
+                     <div class="margin-t-md col-padding-sm">
+                        <div class="border-b margin-b-xs">
+                           <div class="item-edit hover-toggle-icon-text-template">@Model.signature</div>
+                        </div>
+                        AUTHORIZED SIGNATURE
+                     </div>
+                  </div>
+                  <div class="margin-t-md padding-l-md">
+                     DATE:
+                     <div class="inline-block">
+                        <div class="item-edit hover-toggle-icon-text-template">@Model.current_date</div>
+                     </div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="next-page edit-preview-rider ng-scope" id="container-table"  style="@(!string.IsNullOrEmpty(Model.Show_Container_Rider) ? "" : "display:none")">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-25">
+                  <h1>CONTAINER LIST</h1>
+               </td>
+               <td class="w-50 text-center">
+                  <h1>REF NO. @(Model.REF_NO)</h1>
+               </td>
+               <td class="w-25 text-right">
+                  <h1>BL NO. @(Model.BL_NO)</h1>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table>
+         <tbody>
+            <tr class="border-t border-b">
+               <th class="w-13 border-r text-left col-padding-double">
+                  CONTAINER NO.
+               </th>
+               <th class="w-7 border-r text-center col-padding-double">
+                  TYPE
+               </th>
+               <th class="w-13 border-r text-left col-padding-double">
+                  SEAL NO.
+               </th>
+               <th class="w-10 border-r text-left col-padding-double">
+                  PICKUP NO.
+               </th>
+               <th class="w-8 border-r text-left col-padding-double">
+                  LFD
+               </th>
+               <th class="w-6 border-r text-center col-padding-double">
+                  PKGS
+               </th>
+               <th class="w-16 border-r text-center col-padding-double">
+                  UNIT
+               </th>
+               <th class="w-14 border-r text-right col-padding-double">
+                  WEIGHT
+                  ()
+               </th>
+               <th class="w-13 text-right col-padding-double">
+                  MEASUREMENT
+                  ()
+               </th>
+            </tr>
+            @if(Model.ContainerList != null && Model.ContainerList.Count > 0)
+            {
+                for (int i = 0; i < Model.ContainerList.Count; i++)
+                {
+                    var container = Model.ContainerList[i];
+                       
+                    <tr>
+                       <td class="td td-item border-r">@container.CONTAINER_NO</td>
+                       <td class="td td-item text-center border-r">@container.TYPE</td>
+                       <td class="td td-item border-r">@container.SEAL_NO</td>
+                       <td class="td td-item border-r">@container.PICKUP_NO</td>
+                       <td class="td td-item border-r">@container.LFD</td>
+                       <td class="td td-item text-center border-r">@container.PKGS</td>
+                       <td class="td td-item text-center border-r">@container.UNIT</td>
+                       <td class="td td-item text-right border-r">@container.WEIGHT</td>
+                       <td class="td td-item text-right">@container.MEASUREMENT</td>
+                    </tr>                
+                }                             
+            }
+            else
+            {                      
+                <tr>
+                   <td colspan="8" class="td td-item text-center text-12 col-padding-sm"> No Container Information</td>
+                </tr>          
+            }
+            <tr class="border-t border-b text-bold">
+               <td class="td td-item border-r text-center" colspan="5">TOTAL</td>
+               <td class="td td-item text-center border-r" >@Model.TOTAL_PKGS</td>
+               <td class="td td-item text-center border-r" >@Model.TOTAL_UNIT</td>
+               <td class="td td-item text-right border-r" >@Model.TOTAL_WEIGHT</td>
+               <td class="td td-item text-right" >@Model.TOTAL_MEASUREMENT"</td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+</div>
+      </div>
+   </div>

@@ -1,0 +1,25 @@
+1.在Dolphin.Freight.Domain做Entity
+在 FreightWebAutoMapperProfile加入對應
+在Dolphin.Freight.Application/FreightApplicationAutoMapperProfile加入對應
+2.修改Dolphin.Freight.EntityFrameworkCore的FreightDbContext
+加入要新增Table(Entity)
+3.執行語法產生migrations
+dotnet ef migrations add AwbNoranges --context FreightDBContext
+4.執行與法修改DB
+dotnet ef database update --context FreightDBContext
+5.在Dolphin.Freight.Application.Contracts做service介面
+6.在Dolphin.Freight.Application實作Service
+7.在Dolphin.Freight.Application.Contracts\Permissions中設定permissions
+8.在Dolphin.Freight.Web.FreightWebModule加入權限設定
+9.在Dolphin.Freight.Web.FreightMenuContributor加入Menu要顯示的頁面
+10.在
+
+PS 本地化設定在Dolphin.Freight.Domain.Shared\Localization\Freight的對應檔
+
+
+dolphin.freight.settings.awbNoRanges.awbNoRange.getList({}).done(function (result) { console.log(result); });
+
+
+
+嚴重性	程式碼	說明	專案	檔案	行	隱藏項目狀態
+錯誤	CS0029	無法將類型 'System.Threading.Tasks.Task<System.Collections.Generic.List<Dolphin.Freight.TradePartners.TradePartner>>' 隱含轉換成 'System.Collections.Generic.List<Dolphin.Freight.TradePartners.TradePartner>'	Dolphin.Freight.Application	C:\Users\ejo\Desktop\處理中\萬泰\雲端版本\Jean\src\Dolphin.Freight.Application\TradePartners\TradePartnerAppService.cs	41	作用中

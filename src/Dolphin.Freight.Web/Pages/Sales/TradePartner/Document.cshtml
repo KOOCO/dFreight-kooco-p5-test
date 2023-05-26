@@ -1,0 +1,84 @@
+﻿@page "{TPId}/{TPCode}"
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.DocumentModel
+@inject IStringLocalizer<FreightResource> L
+@section styles{
+    <style>
+        div.dataTables_wrapper {
+            margin: 0 auto;
+        }
+    </style>
+}
+@section scripts{
+    <abp-script src="/Pages/Sales/TradePartner/Document.js" />
+
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:TradePartner"] />
+            <abp-breadcrumb-item title=@L["Menu:TradePartner"]@Model.TPCode />
+        </abp-breadcrumb>
+    </div>
+    <nav class="submenu">
+        <ol>
+            <li class="menu-item ">
+                <a class="nav-link" href="/Sales/TradePartner/EditTradePartnerInfo/@Model.TPId">@L["Display:TradePartner:NavTab:Basic"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link disabled" href="javascript:void(0)">@L["Display:TradePartner:NavTab:AccountingSetting"]</a>
+            </li>
+            <li class="menu-item active">
+                <a class="nav-link active" href="javascript:void(0)">@L["Display:TradePartner:NavTab:DocCenter"]</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="page-content-area">
+    <div class="board-wrap">
+            <form method="post" enctype="multipart/form-data" data-ajaxForm="true" id="DocumentForm">
+            <abp-card border="Dark">
+                <abp-card-header style="background:#555555;color:#FFFFFF;">
+                    <abp-row>
+                            <abp-input asp-for="DocumentUploadModel.TPId" id="tid" type="hidden" />
+                        <abp-column>
+                            <abp-card-title>@L["Display:TradePartner:NavTab:DocCenter"]</abp-card-title>
+                        </abp-column>
+                    </abp-row>
+                </abp-card-header>
+                <abp-card-body>
+                    <abp-row>
+                        <abp-column style="max-width:300px">
+                           <h6 style="color:#555555;"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;@L["Display:TradePartner:Document:SelectFiles"]</h6>
+                           <hr />
+                           <div>
+                                <p class="mb-3">@L["Display:TradePartner:Document:FileSizeAnnounce"]<span class="text-primary"> @(Dolphin.Freight.TradePartners.TradePartnerAttachmentConsts.MaxAttachmentFileSize) Byte (@((Dolphin.Freight.TradePartners.TradePartnerAttachmentConsts.MaxAttachmentFileSize) / 1024 / 1024)MB).</span></p>
+                                <input type="file" id="DocumentUploadModel_FromFile" asp-for="DocumentUploadModel.FromFile">
+                                <span asp-validation-for="DocumentUploadModel.FromFile" class="text-danger"></span>
+                           </div>
+                           <br />
+                            <abp-button class="btn btn-primary me-md-2" type="submit" id="saveBtn">@L["Btn:Upload"]</abp-button>
+                        </abp-column>
+                        <abp-column style="max-width:800px">
+                            <h6 style="color:#555555;"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;@L["Display:TradePartner:Document:DocumentList"] &nbsp;&nbsp; <h7 style="color:#bfbfbf;">1 file(s)</h7></h6>
+                            <hr />
+                                <abp-table striped-rows="true" id="TPAttachmentListTable" class="stripe row-border order-column" style="width:100%"></abp-table>
+                        </abp-column>
+                    </abp-row>
+                    @*<!-- 下方Save按鈕 -->
+                    <abp-row class="mt-3">
+                        <abp-column>
+                            <abp-button class="btn btn-primary me-md-2" type="submit" id="saveBtn">@L["Display:Button:Submit"]</abp-button>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            &nbsp;
+                        </abp-column>
+                    </abp-row>*@
+                </abp-card-body>
+            </abp-card>
+        </form>
+    </div>
+</div>

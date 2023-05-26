@@ -1,0 +1,636 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Reports.DockRecepitModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+
+        <div class="wrap oe-dock-receipt">
+   <div class="item-edit topbar">
+      <div class="topbar-block">
+         Data Source :
+         <select class="select w-160px">
+            <option selected="selected" value="loadInitial">Shipment</option>
+            <option value="loadDraft">Last Modified</option>
+            <option value="loadEmptyFromDraft">Load empty fields from last modified</option>
+         </select>
+      </div>
+   </div>
+   <div class="header header-normal">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-15 logo">
+                        <img src="/Pages/Reports/logo.png">
+               </td>
+               <td class="w-48">
+                    <h1 class="auto-font-size office-name">
+                        <span>@Model.InfoModel.Office</span>
+                    </h1>
+                  <div class="auto-font-size office-des">
+                    <span>
+                        @{
+                            if (Model.InfoModel.Address != "")
+                            {
+                                @Model.InfoModel.Address
+                                <br />
+                            }
+                        }
+                        TEL: @Model.InfoModel.Tel FAX: @Model.InfoModel.Fax <br>
+                        EMAIL: @Model.InfoModel.Email
+                            <br /><strong>Prepared by @Model.InfoModel.LastName @Model.InfoModel.FirstName @Model.InfoModel.DateTime (CST)</strong>
+                                    
+                        <input type="hidden" name="Office" value="@Model.InfoModel.Office" />
+                        <input type="hidden" name="Address" value="@Model.InfoModel.Address" />
+                        <input type="hidden" name="TEL" value="@Model.InfoModel.Tel" />
+                        <input type="hidden" name="EMAIL" value="@Model.InfoModel.Email" />
+                        <input type="hidden" name="LastName" value="@Model.InfoModel.LastName" />
+                        <input type="hidden" name="FirstName" value="@Model.InfoModel.FirstName" />
+                        <input type="hidden" name="DateTime" value="@Model.InfoModel.DateTime" />
+                    </span>
+                  </div>
+               </td>
+               <td class="w-2">&nbsp;</td>
+               <td class="w-35 title border-deep-blue">
+                  <div class="text-center">
+                     <h2 class="blue-lg">DOCK RECEIPT</h2>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="header header-horizontal-logo">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-75">
+                  <h1 class="text-blue-deep">DOCK RECEIPT</h1>
+                  <h2 class="auto-font-size office-name"><span>HARD CORE TECHNOLOGY(GST/VAT)</span></h2>
+                  <div class="auto-font-size office-des">
+                     <span>
+                     77792 COBB CAPE TRISTANCHESTER, NE 47478<br>
+                     TEL: 08417606080 FAX: 08417606080 EMAIL: hanjun.lin@dolphin-gp.com
+                     <br><strong>Prepared by Hanjun Lin 04-07-2023 08:49 (CST)</strong>
+                     </span>
+                  </div>
+               </td>
+               <td class="w-2">&nbsp;</td>
+               <td class="w-22 logo">
+                  <img src="/api/office/logo/1/">
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="con">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-48 td">
+                  <table class="data-height-md">
+                     <tbody>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">SHIPPER / EXPORTER</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="SHIPPER_EXPORTER" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_shipper_area">CHIYODA
+                                    @{
+                                        if (Model.InfoModel.SHIPPER_EXPORTER != "")
+                                        {
+                                            @Model.InfoModel.SHIPPER_EXPORTER
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">CONSIGNEE</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="CONSIGNEE" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_consignee_area">ASTI
+                                    @{
+                                        if (Model.InfoModel.CONSIGNEE != "")
+                                        {
+                                            @Model.InfoModel.CONSIGNEE
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">NOTIFY</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="NOTIFY" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_notify_area">CHIYODA
+                                    @{
+                                        if (Model.InfoModel.NOTIFY != "")
+                                        {
+                                            @Model.InfoModel.NOTIFY
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">DELIVERY TO</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="DELIVERY_TO" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_delivery_to_area">NAX
+                                    @{
+                                        if (Model.InfoModel.DELIVERY_TO != "")
+                                        {
+                                            @Model.InfoModel.DELIVERY_TO
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+               <td class="w-4">&nbsp;</td>
+               <td class="w-48 border-l border-r border-t data-lg">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="td w-49 border-b">
+                              <div class="title">CARRIER BOOKING NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="CARRIER_BOOKING_NO" value="@Model.InfoModel.CARRIER_BOOKING_NO" id="id_carrier_bkg_no" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td w-49 border-b">
+                              <div class="title">EXPORT FILE NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="EXPORT_FILE_NO" value="@Model.InfoModel.EXPORT_FILE_NO" id="id_export_ref_no" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">INVOICE NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="INVOICE_NO" value="@Model.InfoModel.INVOICE_NO" id="id_invoice_no" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                           <td class="w-2">&nbsp;</td>
+                           <td class="td border-b">
+                              <div class="title">P/O NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="PO_NO" value="@Model.InfoModel.PO_NO" id="id_po_num_list" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">EXPORT CARRIER</div>
+                              <div class="data auto-font-size __width-md"><span>@Model.InfoModel.EXPORT_CARRIER</span></div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">VESSEL &amp; VOYAGE NO</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="VESSEL_VOYAGE_NO" value="@Model.InfoModel.VESSEL_VOYAGE_NO" id="id_vessel_voyage" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">CUT-OFF</div>
+                              <table>
+                                 <tbody>
+                                    <tr>
+                                       <td class="td w-25 valign-middle">
+                                          <div class="data">PORT:</div>
+                                       </td>
+                                       <td class="td w-75">
+                                          <div class="data">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="CUT_OFF_PORT" value="@Model.InfoModel.CUT_OFF_PORT" id="id_port_cut_off_datetime" class="ng-isolate-scope">
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </tr>
+                                    <tr>
+                                       <td class="td valign-middle">
+                                          <div class="data">RAIL:</div>
+                                       </td>
+                                       <td class="td">
+                                          <div class="data">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="CUT_OFF_RAIL" value="@Model.InfoModel.CUT_OFF_RAIL" id="id_rail_cut_off_datetime" class="ng-isolate-scope">
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </tr>
+                                    <tr>
+                                       <td class="td valign-middle">
+                                          <div class="data">WAREHOUSE:</div>
+                                       </td>
+                                       <td class="td">
+                                          <div class="data">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="CUT_OFF_WAREHOUSE" value="@Model.InfoModel.CUT_OFF_WAREHOUSE" id="id_wh_cut_off_datetime" class="ng-isolate-scope">
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </tr>
+                                    <tr>
+                                       <td class="td valign-middle">
+                                          <div class="data">SED/DOC:</div>
+                                       </td>
+                                       <td class="td">
+                                          <div class="data">
+                                             <div class="item-edit hover-toggle-icon-text-template">
+                                                <input type="text" name="CUT_OFF_SED_DOC" value="@Model.InfoModel.CUT_OFF_SED_DOC" id="id_doc_cut_off_datetime" class="ng-isolate-scope">
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PLACE OF RECEIPT</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="PLACE_OF_DELIVERY" value="@Model.InfoModel.PLACE_OF_DELIVERY" id="id_POR_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PORT OF LOADING</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="PORT_OF_LOADING" value="@Model.InfoModel.PORT_OF_LOADING" id="id_POL_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PORT OF DISCHARGE</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="PORT_OF_DISCHARGE" value="@Model.InfoModel.PORT_OF_DISCHARGE" id="id_POD_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PLACE OF DELIVERY</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="PLACE_OF_DELIVERY" value="@Model.InfoModel.PLACE_OF_DELIVERY" id="id_DEL_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="margin-t-md border-b">
+         <tbody>
+            <tr class="border-b border-t bg-light text-8">
+               <th class="w-20 border-r text-left col-padding-double">
+                  MARK &amp; NUMBER
+               </th>
+               <th class="w-15 border-r text-right col-padding-double">
+                  NO. OF PKGS.
+               </th>
+               <th class="w-35 border-r text-left col-padding-double">
+                  DESCRIPTION OF GOODS
+               </th>
+               <th class="w-15 border-r text-right col-padding-double">
+                  WEIGHT
+               </th>
+               <th class="w-15 text-right col-padding-double">
+                  MEASUREMENT
+               </th>
+            </tr>
+            <tr class="border-b">
+               <td class="td td-item border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="MARK_NUMBER" cols="40" rows="18" class="text-scroll ng-isolate-scope" id="id_shipping_marks">CONTAINER NO./SEAL NO./P.O. NO.
+                        @{
+                            if (Model.InfoModel.MARK_NUMBER != "")
+                            {
+                                @Model.InfoModel.MARK_NUMBER
+                            }
+                        }
+                     </textarea>
+                  </div>
+               </td>
+               <td class="td td-item border-r text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="NO_OF_PKGS" cols="40" rows="18" class="text-right text-scroll no-adjustment ng-isolate-scope" id="id_packages">
+                        @{
+                            if (Model.InfoModel.NO_OF_PKGS != "")
+                            {
+                                @Model.InfoModel.NO_OF_PKGS
+                            }
+                        }
+                     </textarea>
+                  </div>
+               </td>
+               <td class="td td-item border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="DESCRIPTION_OF_GOODS" cols="40" rows="18" class="text-scroll ng-isolate-scope" id="id_good_items">
+                        @{
+                            if (Model.InfoModel.DESCRIPTION_OF_GOODS != "")
+                            {
+                                @Model.InfoModel.DESCRIPTION_OF_GOODS
+                            }
+                        }
+                     </textarea>
+                  </div>
+               </td>
+               <td class="td td-item text-right border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="WEIGHT" cols="40" rows="18" class="text-right text-scroll no-adjustment ng-isolate-scope" id="id_gross_weight">
+                        @{
+                            if (Model.InfoModel.WEIGHT != "")
+                            {
+                                @Model.InfoModel.WEIGHT
+                            }
+                        }
+                     </textarea>
+                  </div>
+               </td>
+               <td class="td td-item text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="MEASUREMENT" cols="40" rows="18" class="text-right text-scroll no-adjustment ng-isolate-scope" id="id_measure">
+                        @{
+                            if (Model.InfoModel.MEASUREMENT != "")
+                            {
+                                @Model.InfoModel.MEASUREMENT
+                            }
+                        }
+                     </textarea>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="margin-t-md border">
+         <tbody>
+            <tr>
+               <td class="w-100 text-bold border-b col-padding-double">REMARK</td>
+            </tr>
+            <tr>
+               <td class="col-padding-double lineheight-nor">
+                  <div class="auto-font-size __col-remark" style="font-size: 6px !important; line-height: 11px !important;">
+                     <span>RECEIVED THE ABOVE DESCRIBED GOODS OR PACKAGES SUBJECT TO ALLTHE TERMS OF THE UNDERSIGNED'S REGULAR<br>
+                     FORM OF DOCK RECEIPT. A BILL OF LADING WHICH SHALL CONSTITUTE THE CONTRACT UNDER WHICH THE GOODS ARE<br>
+                     RECEIVED, COPIES OF WHICH ARE AVAILABLE FROM THE CARRIER ON REQUEST AND MAY BE INSPECTED AT ANY OF ITS<br>
+                     OFFICES.</span>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="margin-t">
+         <tbody>
+            <tr>
+               <td class="w-75">
+                  <table class="table-padding">
+                     <tbody>
+                        <tr>
+                           <td class="w-20 text-bold">DELIVERY BY:</td>
+                           <td class="w-80 border-b">
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="DELIVERY_BY" value="@Model.InfoModel.DELIVERY_BY" id="id_deliver_by" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="w-20 text-bold">TRUCKING CO.:</td>
+                           <td class="w-80 border-b">
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="TRUCKING_CO" value="@Model.InfoModel.TRUCKING_CO" id="id_trucking_co" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="w-20" colspan="2">
+                              <table class="table-padding">
+                                 <tbody>
+                                    <tr>
+                                       <td class="w-20 text-bold">ARRIVED DATE:</td>
+                                       <td class="w-30 border-b">
+                                          <div class="item-edit hover-toggle-icon-text-template">
+                                             <input type="text" name="ARRIVED_DATE" value="@Model.InfoModel.ARRIVED_DATE" id="id_arrive_date" class="ng-isolate-scope">
+                                          </div>
+                                       </td>
+                                       <td class="w-10 text-bold text-right">TIME:</td>
+                                       <td class="w-40 border-b">
+                                          <div class="item-edit hover-toggle-icon-text-template">
+                                             <input type="text" name="ARRIVED_TIME" value="@Model.InfoModel.ARRIVED_TIME" class="tune-l ng-isolate-scope" id="id_arrive_time">
+                                          </div>
+                                       </td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="w-20" colspan="2">
+                              <table class="table-padding">
+                                 <tbody>
+                                    <tr>
+                                       <td class="w-20 text-bold">UNLOADED DATE:</td>
+                                       <td class="w-30 border-b">
+                                          <div class="item-edit hover-toggle-icon-text-template">
+                                             <input type="text" name="UNLOADED_DATE" value="@Model.InfoModel.UNLOADED_DATE" id="id_unload_date" class="ng-isolate-scope">
+                                          </div>
+                                       </td>
+                                       <td class="w-10 text-bold text-right">TIME:</td>
+                                       <td class="w-40 border-b">
+                                          <div class="item-edit hover-toggle-icon-text-template">
+                                             <input type="text" name="UNLOADED_TIME" value="@Model.InfoModel.UNLOADED_TIME" class="tune-l ng-isolate-scope" id="id_unload_time">
+                                          </div>
+                                       </td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="w-20 text-bold">CHECK BY:</td>
+                           <td class="w-80 border-b">
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="CHECK_BY" value="@Model.InfoModel.CHECK_BY" id="id_check_by" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="w-20 text-bold">PLACED:</td>
+                           <td class="w-80 border-b">
+                              <div class="item-edit">
+                                 <table>
+                                    <tbody>
+                                       <tr>
+                                          <td><input type="checkbox" name="INSHIP" value="true" @(!string.IsNullOrEmpty(Model.InfoModel.INSHIP) ? "checked" : "") id="id_inship_placed"><span style="font-size:10px;vertical-align:top"> INSHIP</span></td>
+                                          <td><input type="checkbox" name="ON_DOCK" value="true" @(!string.IsNullOrEmpty(Model.InfoModel.ON_DOCK) ? "checked" : "") id="id_on_dock_placed"><span style="font-size:10px;vertical-align:top"> ON DOCK</span></td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="w-20 text-bold">LOCATION:</td>
+                           <td class="w-80 border-b">
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="LOCATION" value="@Model.InfoModel.LOCATION" id="id_location" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+               <td class="w-3">&nbsp;</td>
+               <td class="w-22">
+                  <div class="text-center text-bold margin-b-lg margin-t-md">
+                     FOR THE MASTER
+                  </div>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="w-10 col-padding">BY</td>
+                           <td class="w-90 border-b col-padding">&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td colspan="2" class="text-right col-padding-double">RECEIVING CLERK&nbsp;&nbsp;&nbsp;DATE</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+</div>
+
+    </div>
+</div>
+</form>

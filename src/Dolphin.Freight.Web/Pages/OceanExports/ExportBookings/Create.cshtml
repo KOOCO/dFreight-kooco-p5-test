@@ -1,0 +1,762 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.Components
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.OceanExports.ExportBookings.CreateModel
+@inject IStringLocalizer<FreightResource> L
+@section scripts
+    {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var l = abp.localization.getResource('Freight');
+            $("#ExportBooking_CanceledDate").datepicker({});
+            $("#PoNoTag").tagsInit();
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'CancelReason' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeI18nTag(result, "CancelReason", $("#mCancelReason").val())
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getReferenceItemsByType({}).done(function (result) {
+                console.log(result)
+                if (result != null && result.length > 0) {
+                    initReferenceTag(result, "ReferenceId", $("#mReferenceId").val())
+                }
+            });
+
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'ShipModeId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "ShipModeId", $("#mShipModeId").val())
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'FreightTermId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "FreightTermForBuyerId", $("#mFreightTermForBuyerId").val())
+                    initSysCodeTag(result, "FreightTermForSalerId", $("#mFreightTermForSalerId").val())
+
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'SvcTermFromId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "SvcTermFromId", $("#mSvcTermFromId").val())
+                    initSysCodeTag(result, "SvcTermToId", $("#mSvcTermToId").val())
+
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'IncotermsId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "IncotermsId", $("#mIncotermsId").val())
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'CargoTypeId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "CargoTypeId", $("#mCargoTypeId").val())
+                }
+            });
+            //貿易夥伴
+            dolphin.freight.tradePartners.tradePartner.getList({}).done(function (result) {
+                var selectItems = result.items;
+                initTradePartnerSelect(selectItems, "CarrierId", $("#mCarrierId").val());
+                initTradePartnerSelect(selectItems, "ShipperId", $("#mShipperId").val());
+                initTradePartnerSelect(selectItems, "CustomerId", $("#mCustomerId").val());
+                initTradePartnerSelect(selectItems, "BillToId", $("#mBillToId").val());
+                initTradePartnerSelect(selectItems, "ConsigneeId", $("#mConsigneeId").val());
+                initTradePartnerSelect(selectItems, "NotifyId", $("#mNotifyId").val());
+                initTradePartnerSelect(selectItems, "ShippingAgentId", $("#mShippingAgentId").val());
+                initTradePartnerSelect(selectItems, "CoLoaderId", $("#mCoLoaderId").val());
+                initTradePartnerSelect(selectItems, "FbaId", $("#mFbaId").val());
+                initTradePartnerSelect(selectItems, "CargoPickupId", $("#mCargoPickupId").val());
+                initTradePartnerSelect(selectItems, "TruckerId", $("#mTruckerId").val());
+                initTradePartnerSelect(selectItems, "DeliveryToId", $("#mDeliveryToId").val());
+
+
+            });
+            //港口
+            dolphin.freight.settings.ports.port.getList({}).done(function (result) {
+                console.log(result.items);
+                if (result != null && result.items != null && result.items.length > 0) {
+                    initPortsTag(result.items, "PorId", $("#mPorId").val())
+                    initPortsTag(result.items, "PolId", $("#mPolId").val())
+                    initPortsTag(result.items, "PodId", $("#mPodId").val())
+                    initPortsTag(result.items, "DelId", $("#mDelId").val())
+                    initPortsTag(result.items, "FdestId", $("#mFdestId").val())
+                    initPortsTag(result.items, "TransPort1Id", $("#mTransPort1Id").val())
+
+                }
+            });
+            //分站
+            dolphin.freight.settings.substations.substation.getSubstations({}).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSubstationsTag(result, "OfficeId", $("#mOfficeId").val())
+                }
+            });
+            initReasonStatus();
+            initHideBtn();
+            initRemark(0);
+            $("#checkHideBtn").click(function () {
+                initHideBtn();
+            });
+            $("#ExportBooking_IsCanceled").change(function () {
+                initReasonStatus()
+            });
+            $("#ExportBooking_IsCreateBySystem").change(function () {
+                $("#ExportBooking_SoNo").attr('readonly', $(this).is(":checked"));
+                if ($(this).is(":checked")) $("#ExportBooking_SoNo").val("");
+            })
+
+
+            $("#saveBtn").click(function () {
+                $("#mOfficeId").val($("#OfficeId").val());
+                $("#mMblSalesTypeId").val($("#MblSalesTypeId").val());
+                $("#mSvcTermFromId").val($("#SvcTermFromId").val());
+                $("#mSvcTermToId").val($("#SvcTermToId").val());
+                $("#mShipModeId").val($("#ShipModeId").val());
+                $("#mFreightTermId").val($("#FreightTermId").val());
+                $("#mBlTypeId").val($("#BlTypeId").val());
+                $("#mCarrierId").val($("#CarrierId").val());
+                $("#mFreightTermForBuyerId").val($("#FreightTermForBuyerId").val());
+                $("#mFreightTermForSalerId").val($("#FreightTermForSalerId").val());
+                $("#mIncotermsId").val($("#IncotermsId").val());
+                $("#mShipperId").val($("#ShipperId").val());
+                $("#mCustomerId").val($("#CustomerId").val());
+                $("#mBillToId").val($("#BillToId").val());
+                $("#mConsigneeId").val($("#ConsigneeId").val());
+                $("#mNotifyId").val($("#NotifyId").val());
+                $("#mShippingAgentId").val($("#ShippingAgentId").val());
+                $("#mHblAgentId").val($("#HblAgentId").val());
+                $("#mCoLoaderId").val($("#CoLoaderId").val());
+                $("#mPorId").val($("#PorId").val());
+                $("#mPolId").val($("#PolId").val());
+                $("#mPodId").val($("#PodId").val());
+                $("#mDelId").val($("#DelId").val());
+                $("#mFdestId").val($("#FdestId").val());
+                $("#mFbaId").val($("#FbaId").val());
+                $("#mTransPort1Id").val($("#TransPort1Id").val())
+                $("#mCargoTypeId").val($("#CargoTypeId").val())
+                $("#mReferralById").val($("#ReferralById").val());
+                $("#mCargoPickupId").val($("#CargoPickupId").val());
+                $("#mTruckerId").val($("#TruckerId").val());
+                $("#mDeliveryToId").val($("#DeliveryToId").val());
+                $("#mReferenceId").val($("#ReferenceId").val());
+                $("#mPoNo").val($("#PoNoTag").tagsStr());
+                $('#createForm').submit();
+            });
+            $('#createForm').on('abp-ajax-success', function (result, rs) {
+                event.preventDefault();
+                location.href = 'Edit?ShowMsg=true&Id=' + rs.responseText.id
+            });
+        });
+        function initRemark(remarkIndex) {
+            $(".remarkArea").hide();
+            switch (remarkIndex) {
+                default:
+                    $("#ExportBooking_BookingRemark").show();
+                    break;
+                case 1:
+                    $("#ExportBooking_ShippingRemark").show();
+                    break;
+                case 2:
+                    $("#ExportBooking_CargoRemark").show();
+                    break;
+
+            }
+        }
+        function initHideBtn() {
+            var isHide = $("#isHide").val();
+            if (isHide == 1) {
+                $(".hideArea").hide();
+                $("#hideLi").hide();
+                $("#showLi").show();
+                $("#isHide").val(0);
+            } else {
+                $(".hideArea").show();
+                $("#hideLi").show();
+                $("#showLi").hide();
+                $("#isHide").val(1);
+            }
+        }
+        function initReasonStatus() {
+            var locked = !$("#ExportBooking_IsCanceled").is(":checked");
+            $("#ExportBooking_CanceledDate").attr('readonly', locked);
+
+            $("#drop_CancelReason").attr('readonly', locked);
+            if (!locked) {
+                $("#ExportBooking_CancelName").val(abp.currentUser.userName);
+                $("#ExportBooking_CancelById").val(abp.currentUser.id);
+            } else {
+                $("#ExportBooking_CancelName").val("");
+                $("#ExportBooking_CancelById").val("");
+            }
+        }
+        var cardIndex = 0;
+        function addHBtn() {
+            if (cardIndex == 0) {
+                var divHtml = addCardRight('new_' + cardIndex, 'new HB/L', '', '#f3c200');
+                $("#hblCard").show();
+                $("#hblCardDiv").append(divHtml)
+                cardIndex++;
+            } else {
+                var l = abp.localization.getResource('Freight');
+                abp.message.info(l("Message:AddHBLErr"));
+            }
+
+        }
+        function addCardRight(hblId, hblNo, soNo, bgColor) {
+            var cardHtml = "<div id='card_" + hblId + "' class='card mt-3' onclick=''>"
+            cardHtml = cardHtml + "<div class='card-body'  style='background:" + bgColor + ";color:#FFFFFF;'>"
+            cardHtml = cardHtml + "<p class='card-text'> " + hblNo + ".</p>"
+            cardHtml = cardHtml + "<p class='card-text'> " + soNo + ".</p>"
+            cardHtml = cardHtml + " </div> </div>"
+            return cardHtml;
+        }
+        function addTr() {
+            addTrTag("", "", "", "", "", "");
+        }
+        function addTrTag(value1, value2, value3, value4, value5, value6) {
+            trindex++;
+            var trhtml = "<tr id='tr_" + trindex + "'><td><input type='checkbox' name='f0' id='f0_" + trindex + "'  value='" + trindex + "'    /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f1' id='f1_" + trindex + "' class='form-control' value='" + value1 + "'/> </td>"
+            trhtml = trhtml + "<td><input type='text' name='f2' id='f2_" + trindex + "' class='form-control' value='" + value2 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f3' id='f3_" + trindex + "' class='form-control' value='" + value3 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f4' id='f4_" + trindex + "' class='form-control' value='" + value4 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f5' id='f5_" + trindex + "' class='form-control' value='" + value5 + "' /></td>"
+            trhtml = trhtml + "<td><input type='text' name='f6' id='f6_" + trindex + "' class='form-control' value='" + value6 + "' /></td>"
+            trhtml = trhtml + "</tr>"
+            $("#trtbody").append(trhtml);
+        }
+        $('#createForm').on('abp-ajax-success', function (result, rs) {
+            event.preventDefault();
+            alert('Edit?ShowMsg=true&Id=' + rs.responseText.id);
+            location.href = 'Edit?ShowMsg=true&Id=' + rs.responseText.id
+
+        });
+    </script>
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:OceanExports"] />
+            <abp-breadcrumb-item title=@L["Menu:ExportBookings.Create"] href="#" />
+        </abp-breadcrumb>
+    </div>
+    <nav class="submenu">
+        <ol>
+            <li class="menu-item ">
+                <a class="nav-link active" href="javascript:void(0)">@L["Tab:Basic"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link disabled" href="javascript:void(0)">@L["Tab:Accounting"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link disabled" href="javascript:void(0)">@L["Tab:Doc"]</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="page-content-area">
+    <form submit-button="true" data-ajaxForm="true" id="createForm">
+        <abp-row>
+            <abp-column size-md="_12">
+                <div class="board-wrap">
+                    <abp-card class="card board-item">
+                        <abp-card-header class="card-header active" style="background:#f3c200;color:#FFFFFF;">
+                            <abp-row>
+                                <abp-column size-md="_9">
+                                    <abp-card-title>
+                                        S/O <span id="title0"></span>
+                                        <span id="title0" style="font-size:0.8em;"></span>
+                                        <span id="title2" style="font-size:0.8em;"></span>
+                                        <span id="title3" style="font-size:0.8em;"></span>
+                                        <span id="title4" style="font-size:0.8em;"></span>
+                                        <span id="title5" style="font-size:0.8em;"> </span>
+                                    </abp-card-title>
+
+                                </abp-column>
+                                <abp-column size-md="_3" class="text-end">
+
+                                </abp-column>
+
+                            </abp-row>
+                        </abp-card-header>
+                        <abp-card-body class="collapse show" id="mblDiv">
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    <abp-card>
+                                        <abp-card-body style="background:#eeeeee;">
+                                            <abp-row>
+                                                <abp-column>
+                                                    <label for="ExportBooking_SoNo" class="form-label">@L["SoCode"] <input type="checkbox" name="ExportBooking.IsCreateBySystem" id="ExportBooking_IsCreateBySystem" value="true" checked /></label>
+                                                    <input type="text" name="ExportBooking.SoNo" class="form-control" id="ExportBooking_SoNo" disabled />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.SoNoDate" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.ItnNo" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "SalespersonId", FieldName = "SalespersonId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+
+                                        </abp-card-body>
+                                    </abp-card>
+                                    <br />
+                                    <abp-card>
+                                        <abp-card-body style="background:#eeeeee;">
+                                            <abp-row>
+                                                <abp-column>
+                                                    <label for="ExportBooking_CanceledDate" class="form-label">@L["IsBlCanceled"] <input type="checkbox" name="ExportBooking.IsCanceled" id="ExportBooking_IsCanceled" /></label>
+                                                    <input type="text" name="ExportBooking.CanceledDate" class="form-control" id="ExportBooking_CanceledDate" disabled />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.CancelName" readonly="true" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CancelReason", FieldName = "CancelReason",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                        </abp-card-body>
+                                    </abp-card>
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-card>
+                                        <abp-card-body style="background:#eeeeee;">
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ReferenceId", FieldName = "ReferenceId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.CarrierBkgNo" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CarrierId", FieldName = "CarrierId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ShipModeId", FieldName = "ShipModeId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "FreightTermForBuyerId", FieldName = "FreightTermForBuyerId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "FreightTermForSalerId", FieldName = "FreightTermForSalerId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column size-md="_6">
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "SvcTermFromId", FieldName = "SvcTermFromId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                                <abp-column size-md="_6">
+                                                    <label for="SvcTermToId" class="form-label">&nbsp;&nbsp;</label>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "SvcTermToId", FieldName = "SvcTermToId",DefaultValue="" , IsShowLabel = false , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "IncotermsId", FieldName = "IncotermsId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ShipperId", FieldName = "ShipperId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CustomerId", FieldName = "CustomerId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "BillToId", FieldName = "BillToId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ConsigneeId", FieldName = "ConsigneeId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "NotifyId", FieldName = "NotifyId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ShippingAgentId", FieldName = "ShippingAgentId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "HblAgentId", FieldName = "HblAgentId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CoLoaderId", FieldName = "CoLoaderId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+
+                                        </abp-card-body>
+                                    </abp-card>
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-card>
+                                        <abp-card-body style="background:#eeeeee;">
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.VesselName" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.Voyage" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.ContainerQtyInputText" readonly="true" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "PolId", FieldName = "PolId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "PorId", FieldName = "PorId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.PorEtd" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "PodId", FieldName = "PodId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.PodEta" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "DelId", FieldName = "DelId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.DelEta" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "FdestId", FieldName = "FdestId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.FdestEta" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "FbaId", FieldName = "FbaId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row class="mt-3">
+                                                <abp-column>
+                                                    <button type="button" id="checkHideBtn">
+                                                        <i class="fa fa-plus" id="showLi"></i>
+                                                        <i class="fa fa-minus" id="hideLi"></i>
+                                                    </button>
+                                                    <input type="hidden" id="isHide" value="@Model.ExportBooking.GetHideCheck()" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row class="hideArea">
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "TransPort1Id", FieldName = "TransPort1Id",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row class="hideArea">
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.Trans1Eta" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row class="hideArea">
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.EctNo" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row class="hideArea">
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.PrnNo" />
+                                                </abp-column>
+                                            </abp-row>
+                                        </abp-card-body>
+                                    </abp-card>
+                                </abp-column>
+                                <abp-column size-md="_3">
+                                    <abp-card>
+                                        <abp-card-body style="background:#eeeeee;">
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CargoTypeId", FieldName = "CargoTypeId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ReferralById", FieldName = "ReferralById",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.ContainerPickupNo" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CargoPickupId", FieldName = "CargoPickupId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "TruckerId", FieldName = "TruckerId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "DeliveryToId", FieldName = "DeliveryToId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.CargoArrivalDate" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <hr />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.WhCutOffTime" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.DocCutOffTime" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.PortCutOffTime" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.VgmCutOffTime" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.RailCutOffTime" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.EarlyReturnDatetime" />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <hr />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "OfficeId", FieldName = "OfficeId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <hr />
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <abp-input asp-for="ExportBooking.IsStackable" />
+                                                </abp-column>
+                                            </abp-row>
+
+                                        </abp-card-body>
+                                    </abp-card>
+                                </abp-column>
+                            </abp-row>
+
+                            <abp-row>
+
+                            </abp-row>
+                            <abp-row>
+                                <abp-column size-md="_12">
+                                    <abp-card class="mt-3 mb-3">
+                                        <abp-card-body style="background:#eeeeee;">
+                                            <abp-row>
+                                                <abp-column size-md="_1">
+                                                    @L["Title:PoNo"]
+                                                </abp-column>
+
+                                                <abp-column size-md="_3">
+                                                    <span style="font-size:0.8em;">@L["Title:PoNo.Description"]</span>
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column>
+                                                    <div id="PoNoTag" tagname="PoNoTag"></div>
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row>
+                                                <abp-column size-md="_6">
+                                                    <label for="ExportBooking_Mark">@L["Display:Mark"]</label>
+                                                    <textarea id="ExportBooking_Mark" name="ExportBooking.Mark" class="form-control">@Model.ExportBooking.Mark</textarea>
+                                                </abp-column>
+                                                <abp-column size-md="_6">
+                                                    <label for="ExportBooking_Description">@L["Display:DeionOfGoods"]</label>
+                                                    <textarea id="ExportBooking_Description" name="ExportBooking.Description" class="form-control">@Model.ExportBooking.Description</textarea>
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row class="mt-3">
+                                                <abp-column>
+                                                    <input type="radio" class="btn-check" name="RemarkBtn" id="BookingRemark" value="0" checked>
+                                                    <label class="btn btn-outline-secondary checkLabel" for="BookingRemark" onclick="initRemark(0);">@L["Btn:BookingRemark"]</label>
+                                                    <input type="radio" class="btn-check" name="RemarkBtn" id="ShippingRemark" value="1">
+                                                    <label class="btn btn-outline-secondary checkLabel" for="ShippingRemark" onclick="initRemark(1);">@L["Btn:ShippingRemark"]</label>
+                                                    <input type="radio" class="btn-check" name="RemarkBtn" id="CargoRemark" value="2">
+                                                    <label class="btn btn-outline-secondary checkLabel" for="CargoRemark" onclick="initRemark(2);">@L["Btn:CargoRemark"]</label>
+
+                                                </abp-column>
+                                            </abp-row>
+                                            <abp-row class="mt-3">
+                                                <abp-column>
+                                                    <textarea id="ExportBooking_BookingRemark" name="ExportBooking.BookingRemark" class="form-control remarkArea">@Model.ExportBooking.BookingRemark a</textarea>
+                                                    <textarea id="ExportBooking_ShippingRemark" name="ExportBooking.ShippingRemark" class="form-control remarkArea">@Model.ExportBooking.ShippingRemark b</textarea>
+                                                    <textarea id="ExportBooking_CargoRemark" name="ExportBooking.CargoRemark" class="form-control remarkArea">@Model.ExportBooking.CargoRemark c</textarea>
+                                                </abp-column>
+                                            </abp-row>
+                                        </abp-card-body>
+                                    </abp-card>
+                                </abp-column>
+
+                            </abp-row>
+                            <!--
+                            <abp-row>
+                               <abp-column size-md="_12">
+                                   <div>
+                                       集裝箱清單
+                                       <abp-button class="btn btn-success me-md-2" type="button" id="addBtn">+</abp-button>
+                                       <abp-button class="btn btn-outline-danger me-md-2" type="button" id="deleteBtn">-</abp-button>
+                                   </div>
+                                           <table width="100%" border="1" style="border-block-color:#333333;padding-left:10px;margin:4px;">
+                                               <tr style="border:1;border-block-color:#333333;padding-left:10px;margin-left:4px;">
+                                                   <th width="5%"><input type="checkbox" id="checkAll" /></th>
+                                                   <th width="12%">@L["Display:PackageNo"]</th>
+                                                   <th width="12%">@L["Display:PackageSize"]</th>
+                                                   <th width="12%">@L["Display:Seal"]</th>
+                                                   <th width="12%">@L["Display:SoNo"]</th>
+                                                   <th width="8%">@L["Display:PackageType"]</th>
+                                                   <th width="16%">@L["Display:Weight"]</th>
+                                                   <th width="16%">@L["Display:Volume"]</th>
+                                                   <th width="7%">@L["Display:Package"]</th>
+                                               </tr>
+                                               <tbody id="trtbody">
+                                               </tbody>
+
+                                           </table>
+
+                                       </abp-column>
+                                   </abp-row>
+                                   -->
+                        </abp-card-body>
+                    </abp-card>
+                    <br />
+                </div>
+            </abp-column>
+        </abp-row>
+        <abp-row class="mt-3">
+            <abp-column>
+                <input type="hidden" name="ExportBooking.OfficeId" id="mOfficeId" value="@Model.ExportBooking.OfficeId" />
+                <input type="hidden" name="ExportBooking.CancelReason" id="mCancelReason" value="@Model.ExportBooking.CancelReason" />
+                <input type="hidden" name="ExportBooking.CancelById" class="form-control" id="ExportBooking_CancelById" value="@Model.ExportBooking.CancelById" />
+                <input type="hidden" name="ExportBooking.ReferenceId" class="form-control" id="ExportBooking_ReferenceId" value="@Model.ExportBooking.ReferenceId" />
+                <input type="hidden" name="ExportBooking.CarrierId" id="mCarrierId" value="@Model.ExportBooking.CarrierId" />
+                <input type="hidden" name="ExportBooking.FreightTermForSalerId" id="mFreightTermForSalerId" value="@Model.ExportBooking.FreightTermForSalerId" />
+                <input type="hidden" name="ExportBooking.FreightTermForBuyerId" id="mFreightTermForBuyerId" value="@Model.ExportBooking.FreightTermForBuyerId" />
+                <input type="hidden" name="ExportBooking.SvcTermToId" id="mSvcTermToId" value="@Model.ExportBooking.SvcTermToId" />
+                <input type="hidden" name="ExportBooking.SvcTermFromId" id="mSvcTermFromId" value="@Model.ExportBooking.SvcTermFromId" />
+                <input type="hidden" name="ExportBooking.IncotermsId" id="mIncotermsId" value="@Model.ExportBooking.IncotermsId" />
+                <input type="hidden" name="ExportBooking.ShipperId" id="mShipperId" value="@Model.ExportBooking.ShipperId" />
+                <input type="hidden" name="ExportBooking.CustomerId" id="mCustomerId" value="@Model.ExportBooking.CustomerId" />
+                <input type="hidden" name="ExportBooking.BillToId" id="mBillToId" value="@Model.ExportBooking.BillToId" />
+                <input type="hidden" name="ExportBooking.ConsigneeId" id="mConsigneeId" value="@Model.ExportBooking.ConsigneeId" />
+                <input type="hidden" name="ExportBooking.NotifyId" id="mNotifyId" value="@Model.ExportBooking.NotifyId" />
+                <input type="hidden" name="ExportBooking.ShippingAgentId" id="mShippingAgentId" value="@Model.ExportBooking.ShippingAgentId" />
+                <input type="hidden" name="ExportBooking.HblAgentId" id="mHblAgentId" value="@Model.ExportBooking.HblAgentId" />
+                <input type="hidden" name="ExportBooking.CoLoaderId" id="mCoLoaderId" value="@Model.ExportBooking.CoLoaderId" />
+                <input type="hidden" name="ExportBooking.PorId" id="mPorId" value="@Model.ExportBooking.PorId" />
+                <input type="hidden" name="ExportBooking.PolId" id="mPolId" value="@Model.ExportBooking.PolId" />
+                <input type="hidden" name="ExportBooking.PodId" id="mPodId" value="@Model.ExportBooking.PodId" />
+                <input type="hidden" name="ExportBooking.DelId" id="mDelId" value="@Model.ExportBooking.DelId" />
+                <input type="hidden" name="ExportBooking.FdestId" id="mFdestId" value="@Model.ExportBooking.FdestId" />
+                <input type="hidden" name="ExportBooking.FbaId" id="mFbaId" value="@Model.ExportBooking.FbaId" />
+                <input type="hidden" name="ExportBooking.TransPort1Id" id="mTransPort1Id" value="@Model.ExportBooking.TransPort1Id" />
+                <input type="hidden" name="ExportBooking.CargoTypeId" id="mCargoTypeId" value="@Model.ExportBooking.CargoTypeId" />
+                <input type="hidden" name="ExportBooking.ReferralById" id="mReferralById" value="@Model.ExportBooking.ReferralById" />
+                <input type="hidden" name="ExportBooking.CargoPickupId" id="mCargoPickupId" value="@Model.ExportBooking.CargoPickupId" />
+                <input type="hidden" name="ExportBooking.TruckerId" id="mTruckerId" value="@Model.ExportBooking.TruckerId" />
+                <input type="hidden" name="ExportBooking.DeliveryToId" id="mDeliveryToId" value="@Model.ExportBooking.DeliveryToId" />
+                <input type="hidden" name="ExportBooking.ShipModeId" id="mShipModeId" value="@Model.ExportBooking.ShipModeId" />
+                <input type="hidden" name="ExportBooking.PoNo" id="mPoNo" value="@Model.ExportBooking.PoNo" />
+
+
+                <input type="hidden" name="ExportBooking.EmptyPickupId" id="mEmptyPickupId" value="@Model.ExportBooking.EmptyPickupId" />
+
+
+                <input type="hidden" name="ExportBooking.ForwardingAgentId" id="mForwardingAgentId" value="@Model.ExportBooking.ForwardingAgentId" />
+
+
+
+
+                <abp-button class="btn btn-primary me-md-2" type="button" id="saveBtn">@L["Save"].Value</abp-button>
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                &nbsp;
+            </abp-column>
+        </abp-row>
+    </form>
+</div>

@@ -1,0 +1,792 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.TradePartners.TradeParties;
+@using Microsoft.Extensions.Localization
+@using Dolphin.Freight.TradePartner
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.TradePartnerInfoModel
+@inject IStringLocalizer<FreightResource> L
+@section styles{
+    <style>
+        .redStar::before {
+            content: "*";
+            color: red;
+        }
+
+        .memo-focus {
+            background-color: #fff9e5;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .memo-highlight {
+            color: #dfba49;
+            -moz-animation: blink normal 1s infinite ease-in-out;
+            -webkit-animation: blink normal 1s infinite ease-in-out;
+            -ms-animation: blink normal 1s infinite ease-in-out;
+            animation: blink normal 1s infinite ease-in-out;
+        }
+
+        .title {
+            font-weight: bold;
+            font-size: 15px;
+            margin-right: 10px;
+        }
+
+        .trade-party-block:not(:last-of-type) {
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+
+        @@-moz-keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+        /* Firefox */
+        @@-webkit-keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+        /* Webkit */
+        @@-ms-keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+        /* IE */
+        @@keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+}
+@section scripts{
+    <abp-script src="/Pages/Sales/TradePartner/TradePartnerInfo.js" />
+    <script>
+
+        // check city, state, post, country, tel and fax
+        function getAddressValue() {
+            var addSelections = new Array(4);
+            addSelections[0] = $("#tpCityCode").val();
+            addSelections[1] = $("#tpStateCode").val();
+            addSelections[2] = $("#tpPostCode").val();
+            addSelections[3] = $("#tpCountryCode option:selected").val();
+            var j = 0, result;
+            for (let i = 0; i < addSelections.length; i++) {
+                if ((addSelections[i] !== 'undefined') && (addSelections[i] != '') && (addSelections[i] != '- 請選擇 -') && (addSelections[i] != '- Select -')) {
+                    if (j == 0) {
+                        if (i == 3) {
+                            result = $("#tpCountryCode option:selected").text();
+                        } else {
+                            result = addSelections[i];
+                        }
+                    } else {
+                        if (i == 3) {
+                            result += "," + $("#tpCountryCode option:selected").text();
+                        } else {
+                            result += "," + addSelections[i];
+                        }
+                    }
+                    j++;
+                }
+            }
+            if (($("#tpTelephone").val() !== 'undefined') && ($("#tpTelephone").val() != '')) {
+                result += "\n" + "TEL:" + $("#tpTelephone").val();
+                if (($("#tpFax").val() !== 'undefined') && ($("#tpFax").val() != '')) {
+                    result += " " + "FAX:" + $("#tpFax").val();
+                }
+            } else {
+                if (($("#tpFax").val() !== 'undefined') && ($("#tpFax").val() != '')) {
+                    result += "\n" + "FAX:" + $("#tpFax").val();
+                }
+            }
+            return result;
+        }
+
+        $(document).ready(function () {
+            $("#tpNameInput").on('keyup', function () {
+                $("#tpNamePrintInput").val($(this).val());
+                $("#tpNameLocalInput").val($(this).val());
+                if ($("#checkboxName").is(":checked")) {
+                    $("#tpPrintAddress").val($(this).val());
+                }
+            });
+
+
+            $("#tpLocalAddress").on('keyup', function () {
+                if ($("#checkboxAddress").is(":checked")) {
+                    if ($("#tpLocalAddress").val() != '') {
+                        if ($("#checkboxName").is(":checked")) {
+                            if (($("#tpCityCode").val() == '') && ($("#tpStateCode").val() == '') && ($("#tpPostCode").val() == '')) {
+                                $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val());
+                            } else {
+                                $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            }
+                        } else {
+                            if (typeof (getAddressValue()) == "undefined") {
+                                $("#tpPrintAddress").val($("#tpLocalAddress").val());
+                            } else {
+                                $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            }
+                        }
+                    } else {
+                        if ($("#checkboxName").is(":checked")) {
+                            $("#tpPrintAddress").val($("#tpNameInput").val());
+                        } else {
+                            $("#tpPrintAddress").val();
+                        }
+                    }
+                }
+            });
+
+            $("#tpCityCode").on('keyup', function () {
+                if ($("#checkboxAddress").is(":checked")) {
+                    if ($("#tpLocalAddress").val() != '') {
+                        if ($("#checkboxName").is(":checked")) {
+                            $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        } else {
+                            $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        }
+                    }
+                }
+            });
+
+            $("#tpStateCode").on('keyup', function () {
+                if ($("#checkboxAddress").is(":checked")) {
+                    if ($("#tpLocalAddress").val() != '') {
+                        if ($("#checkboxName").is(":checked")) {
+                            if ($("#checkboxName").is(":checked")) {
+                                $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            } else {
+                                $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            }
+                        }
+                    }
+                }
+            });
+
+            $("#tpPostCode").on('keyup', function () {
+                if ($("#checkboxAddress").is(":checked")) {
+                    if ($("#tpLocalAddress").val() != '') {
+                        if ($("#checkboxName").is(":checked")) {
+                            $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        } else {
+                            $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        }
+                    }
+                }
+            });
+
+            $("#tpCountryCode").change(function () {
+                if ($("#checkboxAddress").is(":checked")) {
+                    if ($("#tpLocalAddress").val() != '') {
+                        if ($("#checkboxName").is(":checked")) {
+                            $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        } else {
+                            $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        }
+                    }
+                }
+            });
+
+            $("#tpTelephone").change(function () {
+                if ($("#checkboxAddress").is(":checked")) {
+                    if ($("#tpLocalAddress").val() != '') {
+                        if ($("#checkboxName").is(":checked")) {
+                            $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        } else {
+                            $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        }
+                    }
+                }
+            });
+
+            $("#tpFax").change(function () {
+                if ($("#checkboxAddress").is(":checked")) {
+                    if ($("#tpLocalAddress").val() != '') {
+                        if ($("#checkboxName").is(":checked")) {
+                            $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        } else {
+                            $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        }
+                    }
+                }
+            });
+
+            $("#checkboxName").change(function () {
+                if (this.checked) {
+                    if ($("#checkboxAddress").is(":checked")) {
+                        if ($("#tpLocalAddress").val() != '') {
+                            if (typeof (getAddressValue()) == "undefined") {
+                                $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val());
+                            } else {
+                                $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            }
+                        }
+                    } else {
+                        $("#tpPrintAddress").val($("#tpNameInput").val());
+                    }
+                } else {
+                    if ($("#checkboxAddress").is(":checked")) {
+                        if ($("#tpLocalAddress").val() != '') {
+                            if (typeof (getAddressValue()) == "undefined") {
+                                $("#tpPrintAddress").val($("#tpLocalAddress").val());
+                            } else {
+                                $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            }
+                        }
+                    }
+                }
+            });
+
+            $("#checkboxAddress").change(function () {
+                if (this.checked) {
+                    if ($("#checkboxName").is(":checked")) {
+                        if ($("#tpLocalAddress").val() != '') {
+                            if (typeof (getAddressValue()) == "undefined") {
+                                $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val());
+                            } else {
+                                $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            }
+                        }
+                    } else {
+                        if ($("#tpLocalAddress").val() != '') {
+                            if (typeof (getAddressValue()) == "undefined") {
+                                $("#tpPrintAddress").val($("#tpLocalAddress").val());
+                            } else {
+                                $("#tpPrintAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue());
+                            }
+                        }
+                    }
+                } else {
+                    if ($("#checkboxName").is(":checked")) {
+                        $("#tpPrintAddress").val($("#tpNameInput").val());
+                    } else {
+                        $("#tpPrintAddress").val('');
+                    }
+                }
+            });
+
+            $("#tpCopyFromLocalAddress").click(function () {
+                $("#tpAccountAddress").mousemove();
+                var originalAccountAddressValue = $("#tpAccountAddress").val();
+                if (typeof ("#tpAccountAddress") == 'undefined') {
+                    originalAccountAddressValue = '';
+                }
+                if ($("#tpLocalAddress").val() != '') {
+                    if (typeof (getAddressValue()) == "undefined") {
+                        $("#tpAccountAddress").val($("#tpLocalAddress").val() + "\n" + originalAccountAddressValue);
+                    } else {
+                        $("#tpAccountAddress").val($("#tpLocalAddress").val() + "\n" + getAddressValue() + "\n" + originalAccountAddressValue);
+                    }
+                }
+            });
+
+
+
+            $("#tpNamePrintInput").on('keyup', function () {
+                $("#tpNameLocalInput").val($(this).val())
+            });
+
+            $("#taxIdInput").on("change", function () {
+                var txt = $('#taxIdInput');
+                if (txt.val() != null && txt.val() != '') {
+                    $("#trackPaymentInput").removeAttr("disabled");
+                } else {
+                    $("#trackPaymentInput").attr("disabled", "disabled");
+                }
+            });
+
+            $("#tpCreditLimitGroupName").on("change", function () {
+                var txt = $('#tpCreditLimitGroupName');
+                if (txt.val() != "- Select -") {
+                    $("#tpCreditTermType").attr("disabled", "disabled");
+                    $("#tpCreditTermDays").attr("disabled", "disabled");
+                    $("#tpCreditLimit").attr("disabled", "disabled");
+                    $("#tpPaymentType").attr("disabled", "disabled");
+                } else {
+                    $("#tpCreditTermType").removeAttr("disabled");
+                    $("#tpCreditTermDays").removeAttr("disabled");
+                    $("#tpCreditLimit").removeAttr("disabled");
+                    $("#tpPaymentType").removeAttr("disabled");
+
+                }
+            });
+
+            $("input[name='printAdd']").click(function () {
+                if ($("#radioAlternate").is(":checked")) {
+                    $("#tpPrintAddress").val('');
+                    $("#tpPrintAddress").removeAttr("readonly");
+                    $("#checkboxName").attr("disabled", "disabled");
+                    $("#checkboxAddress").attr("disabled", "disabled");
+                    $("#checkboxContactInfo").attr("disabled", "disabled");
+                } else {
+                    $("#tpPrintAddress").attr("readonly", "readonly");
+                    if ($("#tpLocalAddress").val() != '') {
+                        if (getAddressValue() == "undefined") {
+                            $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val());
+                        } else {
+                            $("#tpPrintAddress").val($("#tpNameInput").val() + "\n" + $("#tpLocalAddress").val() + "\n" + getAddressValue());
+                        }
+                    } else {
+                        $("#tpPrintAddress").val($("#tpNameInput").val());
+                    }
+                    $("#checkboxName").removeAttr("disabled");
+                    $("#checkboxAddress").removeAttr("disabled");
+                    $("#checkboxContactInfo").removeAttr("disabled");
+                }
+            });
+
+        });
+
+
+
+    </script>
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:TradePartner"] />
+            <abp-breadcrumb-item title=@L["Menu:TradePartner.Add"] href="#" />
+        </abp-breadcrumb>
+    </div>
+    <nav class="submenu">
+        <ol>
+            <li class="menu-item ">
+                <a class="nav-link active" href="javascript:void(0)">@L["Display:TradePartner:NavTab:Basic"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link disabled" href="javascript:void(0)">@L["Display:TradePartner:NavTab:AccountingSetting"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link disabled" href="javascript:void(0)">@L["Display:TradePartner:NavTab:DocCenter"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link disabled" href="javascript:void(0)">@L["Display:TradePartner:NavTab:Status"]</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="page-content-area">
+
+    <div class="board-wrap">
+        <form abp-model="TPInfoModel" submit-button="true" data-ajaxForm="true" id="TPForm">
+
+
+
+            <abp-card>
+                <abp-card-header>
+                    <abp-row>
+                        <abp-column>
+                            <abp-card-title>@L["Display:TradePartner:CardTitle:TradePartnerInformation"]</abp-card-title>
+                        </abp-column>
+                        @*<abp-column size-md="_6" class="text-end">
+                        <abp-button id="AddTradePartnerButton"
+                        text="Copy"
+                        icon="gear"
+                        button-type="Outline_Secondary" />
+                        </abp-column>*@
+                    </abp-row>
+                </abp-card-header>
+                <abp-card-body>
+                    <abp-row>
+                        <abp-input asp-for="TPInfoModel.Id" id="tpId" type="hidden" />
+                        <abp-column>
+                            <label asp-for="TPInfoModel.TPType" class="redStar form-label">@L["DisplayName:TPType"]</label>
+                            <select asp-for="TPInfoModel.TPType" id="tpType" asp-items="Html.GetEnumSelectList(typeof(TPType))" class="form-select form-control">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </select>
+                            <span asp-validation-for="TPInfoModel.TPType" class="text-danger"></span>
+                            @*<abp-select asp-for="TPInfoModel.TPType" id="tpType" />*@
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.TPCode" readonly="true" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.TPAliasName" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.AccountGroupId" id="tpAccountGroupName">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <label asp-for="TPInfoModel.TPName" class="redStar form-label">@L["DisplayName:TPName"]</label>
+                            <input asp-for="TPInfoModel.TPName" class="form-control" id="tpNameInput" style="text-transform:uppercase" />
+                            <span asp-validation-for="TPInfoModel.TPName" class="text-danger"></span>
+                            @*<abp-input asp-for="TPInfoModel.TPName" id="tpNameInput" style="text-transform:uppercase" />*@
+                        </abp-column>
+                        <abp-column>
+                            <label asp-for="TPInfoModel.TPNamePrint" class="redStar form-label">@L["DisplayName:TPNamePrint"]</label>
+                            <input asp-for="TPInfoModel.TPNamePrint" class="form-control" id="tpNamePrintInput" style="text-transform:uppercase" />
+                            <span asp-validation-for="TPInfoModel.TPNamePrint" class="text-danger"></span>
+                            @*<abp-input asp-for="TPInfoModel.TPNamePrint" id="tpNamePrintInput" style="text-transform:uppercase" />*@
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.Ceo" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.CreditLimitGroupId" id="tpCreditLimitGroupName">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <label asp-for="TPInfoModel.TPNameLocal">@L["DisplayName:TPNameLocal"]</label>
+                            <input asp-for="TPInfoModel.TPNameLocal" class="form-control" id="tpNameLocalInput" style="text-transform:uppercase" />
+                            @*<abp-input asp-for="TPInfoModel.TPNameLocal" id="tpNameLocalInput" style="text-transform:uppercase" />*@
+                        </abp-column>
+                        <abp-column>
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.IataCode" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CorpNo" />
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column size="_6">
+                            <abp-input asp-for="TPInfoModel.TPLocalAddress" rows="5" id="tpLocalAddress" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.IataPrefix" />
+                            <abp-input asp-for="TPInfoModel.ScacCode" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CbsaCode" />
+                            <abp-input asp-for="TPInfoModel.FirmsCode" />
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CityCode" id="tpCityCode" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.StateCode" id="tpStateCode" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.DutyPaymentType" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.OpenHours" />
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.PostCode" id="tpPostCode" />
+                        </abp-column>
+                        <abp-column>
+                            <label asp-for="TPInfoModel.CountryCode" class="redStar form-label"></label>
+                            <span asp-validation-for="TPInfoModel.CountryCode" class="text-danger"></span>
+                            @*<abp-select asp-for="TPInfoModel.CountryCode" id="tpCountryCode">*@
+                            <select asp-for="TPInfoModel.CountryCode" id="tpCountryCode" class="form-select form-control">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                @foreach (var country in Model.CountryLookupList)
+                                {
+                                    <option value=@country.Value>@country.Text</option>
+                                }
+                            </select>
+                        </abp-column>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.BussinessStatusType" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.SalesOfficeCode" />
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.Telephone" id="tpTelephone" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.Fax" id="tpFax" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.SalesCode" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CsCode" />
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column size="_6">
+                            <abp-input asp-for="TPInfoModel.Website" />
+                        </abp-column>
+                        <abp-column>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column size="_6">
+                            @*<label class="form-label">@L["DisplayName:TPPrintAddress"]</label>*@
+                            <abp-input asp-for="TPInfoModel.TPPrintAddress" rows="5" id="tpPrintAddress" readonly="true" />
+                            <input type="radio" id="radioDefault" name="printAdd" value="default" checked="checked">
+                            <label for="radioDefault">@L["Display:TradePartner:RadioButton:Defalut"]</label>
+                            &nbsp;&nbsp;
+                            <input type="radio" id="radioAlternate" name="printAdd" value="alternate">
+                            <label for="radioAlternate">@L["Display:TradePartner:RadioButton:Alternate"]</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="checkbox" id="checkboxName" name="checkboxName" checked>
+                            <label for="checkboxName">@L["Display:TradePartner:Checkbox:Name"]</label>
+                            &nbsp;&nbsp;
+                            <input type="checkbox" id="checkboxAddress" name="checkboxAddress" checked>
+                            <label for="checkboxAddress">@L["Display:TradePartner:Checkbox:Address"]</label>
+                            &nbsp;&nbsp;
+                            <input type="checkbox" id="checkboxContactInfo" name="checkboxContactInfo" checked>
+                            <label for="checkboxContactInfo">@L["Display:TradePartner:Checkbox:ContactInfo"]</label>
+                            @*<textarea asp-for="TPInfoModel.TPPrintAddress" disabled="true" class="form-control" rows="5" id="tpPrintAddress"></textarea>*@
+                            @*<abp-input asp-for="TPInfoModel.TPPrintAddress" disabled = "true"/>*@
+                            <br /><br />
+                        </abp-column>
+                        <abp-column size="_6">
+                            <abp-input asp-for="TPInfoModel.Remark" rows="5" />
+                        </abp-column>
+                    </abp-row>
+                    <h4>@L["Display:TradePartner:H4:AccountingSetting"]</h4>
+                    <hr />
+                    <abp-row>
+                        <abp-column size="_6">
+                            <abp-input asp-for="TPInfoModel.AccountAddress" id="tpAccountAddress" row="5" />
+                            <a abp-button="Primary" href="#" size="Small" id="tpCopyFromLocalAddress">@L["Display:Button:CopyFromLocalAddress"]</a>
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.TaxId" id="taxIdInput" />
+                            <abp-input asp-for="TPInfoModel.TrackPayment" id="trackPaymentInput" disabled="true" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.PaymentType" id="tpPaymentType" />
+                            <abp-row>
+                                <abp-column>
+                                    <abp-input asp-for="TPInfoModel.BillToAgentCode" />
+                                </abp-column>
+                                <abp-column>
+                                    <abp-input asp-for="TPInfoModel.Clm" />
+                                </abp-column>
+                            </abp-row>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.CreditTermType" id="tpCreditTermType" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CreditTermDays" id="tpCreditTermDays" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CreditLimit" id="tpCreditLimit" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.AccountName" />
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.BankName" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.AccountNo" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.AccountCurrencyCode" id="AccountCurrencyCode">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column>
+
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.BankName2" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.AccountNo2" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.AccountCurrencyCode2" id="AccountCurrencyCode2">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column>
+
+                        </abp-column>
+                    </abp-row>
+                    <h4>@L["Display:TradePartner:H4:ISFSetting"]</h4>
+                    <hr />
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.IsfSubmissionName" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-select asp-for="TPInfoModel.ImporterCodeType" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.ImporterNo" />
+                        </abp-column>
+                        <abp-column>
+                            <br />
+                            <abp-button button-type="Primary" disabled="true"> Check Bond Status </abp-button>
+                        </abp-column>
+                    </abp-row>
+                    <h4>@L["Display:TradePartner:H4:OtherSetting"]</h4>
+                    <hr />
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.IsActive" />
+                        </abp-column>
+                        <abp-column>
+
+                        </abp-column>
+                        <abp-column>
+
+                        </abp-column>
+                        <abp-column>
+
+                        </abp-column>
+                    </abp-row>
+                    <h4>@L["Display:TradePartner:H4:Pop-upTips"]</h4>
+                    <hr />
+                    <abp-row>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.DoorToDoor" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.BadCustomer" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.ImportOnly" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.ExportOnly" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CoLoader" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.CustomClear" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.Warehouse" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.ISFCharges" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.FreeHandCargo" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.Nomination" />
+                        </abp-column>
+                        <abp-column>
+                            <abp-input asp-for="TPInfoModel.SeeMemoRemark" />
+                        </abp-column>
+                    </abp-row>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <abp-button class="btn btn-primary me-md-2" type="submit" id="saveBtn">@L["Display:Button:Submit"]</abp-button>
+                    </div>
+                </abp-card-body>
+            </abp-card>
+            <br /><br />
+            <abp-accordion>
+                <abp-accordion-item title=@L["Display:TradePartner:AccordionItem:Memo"]>
+                    <abp-card>
+                        <abp-card-body>
+                            <abp-row>
+                                <abp-column>
+                                    <abp-button id="add-memo"
+                                                text=@L["Display:Button:New"]
+                                                icon="plus"
+                                                button-type="Outline_Secondary" />
+                                </abp-column>
+                            </abp-row>
+                            <abp-row>
+                                <abp-column>
+                                    <abp-table border-style="Bordered" id="memo-table"></abp-table>
+                                </abp-column>
+                                <abp-column size="_4">
+                                    <textarea rows="7" class="form-control" readonly id="memo-content"></textarea>
+                                </abp-column>
+                            </abp-row>
+                        </abp-card-body>
+                    </abp-card>
+                </abp-accordion-item>
+            </abp-accordion>
+            <br /><br />
+            <abp-accordion>
+                <abp-accordion-item title="@L["Display:TradePartner:AccordionItem:ContactPersonInformation"]">
+                    <abp-card>
+                        <abp-card-body>
+                            <abp-row>
+                                <abp-column>
+                                    <abp-button id="AddContactPersonButton"
+                                                text=@L["Display:Button:New"]
+                                                icon="plus"
+                                                button-type="Outline_Secondary" />
+                                </abp-column>
+                            </abp-row>
+                            <abp-table small="true" border-style="Bordered" striped-rows="true" id="ContactPersonTable"></abp-table>
+                        </abp-card-body>
+                    </abp-card>
+                </abp-accordion-item>
+                <abp-accordion-item title=@L["Display:TradePartner:AccordionItem:TradeParty"]>
+                    @foreach (int row in Enum.GetValues(typeof(TradePartyType)))
+                    {
+                        <abp-row>
+                            <abp-column>
+                                <span class="title">@L["Display:TradeParty:THead:" + Enum.GetName(typeof(TradePartyType), row)]</span>
+                                <abp-button class="add-trade-party"
+                                        text=@L["Display:Button:New"]
+                                        icon="plus"
+                                        button-type="Outline_Secondary"
+                                            data-party-type="@row" />
+                            </abp-column>
+                        </abp-row>
+                        <abp-row class="trade-party-block">
+                            <abp-table small="true" border-style="Bordered" class="trade-party-table" data-type="@row"></abp-table>
+                        </abp-row>
+                    }
+                </abp-accordion-item>
+            </abp-accordion>
+        </form>
+    </div>
+</div>

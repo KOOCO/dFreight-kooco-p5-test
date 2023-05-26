@@ -1,0 +1,174 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Reports.PackageModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@*@section scripts
+{
+    <abp-script src="/Pages/Reports/Package.js" />
+}*@
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+</style>
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+
+        const id_pieces = document.getElementById('id_pieces');
+        const totalP = document.getElementById('totalP');
+        id_pieces.oninput = function() {
+                totalP.innerHTML = id_pieces.value;
+            };
+           
+    });    
+
+    function onChangeHblNo(sel) {
+                if (sel.value !== '') {
+                    window.location.href = '/Reports/Package?handler=Get&target=' + sel.value;
+                }
+                else {
+                  throw Error('unknown HblNo')
+                }
+            }
+</script>
+<form id="myForm" name="myForm" method="POST">
+<div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:400px;background-color:white;" id="form" name = "form">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            <div style="display:flex;justify-content: center;" class="item-left">@Html.DropDownList("HblNoList",(IEnumerable<SelectListItem>)Model.HblNoList,new { @style = "width:150px", onchange="onChangeHblNo(this)" })</div>
+            
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div style="float:right;">
+            <div style="display:inline-block"><p style="color:red"><strong>Data Source : </strong></p></div>
+            <div style="display:inline-block">            
+                <select style="width:100px">
+                    <option selected="selected" value="shipment">Shipment</option>
+                    <option value="lastmodified">Last Modified</option>
+                    <option value="loademptyfieldsfromlastmodified">Load empty fields from last modified</option>
+                </select>
+            </div>
+        </div>
+        <br />
+        <center>
+            <hr/>
+        </center>
+        <div>
+        <br />
+        <div>
+            <div><center><h2>@Model.InfoModel.Office</h2></center></div>
+        </div>
+
+        <center>
+            <hr/>
+        </center>
+            <div><i>TO</i></div>
+            <div>
+                <div style="display:inline-block;width:5px">&nbsp;</div>
+                <div style="display:inline-block;">
+                    <textarea name="to" cols="40" rows="5" id="id_oversea_agent_area" style="resize:none;font-weight:bold;width:375px;font-size:x-large;">@Model.InfoModel.To</textarea>
+                </div>
+            </div>
+            <center>
+                <hr/>
+            </center>
+            <div><i>MBL NO.</i></div>
+            <div style="display:inline-block;width:5px">&nbsp;</div>
+            <div style="display:inline-block;width:5px"><font size="6"><b><span style="white-space: nowrap;">@Model.InfoModel.MblNo</span></b></font></div>
+            <center>
+                <hr/>
+            </center>
+            <div class="container">
+                <div class="item-left">
+                    <div><i>HBL NO.</i></div>
+                    <div style="display:inline-block;width:5px">&nbsp;</div>
+                    <div style="display:inline-block;width:5px">  
+                        <div><font size="6"><b><span style="white-space: nowrap;">@Model.InfoModel.HblNo</span></b></font></div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div style="display:inline-block;">
+                        <div><i>PIECES</i></div>
+                        <input type="number" name="pieces" value="@Model.InfoModel.Pieces" min="1" id="id_pieces" style="font-weight:bold;font-size:x-large;width:50px;">
+                    </div>
+                    <div style="display:inline-block;width:10px">&nbsp;</div>
+                </div>
+            </div>
+            <center>
+                <hr/>
+            </center>
+            <div><i>DESTINATION</i></div>
+            <div>
+                <div style="display:inline-block;width:5px">&nbsp;</div>
+                <div style="display:inline-block;">
+                    <input type="text" name="destination" value="@Model.InfoModel.Destination" id="id_POD_location" style="font-weight:bold;width:375px;font-size:x-large;">            
+                </div>
+            </div>
+            <center>
+                <hr/>
+            </center>
+            <div>
+                <div><i>TOTAL PIECES</i></div>
+                <div style="display:inline-block;width:5px">&nbsp;</div>
+                <div style="display:inline-block;"><font size="6"><b><span id="totalP">@Model.InfoModel.TotalPieces</span></b></font></div>                
+            </div>
+        </div>
+        <input type="hidden" name="totalpieces" value="" id="id_current_totalpieces">
+
+        <input type="hidden" name="office" value="@Model.InfoModel.Office" id="id_current_office">
+        <input type="hidden" name="mblno" value="@Model.InfoModel.MblNo" id="id_current_mblno">
+        <input type="hidden" name="hblno" value="@Model.InfoModel.HblNo" id="id_current_hblno">
+    </div>
+</div>
+</form>

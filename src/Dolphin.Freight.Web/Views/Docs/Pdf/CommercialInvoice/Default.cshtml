@@ -1,0 +1,283 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Http
+@model Dolphin.Freight.Web.ViewModels.CommercialInvoice.CommercialInvoiceIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+@if (!string.IsNullOrEmpty(Model.BaseUrl))
+{
+    <base href="@Model.BaseUrl">
+}
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }  
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<link href="/Pages/Reports/Reports.css" rel="stylesheet">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+
+        <div class="wrap">
+   <div class="header margin-b-md">
+      <table>
+         <!-- from USA Bank request, can't put office name & LOGO -->
+         <tbody>
+            <tr>
+               <td class="w-25">&nbsp;</td>
+               <td class="w-50 title">
+                  <div class="text-center border-deep-blue col-padding-sm">
+                     <h2 class="blue-lg">COMMERCIAL INVOICE</h2>
+                  </div>
+               </td>
+               <td class="w-25">&nbsp;</td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="con commercial-invoice">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-48 td">
+                  <table class="data-height-md">
+                     <tbody>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">SHIPPER / EXPORTER (SELLER)</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.shipper_area ?? "").Replace(Environment.NewLine, "<br/>"))</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">FOR ACCOUNT OF (CONSIGNEE)</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.consignee_area ?? "").Replace(Environment.NewLine, "<br/>"))</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">NOTIFY PARTY</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.notify_area ?? "").Replace(Environment.NewLine, "<br/>"))</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+               <td class="w-4">&nbsp;</td>
+               <td class="w-48 border-t td data-lg">
+                  <table class="border-l border-r">
+                     <tbody>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">INVOICE NO. &amp; DATE</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.invoice_no_and_date</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">L/C NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.LC_NO</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">L/C ISSUE BANK</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.LC_issue_bank</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">DEPARTURE DATE</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.ETD_date</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PLACE OF RECEIPT</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.POR_location</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PORT OF LOADING</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.POL_location</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">FINAL DESTINATION</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.FDEST_location</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">FLIGHT NO. / VSL &amp; VOY NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.vessel_voyage</div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">TERM</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">@Model.freight_term</div>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+
+      <table class="border-b margin-t-sm">
+          @if(Model.desc_layout_choice == "widen_desc")
+          {
+            <colgroup class="item-edit ng-hide">
+                <col class="w-15">
+                <col class="w-15">
+                <col class="w-40">
+                <col class="w-15">
+                <col class="w-15">
+             </colgroup>
+          }
+          else
+          {
+            <colgroup class="item-edit">
+                <col class="w-27">
+                <col class="w-15">
+                <col class="w-28">
+                <col class="w-15">
+                <col class="w-15">
+             </colgroup>
+          }
+         <tbody>
+            <tr class="border-b border-t bg-light text-8">
+               <th class="border-r text-left col-padding-double">
+                  SHIPPING MARKS
+               </th>
+               <th class="border-r text-right col-padding-double">
+                  QTY / UOM
+               </th>
+               <th class="border-r text-left col-padding-double">
+                  DESCRIPTION OF GOODS
+               </th>
+               <th class="border-r text-right col-padding-double">
+                  UNIT PRICE
+               </th>
+               <th class="text-right col-padding-double">
+                  TOTAL AMOUNT
+               </th>
+            </tr>
+            <tr>
+               <td class="td td-item border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.shipping_marks ?? "").Replace(Environment.NewLine, "<br/>"))
+                    @{
+                        var table_rows = (Model.shipping_marks ?? "").Replace(Environment.NewLine, "<br/>").Split(new string[] { "<br/>" }, StringSplitOptions.RemoveEmptyEntries).Length;
+
+                        if(table_rows < 35)
+                        {
+                            for (int i = 0; i < 35 - table_rows; i++)
+                            {
+                                <br/>
+                            }
+                        }
+                    }
+                  </div>
+               </td>
+               <td class="td td-item text-right border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.packages ?? "").Replace(Environment.NewLine, "<br/>"))</div>
+               </td>
+               <td class="td td-item border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.good_items ?? "").Replace(Environment.NewLine, "<br/>"))</div>
+               </td>
+               <td class="td td-item text-right border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.unit_price ?? "").Replace(Environment.NewLine, "<br/>"))</div>
+               </td>
+               <td class="td td-item text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">@Html.Raw((Model.total_amount ?? "").Replace(Environment.NewLine, "<br/>"))</div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="space_area">
+         <p>&nbsp;</p>
+      </div>
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-30">&nbsp;</td>
+               <td class="w-30">&nbsp;</td>
+               <td class="w-10">SIGNED BY</td>
+               <td class="w-30 border-b"></td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="text-right margin-t">
+          @if(!string.IsNullOrEmpty(Model.show_shipper_name))
+            {
+                <div class="text-bold padding-t-xs">@Model.shipper_name</div>
+            }
+      </div>
+   </div>
+</div>
+    </div>
+</div>

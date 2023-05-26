@@ -1,0 +1,539 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.ForwarderCargoReceipt.ForwarderCargoReceiptIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .border-t, .text-sm, textarea, .text-bold, .border-b, .table-padding-double {
+        font-size: 10px;
+    }
+
+    .col-padding-sm, .text-sm, .text-12, .border-t, .border-b, .table-padding-double, .text-bold {
+        line-height: 1.42857143;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+      $('#id_show_container_rider').change(function () {
+
+     if($("#id_show_container_rider").prop("checked"))
+     {         
+         $('#container-table').show();
+     }
+     else
+     {
+         $('#container-table').hide();
+     }
+ });
+    });
+    
+</script>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+   <div style="background-color:black;display: flex;justify-content:center;">
+      <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+         <div class="container" style="background-color:black">
+            <div style="display:flex;justify-content: center;" class="item-left">
+               @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+               <button class="btn"><i class="fa fa-print"></i></button>*@
+               @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+               <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*
+            <div style="float:right;" class="item-right">
+               <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+               <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>
+            *@
+         </div>
+<div class="wrap oe-fcs">
+   <div class="item-edit topbar">
+      <div class="topbar-block">
+         Data Source :
+         <select class="select w-160px">
+            <option selected="selected" value="loadInitial">Shipment</option>
+            <option value="loadDraft">Last Modified</option>
+            <option value="loadEmptyFromDraft">Load empty fields from last modified</option>
+         </select>
+      </div>
+      <div class="topbar-block">
+         <input type="checkbox" name="Show_Container_Rider" value="true" @(!string.IsNullOrEmpty(Model.Show_Container_Rider) ? "checked" : "")  id="id_show_container_rider" class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched"> Show Container Rider
+      </div>
+   </div>
+   <div class="con">
+      <table class="table-valign-top border-t">
+         <colgroup>
+            <col class="w-25">
+            <col class="w-25">
+            <col class="w-25">
+            <col class="w-25">
+         </colgroup>
+         <tbody>
+            <tr class="border-b">
+               <td class="border-r" colspan="2" rowspan="4">
+                  <div class="title">SUPPLIER / VENDOR</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <textarea name="SUPPLIER_VENDOR" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_supplier_area">
+                            @{
+                                if (Model.SUPPLIER_VENDOR != "")
+                                {
+                                    @Model.SUPPLIER_VENDOR
+                                }
+                            }</textarea>
+                     </div>
+                  </div>
+               </td>
+               <td class="text-bold _text-20 col-padding-double" colspan="2">FORWARDER'S CARGO RECEIPT</td>
+            </tr>
+            <tr class="border-b">
+               <td class="col-padding" colspan="2">
+                  <span class="title mrgint-r-sm">FCR No.</span>
+                  <div class="inline-block">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="FCR_No" value="@Model.FCR_No" id="id_FCR_NO" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+            </tr>
+            <tr class="border-b">
+               <td class="border-r">
+                  <div class="title">PORT AND COUNTRY ORIGIN</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="PORT_AND_COUNTRY_ORIGIN" value="@Model.PORT_AND_COUNTRY_ORIGIN" id="id_port_and_country_origin" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+               <td>
+                  <div class="title">DATE OF RECEIPT OF GOODS</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="DATE_OF_RECEIPT_OF_GOODS" value="@Model.DATE_OF_RECEIPT_OF_GOODS" id="id_date_of_receipt_of_goods" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+            </tr>
+            <tr class="border-b">
+               <td class="text-bold text-16" colspan="2">THIS IS NOT A DOCUMENT OF TITLE</td>
+            </tr>
+            <tr>
+               <td class="border-r border-b" colspan="2">
+                  <div class="title">CONSIGNEE</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <textarea name="consignee_area" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_consignee_area">
+                            @{
+                                if (Model.CONSIGNEE != "")
+                                {
+                                    @Model.CONSIGNEE
+                                }
+                            }</textarea>
+                     </div>
+                  </div>
+               </td>
+               <td class="text-bold col-padding" colspan="2">
+                  <span class="_text-14">FORWARDER:</span>
+                  <div class="logo text-center">
+                        <img src="/Pages/Reports/logo.png" class="w-20">
+                  </div>
+                  <div class="text-16 text-center">HARD CORE TECHNOLOGY</div>
+               </td>
+            </tr>
+            <tr>
+               <td class="border-r border-b" colspan="2">
+                  <div class="title">NOTIFY PARTY</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <textarea name="NOTIFY_PARTY" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_notify_area">
+                            @{
+                                if (Model.NOTIFY_PARTY != "")
+                                {
+                                    @Model.NOTIFY_PARTY
+                                }
+                            }</textarea>
+                     </div>
+                  </div>
+               </td>
+               <td class="col-padding border-b" colspan="2">
+                  This Forwarder's Cargo Receipt(FCR) is to be issued upon presentation of the corresponding dock
+                  receipt. This document is issued only to aid the Supplier/Vendor in seeking negotiation on the
+                  relevant letter of credit. This document does not grant any title to the goods described
+                  hereunder.<br><br>
+                  Goods will be containerized and shipped under ocean Bill(s) of Lading, to be issued by the carrier.
+               </td>
+            </tr>
+            <tr class="border-b">
+               <td class="border-r">
+                  <div class="title">VESSEL &amp; VOYAGE(intended)</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="VESSEL_VOYAGE" value="@Model.VESSEL_VOYAGE" id="id_vessel_voyage" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+               <td class="border-r">
+                  <div class="title">SAILING DATE</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="SAILING_DATE" value="@Model.SAILING_DATE" id="id_sailing_date" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+               <td colspan="2">
+                  <div class="title">NUMBER OF ORIGINAL FCR(s)</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="NUMBER_OF_ORIGINAL_FCR" value="@Model.NUMBER_OF_ORIGINAL_FCR" id="id_number_of_original_fcr" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table>
+         <tbody>
+            <tr class="border-b">
+               <td class="border-r">
+                  <div class="title">PLACE OF RECEIPT</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="PLACE_OF_RECEIPT" value="@Model.PLACE_OF_RECEIPT" id="id_POR_location" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+               <td class="border-r">
+                  <div class="title">PORT OF LOADING</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="PORT_OF_LOADING" value="@Model.PORT_OF_LOADING" id="id_POL_location" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+               <td class="border-r">
+                  <div class="title">PORT OF DISCHARGE</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="PORT_OF_DISCHARGE" value="@Model.PORT_OF_DISCHARGE" id="id_POD_location" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+               <td>
+                  <div class="title">PLACE OF DELIVERY</div>
+                  <div class="data">
+                     <div class="item-edit hover-toggle-icon-text-template">
+                        <input type="text" name="PLACE_OF_DELIVERY" value="@Model.PLACE_OF_DELIVERY" id="id_DEL_location" class="ng-isolate-scope">
+                     </div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="table-padding-double">
+         <tbody>
+            <tr class="text-sm border-b">
+               <th class="w-18 col-padding text-left">
+                  MARKS AND NUMBERS
+               </th>
+               <th class="w-22 col-padding text-left">
+                  NUMBER AND KIND OF PACKAGES
+               </th>
+               <th class="w-38 col-padding text-left">
+                  DESCRIPTION AND GOODS
+               </th>
+               <th class="w-12 col-padding text-right">
+                  GROSS WEIGHT
+               </th>
+               <th class="w-12 col-padding text-right">
+                  MEASUREMENT
+               </th>
+            </tr>
+            <tr>
+               <td class="td td-item" rowspan="2">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="MARKS_AND_NUMBERS" cols="40" rows="24" class="text-scroll text-scroll ng-isolate-scope" id="id_mark">
+                    @{
+                        if (Model.MARKS_AND_NUMBERS != "")
+                        {
+                            @Model.MARKS_AND_NUMBERS
+                        }
+                    }</textarea>
+                  </div>
+               </td>
+               <td class="td td-item text-right" rowspan="2">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="DESCRIPTION_AND_GOODS" cols="40" rows="24" class="text-scroll text-right text-scroll no-adjustment ng-isolate-scope" id="id_packages">
+                    @{
+                        if (Model.DESCRIPTION_AND_GOODS != "")
+                        {
+                            @Model.DESCRIPTION_AND_GOODS
+                        }
+                    }</textarea>
+                  </div>
+               </td>
+               <td class="td td-item" rowspan="2">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="NUMBER_AND_KIND_OF_PACKAGES" cols="40" rows="24" class="text-scroll text-scroll ng-isolate-scope" id="id_good_items">
+                    @{
+                        if (Model.NUMBER_AND_KIND_OF_PACKAGES != "")
+                        {
+                            @Model.NUMBER_AND_KIND_OF_PACKAGES
+                        }
+                    }</textarea>
+                  </div>
+               </td>
+               <td class="td td-item text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="GROSS_WEIGHT" cols="40" rows="21" class="text-scroll text-right text-scroll no-adjustment ng-isolate-scope" id="id_weight">
+                    @{
+                        if (Model.GROSS_WEIGHT != "")
+                        {
+                            @Model.GROSS_WEIGHT
+                        }
+                    }</textarea>
+                    </div>
+               </td>
+               <td class="td td-item text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="MEASUREMENT" cols="40" rows="21" class="text-scroll text-right text-scroll no-adjustment ng-isolate-scope" id="id_measure">
+                    @{
+                        if (Model.MEASUREMENT != "")
+                        {
+                            @Model.MEASUREMENT
+                        }
+                    }</textarea>
+                  </div>
+               </td>
+            </tr>
+            <tr>
+               <td class="text-right" colspan="2">
+                  <div class="item-edit">
+                     <select name="addition_mark" class="w-80" id="id_addition_mark">
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="COPY">COPY</option>
+                        <option value="ORIGINAL">ORIGINAL</option>
+                        <option value="NON-NEGOTIABLE">NON-NEGOTIABLE</option>
+                     </select>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table class="border-t border-b">
+         <tbody>
+            <tr>
+               <td class="td w-45 border-r">
+                  <div class="border-b col-padding-double">
+                     IN ACCORDANCE WITH INSTRUCTIONS FROM THE BUYER,<br>
+                     WE HAVE RECEIVED THE FOLLOWING DOCUMENTS ON:
+                  </div>
+                  <table class="table-padding-double">
+                     <colgroup>
+                        <col class="w-80">
+                        <col class="w-20">
+                     </colgroup>
+                     <tbody>
+                        <tr>
+                           <th class="text-right">ORIGINAL</th>
+                           <th class="text-center">COPY</th>
+                        </tr>
+                        <tr height="200">
+                           <td></td>
+                           <td></td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  The above documents plus Bill of Lading will be dispatched to consignee or other designated parties.
+                  The Supplier/Vendor wavies any right to ask for any bills of lading.
+               </td>
+               <td class="td w-55">
+                  <div class="remark_con padding-l-md">
+                     RECEIVED THE GOODS DESCRIBED ABOVE, IN APPARENT GOOD ORDER AND CONDITION<br>
+                     UNLESS OTHERWISE STATED. THE GOODS ARE TO BE DELIVERED TO THE CONSIGNEE<br>
+                     AT THE PLACE OF DELIVERY AND THE CONSIGNEE NEED NOT SURRENDER ANY ORIGINAL<br>
+                     OF THE FORWARDER'S CARGO RECEIPT WHEN THEY TAKE CARGO DELIVERY. THE CONSIGNEE HAS THE
+                     IRREVOCABLE RIGHT TO DISPOSE OF THE GOODS ONCE THE GOODS ARE RECEIVED BY THE ABOVE-MENTIONED
+                     FORWARDER FROM THE SUPPLIER/VENDOR.<br><br>
+                     IN WITNESS WHEREOF. THE ABOVE-MENTIONED NUMBER OF ORIGINAL
+                  </div>
+                  <div class="text-center">
+                     FOR
+                     <div class="_text-14 text-bold">HARD CORE TECHNOLOGY</div>
+                     <div class="margin-t-md col-padding-sm">
+                        <div class="border-b margin-b-xs">
+                           <div class="item-edit hover-toggle-icon-text-template">
+                              <input type="text" name="signature" value="@Model.signature" id="id_signature" class="ng-isolate-scope">
+                           </div>
+                        </div>
+                        AUTHORIZED SIGNATURE
+                     </div>
+                  </div>
+                  <div class="margin-t-md padding-l-md">
+                     DATE:
+                     <div class="inline-block">
+                        <div class="item-edit hover-toggle-icon-text-template">
+                           <input type="text" name="current_date" value="@Model.current_date" id="id_current_date" class="ng-isolate-scope">
+                        </div>
+                     </div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="next-page edit-preview-rider ng-scope" id="container-table"  style="@(!string.IsNullOrEmpty(Model.Show_Container_Rider) ? "" : "display:none")">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-25">
+                  <h1>CONTAINER LIST</h1>
+               </td>
+               <td class="w-50 text-center">
+                  <h1>REF NO. @(Model.REF_NO)</h1>
+                  <input type="hidden" name="REF_NO" value="@Model.REF_NO" />
+               </td>
+               <td class="w-25 text-right">
+                  <h1>BL NO. @(Model.BL_NO)</h1>
+                  <input type="hidden" name="BL_NO" value="@Model.BL_NO" />
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <table>
+         <tbody>
+            <tr class="border-t border-b">
+               <th class="w-13 border-r text-left col-padding-double">
+                  CONTAINER NO.
+               </th>
+               <th class="w-7 border-r text-center col-padding-double">
+                  TYPE
+               </th>
+               <th class="w-13 border-r text-left col-padding-double">
+                  SEAL NO.
+               </th>
+               <th class="w-10 border-r text-left col-padding-double">
+                  PICKUP NO.
+               </th>
+               <th class="w-8 border-r text-left col-padding-double">
+                  LFD
+               </th>
+               <th class="w-6 border-r text-center col-padding-double">
+                  PKGS
+               </th>
+               <th class="w-16 border-r text-center col-padding-double">
+                  UNIT
+               </th>
+               <th class="w-14 border-r text-right col-padding-double">
+                  WEIGHT
+                  ()
+               </th>
+               <th class="w-13 text-right col-padding-double">
+                  MEASUREMENT
+                  ()
+               </th>
+            </tr>
+            @if(Model.ContainerList != null && Model.ContainerList.Count > 0)
+            {
+                for (int i = 0; i < Model.ContainerList.Count; i++)
+                {
+                    var container = Model.ContainerList[i];
+                       
+                    <tr>
+                       <td class="td td-item border-r">@container.CONTAINER_NO</td>
+                       <td class="td td-item text-center border-r">@container.TYPE</td>
+                       <td class="td td-item border-r">@container.SEAL_NO</td>
+                       <td class="td td-item border-r">@container.PICKUP_NO</td>
+                       <td class="td td-item border-r">@container.LFD</td>
+                       <td class="td td-item text-center border-r">@container.PKGS</td>
+                       <td class="td td-item text-center border-r">@container.UNIT</td>
+                       <td class="td td-item text-right border-r">@container.WEIGHT</td>
+                       <td class="td td-item text-right">@container.MEASUREMENT</td>
+
+                        <input type="hidden" name="ContainerList[@(i.ToString())].CONTAINER_NO" value="@container.CONTAINER_NO" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].TYPE" value="@container.TYPE" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].SEAL_NO" value="@container.SEAL_NO" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].PICKUP_NO" value="@container.PICKUP_NO" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].LFD" value="@container.LFD" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].PKGS" value="@container.PKGS" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].UNIT" value="@container.UNIT" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].WEIGHT" value="@container.WEIGHT" />
+                        <input type="hidden" name="ContainerList[@(i.ToString())].MEASUREMENT" value="@container.MEASUREMENT" />
+                    </tr>                
+                }                             
+            }
+            else
+            {                      
+                <tr>
+                   <td colspan="8" class="td td-item text-center text-12 col-padding-sm"> No Container Information</td>
+                </tr>          
+            }
+            <tr class="border-t border-b text-bold">
+               <td class="td td-item border-r text-center" colspan="5">TOTAL</td>
+               <td class="td td-item text-center border-r" >@Model.TOTAL_PKGS</td>
+               <td class="td td-item text-center border-r" >@Model.TOTAL_UNIT</td>
+               <td class="td td-item text-right border-r" >@Model.TOTAL_WEIGHT</td>
+               <td class="td td-item text-right" >@Model.TOTAL_MEASUREMENT"</td>
+               
+                <input type="hidden" name="TOTAL_PKGS" value="@Model.TOTAL_PKGS" />
+                <input type="hidden" name="TOTAL_UNIT" value="@Model.TOTAL_UNIT" />
+                <input type="hidden" name="TOTAL_WEIGHT" value="@Model.TOTAL_WEIGHT" />
+                <input type="hidden" name="TOTAL_MEASUREMENT" value="@Model.TOTAL_MEASUREMENT" />
+
+                <input type="hidden" name="reportid" value="@Model.ReportId" id="id_current_reportid">
+            </tr>
+         </tbody>
+      </table>
+   </div>
+</div>
+      </div>
+   </div>
+</form>

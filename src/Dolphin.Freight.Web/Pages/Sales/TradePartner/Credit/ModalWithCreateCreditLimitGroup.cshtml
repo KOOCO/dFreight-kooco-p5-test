@@ -1,0 +1,31 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.Credit.ModalWithCreateCreditLimitGroupModel
+@inject IStringLocalizer<FreightResource> L
+@{
+    Layout = null;
+}
+
+<form method="post" abp-model="CreditLimitGroup" asp-page="ModalWithCreateCreditLimitGroup">
+    <abp-modal>
+        <abp-modal-header title=@L["Display:Group:CreateTilte"]></abp-modal-header>
+        <abp-modal-body>
+            <abp-row>
+                <abp-input asp-for="CreditLimitGroup.CreditLimitGroupName" />
+            </abp-row>
+            <abp-row>
+                <abp-column>
+                    <abp-select asp-for="CreditLimitGroup.CreditTermType" />
+                </abp-column>
+                <abp-column>
+                    <abp-input asp-for="CreditLimitGroup.CreditTermDays" />
+                </abp-column>
+            </abp-row>
+            <abp-select asp-for="CreditLimitGroup.PaymentType" />
+            <abp-input asp-for="CreditLimitGroup.CreditLimit"/>
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

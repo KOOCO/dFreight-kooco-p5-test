@@ -1,0 +1,427 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.CommercialInvoice.CommercialInvoiceIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<script>
+    $(document).ready(function(){
+        $('input[type=radio][name=desc_layout_choice]').on('change', function() {
+            var colgroup = $('colgroup').children();
+            switch ($(this).val()) {
+            case 'standard':
+                    colgroup.eq(0).prop('class', 'w-27');
+                    colgroup.eq(2).prop('class', 'w-28');
+                break;
+            case 'widen_desc':
+                    colgroup.eq(0).prop('class', 'w-15');
+                    colgroup.eq(2).prop('class', 'w-40');
+                break;
+            }
+        });
+    });
+</script>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div class="wrap">
+   <div class="item-edit topbar">
+      <div class="topbar-block">
+         Data Source :
+         <select class="select w-160px">
+            <option selected="selected" value="loadInitial">Shipment</option>
+            <option value="loadDraft">Last Modified</option>
+            <option value="loadEmptyFromDraft">Load empty fields from last modified</option>
+         </select>
+      </div>
+   </div>
+   <div class="header margin-b-md">
+      <table>
+         <!-- from USA Bank request, can't put office name & LOGO -->
+         <tbody>
+            <tr>
+               <td class="w-25">&nbsp;</td>
+               <td class="w-50 title">
+                  <div class="text-center border-deep-blue col-padding-sm">
+                     <h2 class="blue-lg">COMMERCIAL INVOICE</h2>
+                  </div>
+               </td>
+               <td class="w-25">&nbsp;</td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="con commercial-invoice">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-48 td">
+                  <table class="data-height-md">
+                     <tbody>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">SHIPPER / EXPORTER (SELLER)</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="shipper_area" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_shipper_area">
+                                    @{
+                                        if (Model.shipper_area != "")
+                                        {
+                                            @Model.shipper_area
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">FOR ACCOUNT OF (CONSIGNEE)</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="consignee_area" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_consignee_area">
+                                    @{
+                                        if (Model.consignee_area != "")
+                                        {
+                                            @Model.consignee_area
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="td highlight-block">
+                              <div class="title">NOTIFY PARTY</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="notify_area" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_notify_area">
+                                    @{
+                                        if (Model.notify_area != "")
+                                        {
+                                            @Model.notify_area
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+               <td class="w-4">&nbsp;</td>
+               <td class="w-48 border-t td data-lg">
+                  <table class="border-l border-r">
+                     <tbody>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">INVOICE NO. &amp; DATE</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="invoice_no_and_date" value="@Model.invoice_no_and_date" id="id_invoice_no_and_date" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">L/C NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="LC_NO" value="@Model.LC_NO" id="id_LC_NO" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">L/C ISSUE BANK</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="LC_issue_bank" value="@Model.LC_issue_bank" id="id_LC_issue_bank" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">DEPARTURE DATE</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="ETD_date" value="@Model.ETD_date" id="id_ETD_date" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PLACE OF RECEIPT</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="POR_location" value="@Model.POR_location" id="id_POR_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">PORT OF LOADING</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="POL_location" value="@Model.POL_location" id="id_POL_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">FINAL DESTINATION</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="FDEST_location" value="@Model.FDEST_location" id="id_FDEST_location" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">FLIGHT NO. / VSL &amp; VOY NO.</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="vessel_voyage" value="@Model.vessel_voyage" id="id_vessel_voyage" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="td border-b">
+                              <div class="title">TERM</div>
+                              <div class="data">
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="freight_term" value="@Model.freight_term" id="id_freight_term" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="item-edit">
+         <label class="text-10 _margin-r-sm" for="id_desc_layout_choice_0">
+         <input type="radio" id="id_desc_layout_choice_0" name="desc_layout_choice" value="standard" class="ng-valid ng-dirty ng-not-empty ng-touched ng-valid-parse" checked> Standard Layout
+         </label>
+         <br>
+         <label class="text-10 _margin-r-sm" for="id_desc_layout_choice_1">
+         <input type="radio" id="id_desc_layout_choice_1" name="desc_layout_choice" value="widen_desc" class="ng-valid ng-dirty ng-not-empty ng-touched"> Widen DESCRIPTION OF GOODS
+         </label>
+      </div>
+      <table class="border-b margin-t-sm">
+         <colgroup class="item-edit">
+            <col class="w-27">
+            <col class="w-15">
+            <col class="w-28">
+            <col class="w-15">
+            <col class="w-15">
+         </colgroup>
+@*         <colgroup class="item-edit ng-hide">
+            <col class="w-15">
+            <col class="w-15">
+            <col class="w-40">
+            <col class="w-15">
+            <col class="w-15">
+         </colgroup>*@
+         <tbody>
+            <tr class="border-b border-t bg-light text-8">
+               <th class="border-r text-left col-padding-double">
+                  SHIPPING MARKS
+               </th>
+               <th class="border-r text-right col-padding-double">
+                  QTY / UOM
+               </th>
+               <th class="border-r text-left col-padding-double">
+                  DESCRIPTION OF GOODS
+               </th>
+               <th class="border-r text-right col-padding-double">
+                  UNIT PRICE
+               </th>
+               <th class="text-right col-padding-double">
+                  TOTAL AMOUNT
+               </th>
+            </tr>
+            <tr>
+               <td class="td td-item border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="shipping_marks" cols="40" rows="41" class="text-scroll ng-isolate-scope" id="id_shipping_marks">
+                    @{
+                        if (Model.shipping_marks != "")
+                        {
+                            @Model.shipping_marks
+                        }
+                    }
+                    </textarea>
+                  </div>
+               </td>
+               <td class="td td-item text-right border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="packages" cols="40" rows="41" class="text-scroll ng-isolate-scope" id="id_packages">
+                    @{
+                        if (Model.packages != "")
+                        {
+                            @Model.packages
+                        }
+                    }
+                    </textarea>
+                  </div>
+               </td>
+               <td class="td td-item border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="good_items" cols="40" rows="41" class="text-scroll ng-isolate-scope" id="id_good_items">
+                    @{
+                        if (Model.good_items != "")
+                        {
+                            @Model.good_items
+                        }
+                    }
+                    </textarea>
+                  </div>
+               </td>
+               <td class="td td-item text-right border-r">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="unit_price" cols="40" rows="41" class="text-scroll ng-isolate-scope" id="id_unit_price">
+                    @{
+                        if (Model.unit_price != "")
+                        {
+                            @Model.unit_price
+                        }
+                    }
+                    </textarea>
+                  </div>
+               </td>
+               <td class="td td-item text-right">
+                  <div class="item-edit hover-toggle-icon-text-template">
+                     <textarea name="total_amount" cols="40" rows="41" class="text-scroll ng-isolate-scope" id="id_total_amount">
+                    @{
+                        if (Model.total_amount != "")
+                        {
+                            @Model.total_amount
+                        }
+                    }
+                    </textarea>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="space_area">
+         <p>&nbsp;</p>
+      </div>
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-30">&nbsp;</td>
+               <td class="w-30">&nbsp;</td>
+               <td class="w-10">SIGNED BY</td>
+               <td class="w-30 border-b"></td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="text-right margin-t">
+         <div class="item-edit">
+            <table>
+               <tbody>
+                  <tr>
+                     <td class="w-57">&nbsp;</td>
+                     <td class="w-3 text-center"><input type="checkbox" name="show_shipper_name" id="id_show_shipper_name" checked=""></td>
+                     <td class="w-40 text-left hover-toggle-icon-text-template">
+                        <input type="text" name="shipper_name" value="@Model.shipper_name" class="w-100 ng-isolate-scope" id="id_shipper_name">
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+    </div>
+</div>
+</form>

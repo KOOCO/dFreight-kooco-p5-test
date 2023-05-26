@@ -1,0 +1,44 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.ListModel
+@inject IStringLocalizer<FreightResource> L
+@section scripts{
+    <abp-script src="/Pages/Sales/TradePartner/List.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:TradePartner"] />
+            <abp-breadcrumb-item title=@L["Menu:TradePartner.List"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <abp-row>
+                <abp-column>
+                    <abp-card-title>@L["Menu:TradePartner.List"]</abp-card-title>
+                </abp-column>
+                <abp-column size-md="_6" class="text-end">
+                    <abp-button id="AddTradePartnerButton"
+                                text=@L["Display:Button:New"]
+                                icon="plus"
+                                button-type="Outline_Secondary" />
+                    <abp-button id="FilterTradePartnerButton"
+                                text=@L["Display:Button:Filter"]
+                                icon="filter"
+                                button-type="Outline_Secondary" />
+                    <abp-button id="ExportTradePartnerExcelButton"
+                                text=@L["Display:Button:Excel"]
+                                icon="file-excel"
+                                button-type="Outline_Secondary" />
+                </abp-column>
+            </abp-row>
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table border-style="Bordered" striped-rows="true" id="TPListTable"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

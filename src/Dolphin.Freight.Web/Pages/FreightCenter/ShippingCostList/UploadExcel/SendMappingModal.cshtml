@@ -1,0 +1,29 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Models;
+@using Dolphin.Freight.Web.Pages.FreightCenter.ShippingCostList.UploadExcel
+@using Microsoft.Extensions.Localization
+@using Newtonsoft.Json;
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model Dolphin.Freight.Web.Pages.FreightCenter.ShippingCostList.UploadExcel.SendMappingModalModel
+@inject IStringLocalizer<FreightResource> L
+@{
+    Layout = null;
+}
+
+@if (TempData["NotificationMessage"] != null)
+    @(@Html.Raw((JsonConvert.DeserializeObject<NotificationMessage>(TempData["NotificationMessage"].ToString())).JavascriptString()))
+
+<form method="post" action="@Url.Page("/FreightCenter/ShippingCostList/UploadExcel/SendMappingModal")" enctype="multipart/form-data" class="text-start">
+    <abp-modal centered="true" scrollable="true" size="Large" id="uploadMappingExcelModal">
+        <abp-modal-header title="@L["ImporCityMappingTableAndImportFareInformation"]"></abp-modal-header>
+        <abp-modal-body>
+            @*<label asp-for="FileUpload"></label>*@
+            <abp-input asp-for="uploadFileDto.File" type="file" label="@L["PleaseSelectTheExcelFileForCityMapping"]" class="form-control-file" accept=".xlsx,.xls" />
+            <span asp-validation-for="uploadFileDto.File" class="text-danger"></span>
+            @*<button type="submit" class="btn btn-primary">@L["Btn:Upload"]</button>*@
+            <abp-button type="submit" button-type="Primary" text="@L["ImportCityMappingTableAndOfficiallyImportShippingPriceInformation"]" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="Close"></abp-modal-footer>
+    </abp-modal>
+</form>

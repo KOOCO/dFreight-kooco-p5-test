@@ -1,0 +1,596 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.BookingConfirmation.BookingConfirmationIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@*@section scripts
+{
+    <abp-script src="/Pages/Reports/BookingConfirmation.js" />
+}*@
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+</style>
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+        $('#shipping_temp_div').hide();
+        $('#overseaagent_temp_div').hide();
+        $('#cargodeliverylocation_2_temp_div').hide();
+
+        //var RTC = '@Model.ReportTitleChoice';
+        //var TPLC = '@Model.TradePartnerLayoutChoice';
+
+        var Dangerous = '@Model.Dangerous';
+        if(Dangerous === "True")
+        {
+            document.getElementById("id_current_dangerous_true").checked = true;
+            document.getElementById("id_current_dangerous_false").checked = false;
+        }
+        else
+        {
+            document.getElementById("id_current_dangerous_true").checked = false;
+            document.getElementById("id_current_dangerous_false").checked = true;
+        }
+
+        var Lc = '@Model.LC';
+        if(Lc === "True")
+        {
+            document.getElementById("id_current_lc_true").checked = true;
+            document.getElementById("id_current_lc_false").checked = false;
+        }
+        else
+        {
+            document.getElementById("id_current_lc_true").checked = false;
+            document.getElementById("id_current_lc_false").checked = true;
+        }
+
+        var Stackable = '@Model.Stackable';
+        if(Stackable === "True")
+        {
+            document.getElementById("id_current_stackable_true").checked = true;
+            document.getElementById("id_current_stackable_false").checked = false;
+        }
+        else
+        {
+            document.getElementById("id_current_stackable_true").checked = false;
+            document.getElementById("id_current_stackable_false").checked = true;
+        }
+
+
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            $('#id_current_dangerous').val($("[name='dangerousradio']:checked").val());
+            $('#id_current_lc').val($("[name='lcradio']:checked").val());
+            $('#id_current_stackable').val($("[name='stackableradio']:checked").val());
+            document.getElementById("myForm").submit();
+        }
+    });
+
+    function TradePartnerLayoutChoice(sel) {
+                if (sel.value === 'default') {
+                    $('#actualshipper_temp_div').show();
+                    $('#id_current_actualshipper').val($('#id_current_actualshipper_temp').val());
+                    $('#shipping_temp_div').hide();
+                    $('#id_current_shipping').val($('#id_current_shipping_temp').val());
+
+                    $('#consignee_temp_div').show();
+                    $('#id_current_consignee').val($('#id_current_consignee_temp').val());
+                    $('#overseaagent_temp_div').hide();
+                    $('#id_current_overseaagent').val($('#id_current_overseaagent_temp').val());
+                }
+                else {
+                    $('#shipping_temp_div').show();
+                    $('#id_current_shipping').val($('#id_current_shipping_temp').val());                   
+                    $('#actualshipper_temp_div').hide();
+                    $('#id_current_actualshipper').val($('#id_current_actualshipper_temp').val());
+
+                    $('#overseaagent_temp_div').show();
+                    $('#id_current_overseaagent').val($('#id_current_overseaagent_temp').val());                    
+                    $('#consignee_temp_div').hide();
+                    $('#id_current_consignee').val($('#id_current_consignee_temp').val());
+                }
+            }
+
+    function ReportTitleChoice(sel) {
+                if (sel.value === 'BO') {
+                    $('#cargodeliverylocation_2_temp_div').show();
+                    $('#id_current_cargodeliverylocation_2').val($('#id_current_cargodeliverylocation_2_temp').val());
+                    $('#cargodeliverylocation_1_temp_div').hide();
+                    $('#id_current_cargodeliverylocation_1').val($('#id_current_cargodeliverylocation_1_temp').val());
+                }
+                else {
+                    $('#cargodeliverylocation_1_temp_div').show();
+                    $('#id_current_cargodeliverylocation_1').val($('#id_current_cargodeliverylocation_1_temp').val());             
+                    $('#cargodeliverylocation_2_temp_div').hide();
+                    $('#id_current_cargodeliverylocation_2').val($('#id_current_cargodeliverylocation_2_temp').val());
+                }
+            }
+</script>
+<form id="myForm" name="myForm" method="POST">
+<div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:800px;background-color:white;" id="form" name = "form">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div style="float:right;">
+            <div style="display:inline-block"><p style="color:red"><strong>Data Source : </strong></p></div>
+            <div style="display:inline-block">            
+                <select style="width:100px">
+                    <option selected="selected" value="shipment">Shipment</option>
+                    <option value="lastmodified">Last Modified</option>
+                    <option value="loademptyfieldsfromlastmodified">Load empty fields from last modified</option>
+                </select>
+            </div>
+        </div>
+        <br />
+        <center>
+            <hr/>
+        </center>
+        <div style="display:inline-block;width:10px;">&nbsp;</div>
+        <div style="display:inline-block;">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            @*<img src="./S_O確認書_files/saved_resource(1)">*@
+                            <div style="display:inline-block;width:10px">&nbsp;</div>
+                            <div style="border: 1px solid;width:120px;height:120px;display:inline-block;">圖片</div>
+                        </td>
+                        <td>
+                            <h3><span>@Model.Office</span></h3>
+                            <div>
+                                <span>
+                                    <br>
+                                    @{
+                                        if (Model.Address != "")
+                                        {
+                                                                                                                                                @Model.Address
+
+                                                                                                                                                <br />
+                                        }
+                                    }
+                                    電話： @Model.Tel @{
+                                        if (Model.Fax != "")
+                                        {
+                                                                                                                                                <span>FAX:</span> @Model.Fax
+                                        }
+                                    }
+                                    <br />
+                                    電子郵件： @Model.Email
+
+                                    <br /><strong>製作人 @Model.LastName @Model.FirstName @Model.DateTime (CST)</strong>
+
+                                </span>
+                            </div>
+                        </td>
+                        <td style="width:50px">&nbsp;</td>
+                        <td>
+                            <div style="border: 1px solid;width:250px;height:120px;display: flex;align-items: center;justify-content: center;">
+                                <div>
+                                    <select name="reporttitlechoice" id="id_current_reporttitlechoice" onchange="ReportTitleChoice(this);">
+                                        <option value="BC">訂艙確認書</option>
+                                        <option value="BO">訂艙委託書</option>
+                                        <option value="DN">入貨通知</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <div class="container">
+                <div class="item-left">
+                    <div style="display:inline-block;width:10px">&nbsp;</div>
+                    <div style="display:inline-block;">
+                        <select name="tradepartnerlayoutchoice" id="id_current_tradepartnerlayoutchoice" onchange="TradePartnerLayoutChoice(this);">
+                            <option value="default" selected="">實際託運人 / 收貨人</option>
+                            <option value="agent">本地 / 海外代理</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="item-right">         
+                    <div style="display:inline-block;">
+                        <strong>船公司訂艙號碼 :</strong>
+                    </div> 
+                    <div style="display:inline-block;">
+                        <input type="text" name="carrierbookingno" value="@Model.CarrierBookingNo" id="id_current_carrierbookingno" style="font-weight:bold;">
+                    </div>  
+                    <div style="display:inline-block;width:22px">&nbsp;</div>
+                </div>
+            </div>
+            <div>&nbsp;</div>
+            <div style="display:inline-block;width:10px">&nbsp;</div>
+            <div style="display:inline-block;">
+                <table style="border-collapse:collapse;border-spacing:0;width:760px">
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">託運人</td>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">訂艙資訊</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" rowspan="4" style="border-style:solid;border-width:1px;">
+                                <div id="actualshipper_temp_div" name="actualshipper_temp_div">
+                                    <textarea name="actualshipper" cols="40" rows="7" id="id_current_actualshipper" style="resize:none;font-weight:bold;font-size:large;width:350px">@Model.ActualShipper</textarea>
+                                    <input type="hidden" name="actualshipper_temp" value="@Model.ActualShipper" id="id_current_actualshipper_temp">
+                                </div>
+                                <div id="shipping_temp_div" name="shipping_temp_div">
+                                    <textarea name="shipping" cols="40" rows="7" id="id_current_shipping" style="resize:none;font-weight:bold;font-size:large;width:350px">@Model.Shipping</textarea>
+                                    <input type="hidden" name="shipping_temp" value="@Model.Shipping" id="id_current_shipping_temp">
+                                </div>
+                            </td>
+                            <td colspan="4" rowspan="6" style="border-style:solid;border-width:1px;">
+                                <table>  
+	                                <tbody>
+		                                <tr>
+			                                <td style="width:150px">HBL號碼</td>
+			                                <td>:<input type="text" name="hblno" value="@Model.HblNo" id="id_current_hblno" style="font-weight:bold;width:190px"></td>
+		                                </tr>
+		                                <tr>
+			                                <td style="width:150px">我司訂艙號碼</td>
+			                                <td>:<input type="text" name="outbookingno" value="@Model.OutBookingNo" id="id_current_outbookingno" style="font-weight:bold;width:190px"></td>
+		                                </tr>
+		                                <tr>
+			                                <td style="width:150px">訂艙日期</td>
+			                                <td>:<input type="text" name="bookingdate" value="@Model.BookingDate" id="id_current_bookingdate" style="font-weight:bold;width:190px"></td>
+		                                </tr>
+		                                <tr>
+			                                <td style="width:150px">出口參考號碼</td>
+			                                <td>:<input type="text" name="exportrefno" value="@Model.ExportRefNo" id="id_current_exportrefno" style="font-weight:bold;width:190px"></td>
+		                                </tr>
+		                                <tr>
+			                                <td rowspan="2" style="width:150px">PO號碼</td>
+                                            <td rowspan="2">:<textarea name="pono" cols="40" rows="2" id="id_current_pono" style="resize:none;font-weight:bold;width:88%">@Model.PoNo</textarea></td>
+		                                </tr>
+		                                <tr>
+		                                </tr>
+		                                <tr>
+			                                <td style="width:150px">ITN號碼</td>
+			                                <td>:<input type="text" name="itnno" value="@Model.ItnNo" id="id_current_itnno" style="font-weight:bold;width:190px"></td>
+		                                </tr>
+	                                </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                        <tr>
+                        </tr>
+                        <tr>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">收貨人</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" rowspan="5" style="border-style:solid;border-width:1px;">
+                                <div id="consignee_temp_div" name="consignee_temp_div">
+                                    <textarea name="consignee" cols="40" rows="7" id="id_current_consignee" style="resize:none;font-weight:bold;font-size:large;width:350px">@Model.Consignee</textarea>
+                                    <input type="hidden" name="consignee_temp" value="@Model.Consignee" id="id_current_consignee_temp">
+                                </div>
+                                <div id="overseaagent_temp_div" name="overseaagent_temp_div">
+                                    <textarea name="overseaagent" cols="40" rows="7" id="id_current_overseaagent" style="resize:none;font-weight:bold;font-size:large;width:350px">@Model.OverseaAgent</textarea>
+                                    <input type="hidden" name="overseaagent_temp" value="@Model.OverseaAgent" id="id_current_overseaagent_temp">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">代理</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;"><input type="text" name="agent" value="@Model.Agent" id="id_current_agent" style="font-weight:bold;width:350px"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">通知人</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;"><input type="text" name="notify" value="@Model.Notify" id="id_current_notify" style="font-weight:bold;width:350px"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div></div>
+            <div style="display:inline-block;width:10px">&nbsp;</div>
+            <div style="display:inline-block;">
+                <table style="border-collapse:collapse;border-spacing:0;width:760px">
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">船名與航線資訊</td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td style="width:200px">船名與航次</td>
+                            <td>:&nbsp;<input type="text" name="vessel_voyage" value="@Model.Vessel_Voyage" id="id_current_vessel_voyage" style="font-weight:bold;width:300px"></td>
+                            <td>船公司</td>
+                            <td>:&nbsp;<span><strong>@Model.Carrier</strong></span></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>收貨地</td>
+                            <td>:&nbsp;<input type="text" name="placeofreceipt" value="@Model.PlaceOfReceipt" id="id_current_placeofreceipt" style="font-weight:bold;width:300px"></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>裝貨港</td>
+                            <td>:&nbsp;<input type="text" name="portofloading" value="@Model.PortOfLoading" id="id_current_portofloading" style="font-weight:bold;width:300px"></td>
+                            <td>ETD</td>
+                            <td>:&nbsp;<strong>@Model.ETD</strong></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>中轉港</td>
+                            <td>:&nbsp;<input type="text" name="portoftransshipment" value="@Model.PortOfTransshipment" id="id_current_portoftransshipment" style="font-weight:bold;width:300px"></td>
+                            <td>ETA</td>
+                            <td>:&nbsp;<strong>@Model.TsETA</strong></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>卸貨港</td>
+                            <td>:&nbsp;<input type="text" name="portofdischarge" value="@Model.PortOfDischarge" id="id_current_portofdischarge" style="font-weight:bold;width:300px"></td>
+                            <td>ETA</td>
+                            <td>:&nbsp;<strong>@Model.PodETA</strong></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>交貨地</td>
+                            <td>:&nbsp;<input type="text" name="placeofdelivery" value="@Model.PlaceOfDelivery" id="id_current_placeofdelivery" style="font-weight:bold;width:300px"></td>
+                            <td>ETA</td>
+                            <td>:&nbsp;<strong>@Model.DelETA</strong></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>最終目的地</td>
+                            <td>:&nbsp;<input type="text" name="finaldestination" value="@Model.FinalDestination" id="id_current_finaldestination" style="font-weight:bold;width:300px"></td>
+                            <td>ETA</td>
+                            <td>:&nbsp;<strong>@Model.FinalETA</strong></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>運輸類型</td>
+                            <td>:&nbsp;<input type="text" name="movetype" value="@Model.MoveType" id="id_current_movetype" style="font-weight:bold;width:300px"></td>
+                            <td>最早收櫃日</td>
+                            <td>:&nbsp;<strong>@Model.EarlyReturn</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">貨物資訊</td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>商品</td>
+                            <td colspan="3">:&nbsp;<input type="text" name="commodity" value="@Model.Commodity" id="id_current_commodity" style="font-weight:bold;width:600px"></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>集裝箱</td>
+                            <td colspan="3">:&nbsp;<input type="text" name="container" value="@Model.Container" id="id_current_container" style="font-weight:bold;width:600px"></td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>重量</td>
+                            <td>:&nbsp;@Model.Weight</td>
+                            <td>危險品</td>
+                            <td>
+                                @*:&nbsp;<label>@Html.RadioButtonFor(m => m.InfoModel.Dangerous,true)是</label>
+                                <label>@Html.RadioButtonFor(m => m.InfoModel.Dangerous,false)否</label>*@
+                                :&nbsp;<label><input type="radio" name="dangerousradio" id="id_current_dangerous_true" value="true">是</label>
+                                <label><input type="radio" name="dangerousradio" id="id_current_dangerous_false" value="false">否</label>
+                            </td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>材積</td>
+                            <td>:&nbsp;@Model.Measurement</td>
+                            <td>信用狀</td>
+                            <td>
+                                @*:&nbsp;<label>@Html.RadioButtonFor(m => m.InfoModel.LC,true)是</label>
+                                <label>@Html.RadioButtonFor(m => m.InfoModel.LC,false)否</label>*@
+                                :&nbsp;<label><input type="radio" name="lcradio" id="id_current_lc_true" value="true">是</label>
+                                <label><input type="radio" name="lcradio" id="id_current_lc_false" value="false">否</label>
+                            </td>
+                        </tr>
+                        <tr style="border-style:solid;border-width:1px;">
+                            <td>包裝種類</td>
+                            <td>:&nbsp;@Model.PKG CARTON(S)</td>
+                            <td>可堆放</td>
+                            <td>
+                               @* :&nbsp;<label>@Html.RadioButtonFor(m => m.InfoModel.Stackable,true)是</label>
+                                <label>@Html.RadioButtonFor(m => m.InfoModel.Stackable,false)否</label>*@
+                                :&nbsp;<label><input type="radio" name="stackableradio" id="id_current_stackable_true" value="true">是</label>
+                                <label><input type="radio" name="stackableradio" id="id_current_stackable_false" value="false">否</label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div></div>
+            <div style="display:inline-block;width:10px">&nbsp;</div>
+            <div style="display:inline-block;" id="cargodeliverylocation_1_temp_div" name="cargodeliverylocation_1_temp_div">
+                <table style="border-collapse:collapse;border-spacing:0;width:760px">
+	                <tbody>
+		                <tr>
+			                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">貨物進倉地/重櫃交還地</td>
+			                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">結關日</td>
+		                </tr>
+		                <tr>
+			                <td colspan="4" rowspan="4" style="border-style:solid;border-width:1px;">
+                                <textarea name="cargodeliverylocation_1" cols="40" rows="5" id="id_current_cargodeliverylocation_1" style="resize:none;font-weight:bold;font-size:large;">@Model.CargoDeliveryLocation_1</textarea>
+                                <input type="hidden" name="cargodeliverylocation_1_temp" value="@Model.CargoDeliveryLocation_1" id="id_current_cargodeliverylocation_1_temp">
+                            </td>
+			                <td colspan="4" rowspan="4" style="border-style:solid;border-width:1px;">
+                                <table>  
+	                                <tbody>
+		                                <tr>
+			                                <td>港口</td>
+			                                <td colspan="3">：<input type="text" name="port_cutoff_date" value="@Model.Port_Cutoff_Date" id="id_current_port_cutoff_date" style="font-weight:bold;"></td>
+		                                </tr>
+		                                <tr>
+			                                <td>鐵路</td>
+			                                <td colspan="3">：<input type="text" name="rail_cutoff_date" value="@Model.Rail_Cutoff_Date" id="id_current_rail_cutoff_date" style="font-weight:bold;"></td>
+		                                </tr>
+		                                <tr>
+			                                <td>倉儲</td>
+			                                <td colspan="3">：<input type="text" name="warehouse_cutoff_date" value="@Model.Warehouse_Cutoff_Date" id="id_current_warehouse_cutoff_date" style="font-weight:bold;"></td>
+		                                </tr>
+		                                <tr>
+			                                <td>文件</td>
+			                                <td colspan="3">：<input type="text" name="doc_cutoff_date" value="@Model.Doc_Cutoff_Date" id="id_current_doc_cutoff_date" style="font-weight:bold;"></td>
+		                                </tr>
+	                                </tbody>
+                                </table>
+                            </td>
+		                </tr>
+		                <tr>
+		                </tr>
+		                <tr>
+		                </tr>
+		                <tr>
+		                </tr>
+		                <tr>
+			                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">提櫃地</td>
+			                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">提貨地</td>
+		                </tr>
+		                <tr>
+			                <td colspan="4" rowspan="5" style="border-style:solid;border-width:1px;" valign="top">
+                                <textarea name="emptypickup" cols="40" rows="5" id="id_current_emptypickup" style="resize:none;font-weight:bold;font-size:large;">@Model.EmptyPickUp</textarea>
+                            </td>
+			                <td colspan="4" rowspan="3" style="border-style:solid;border-width:1px;">
+                                <textarea name="cargopickup" cols="40" rows="5" id="id_current_cargopickup" style="resize:none;font-weight:bold;font-size:large;">@Model.CargoPickUp</textarea>
+                            </td>
+		                </tr>
+		                <tr>
+		                </tr>
+		                <tr>
+		                </tr>
+		                <tr>
+			                <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;width:50%;">卡車行</td>
+		                </tr>
+		                <tr>
+			                <td colspan="4" style="border-style:solid;border-width:1px;"><input type="text" name="trucker" value="@Model.Trucker" id="id_current_trucker" style="font-weight:bold;width:350px"></td>
+		                </tr>
+	                </tbody>
+                </table>
+            </div>
+
+            @*<div></div>
+            <div style="display:inline-block;width:10px">&nbsp;</div>*@
+            <div style="display:inline-block;" id="cargodeliverylocation_2_temp_div" name="cargodeliverylocation_2_temp_div">
+                <table style="border-collapse:collapse;border-spacing:0;width:760px">
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">貨物進倉地/重櫃交還地</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><textarea name="cargodeliverylocation_2" cols="40" rows="5" id="id_current_cargodeliverylocation_2" style="resize:none;font-weight:bold;font-size:large;width:720px">@Model.CargoDeliveryLocation_2</textarea></td>
+                            <input type="hidden" name="cargodeliverylocation_2_temp" value="@Model.CargoDeliveryLocation_2" id="id_current_cargodeliverylocation_2_temp">
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div></div>
+            <div style="display:inline-block;width:10px">&nbsp;</div>
+            <div style="display:inline-block;">
+                <table style="border-collapse:collapse;border-spacing:0;width:760px">
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">備註</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><textarea name="remark" cols="40" rows="8" id="id_current_remark" style="resize:none;font-weight:bold;font-size:large;width:720px">@Model.Remark</textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--******* Rider *******-->
+            <div style="width:100%;height:7px;border-bottom:1px dotted black;text-align: center">
+                <span style="font-size:14px;padding: 0 10px;">
+                    <font color="blue"><strong>Rider</strong></font>
+                </span>
+            </div>
+            <br />
+            <div style="display:inline-block;width:10px">&nbsp;</div>
+            <div style="display:inline-block;">
+                <table style="border-collapse:collapse;border-spacing:0;width:760px">
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="border-style:solid;border-width:1px;background-color:gray;">約定條款</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <span style="font-size: 12px;">
+                                    Note: As a result of the Passage of the Homeland Security Act, U.S. Customs officials are enforcing the requirement that AES information and other shipping documentation be received prior to cargo loading the vessel. Failure to complete may result in your cargo not loading on intended vessel. You can file your SED electronically through the Census website at https://ace.cbp.dhs.gov/ or you can inquire about our AES filing service with a fee. All export/hazardous declaration must be in our possession by the day of the cut off prior to cargo loading, Any fines incurred due to lack of SED filing compliance will be for the amount of shipper/forwarder. All shipments to Hong Kong, China, Taiwan, Australia, if wooden pallet and/or crate are used, it MUST comply with the IPPC certification; or use plastic pallets. Charges and consequences due to non-compliance will be at customer's expense. For I.E.and return cargo, freight MUST be PREPAID. All shipments are subject to U.S. Customs inspection.
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+        </div>
+    </div>
+</div>
+<input type="hidden" name="office" value="@Model.Office" id="id_current_office">
+<input type="hidden" name="address" value="@Model.Address" id="id_current_address">
+<input type="hidden" name="tel" value="@Model.Tel" id="id_current_tel">
+<input type="hidden" name="fax" value="@Model.Fax" id="id_current_fex">
+<input type="hidden" name="email" value="@Model.Email" id="id_current_email">
+<input type="hidden" name="lastname" value="@Model.LastName" id="id_current_lastName">
+<input type="hidden" name="firstname" value="@Model.FirstName" id="id_current_firstName">
+<input type="hidden" name="date" value="@Model.Date" id="id_current_date">
+<input type="hidden" name="datetime" value="@Model.DateTime" id="id_current_dateTime">
+
+<input type="hidden" name="dangerous" id="id_current_dangerous">
+<input type="hidden" name="lc" id="id_current_lc">
+<input type="hidden" name="stackable" id="id_current_stackable">
+
+<input type="hidden" name="carrier" value="@Model.Carrier" id="id_current_carrier">
+<input type="hidden" name="etd" value="@Model.ETD" id="id_current_etd">
+<input type="hidden" name="tseta" value="@Model.TsETA" id="id_current_tseta">
+<input type="hidden" name="podeta" value="@Model.PodETA" id="id_current_podeta">
+<input type="hidden" name="deleta" value="@Model.DelETA" id="id_current_deleta">
+<input type="hidden" name="finaleta" value="@Model.FinalETA" id="id_current_finaleta">
+<input type="hidden" name="earlyreturn" value="@Model.EarlyReturn" id="id_current_earlyreturn">
+<input type="hidden" name="weight" value="@Model.Weight" id="id_current_weight">
+<input type="hidden" name="measurement" value="@Model.Measurement" id="id_current_measurement">
+<input type="hidden" name="pkg" value="@Model.PKG" id="id_current_pkg">
+
+<input type="hidden" name="reportid" value="@Model.ReportId" id="id_current_reportid">
+</form>

@@ -1,0 +1,43 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.ItNoRanges
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/Pages/Settings/AirOtherCharge/Index.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Settings"] />
+            <abp-breadcrumb-item title=@L["Menu:AirOtherCharge"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <abp-row>
+                <abp-column size-md="_6">
+                    <abp-card-title>@L["Menu:AirOtherCharge"]</abp-card-title>
+                </abp-column>
+                <abp-column size-md="_6" class="text-end">
+                    @if (await AuthorizationService.IsGrantedAsync(SettingsPermissions.AirOtherCharge.Create))
+                    {
+                        <abp-button id="NewAirOtherChargeButton"
+                                    text="@L["Create"].Value"
+                                    icon="plus"
+                                    button-type="Primary" />
+                    }
+                </abp-column>
+            </abp-row>
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table striped-rows="true" id="AirOtherCharge"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

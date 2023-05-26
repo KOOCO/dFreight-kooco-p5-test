@@ -1,0 +1,186 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.Components
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.OceanExports.VesselSchedules.Edit3Model
+@inject IStringLocalizer<FreightResource> L
+@section scripts
+    {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            initAttments();
+            $("#uploadFile").change(function () {
+                var fid = '@Model.Id';
+                var files = $('#uploadFile').prop("files");
+                var url = "Edit3?handler=MyUploader";
+                formData = new FormData();
+                formData.append("MyUploader", files[0]);
+                formData.append("fid", fid);
+                jQuery.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("XSRF-TOKEN",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    success: function (repo) {
+                        initAttments();
+
+                    },
+                    error: function (rs) {
+                        console.log(rs)
+                        alert("Error occurs");
+                    }
+                });
+            });
+
+        })
+        function initAttments() {
+            dolphin.freight.importExport.attachments.attachment.queryList({ queryType: 9, queryId: '@Model.Id' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    for (var index = 0; index < result.length; index++) {
+                        var trhtml = trhtml + "<tr><td><a href='Edit3?handler=Download&filename=" + result[index].fileName + "' > " + result[index].fileName + "</a></td><td>" + result[index].creationTime.substring(0, 10) + "</td> <td>" + result[index].size + "KB </td></tr> ";
+
+                    }
+                    $("#ftbody").html(trhtml);
+                    $("#uploadFile").val("");
+                }
+            });
+        }
+    </script>
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:OceanExports"] />
+            <abp-breadcrumb-item title=@L["Menu:VesselSchedules.Create"] href="#" />
+        </abp-breadcrumb>
+    </div>
+    <nav class="submenu">
+        <ol>
+            <li class="menu-item ">
+                <a class="nav-link " href="Edit?Id=@Model.Id">@L["Tab:Basic"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link " href="Edit2?Id=@Model.Id">@L["Tab:Accounting"]</a>
+            </li>
+            <li class="menu-item active">
+                <a class="nav-link " href="javascript:void(0)">@L["Tab:Doc"]</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="page-content-area">
+    <abp-column size-md="_12">
+
+        <div class="board-wrap">
+            <abp-card class="card board-item">
+                <abp-card-header class="card-header active" style="background:#555555;color:#FFFFFF;">
+
+                    <abp-card-title>
+                        @L["VesselSchedule"] @Model.SoNo
+                    </abp-card-title>
+
+
+                    <!--
+                    <div class="btn-group dropdown">
+                        <button class="btn btn-secondary dropdown-toggle"  type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                            請選擇
+                        </button>
+                        <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                            <a class='dropdown-item' href='#'>
+                                   <li class="fa fa-lock"></li> 鎖定
+                                </a>
+                    <a class='dropdown-item' href='#'>
+                        <i class="fa fa-trash"></i> 刪除
+                    </a>
+                            <li class="dropdown-divider"></li>
+                    <a class='dropdown-item' href='#'>
+                    <li class="fa fa-lock"></li> aaa
+                    </a>
+
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                     -->
+                </abp-card-header>
+                <abp-card-body class="collapse show" id="mblDiv">
+
+                    <abp-row>
+                        <abp-column size-md="_4"><input type="file" id="uploadFile" /></abp-column>
+                        <abp-column size-md="_8">
+                            <table>
+                                <tr>
+                                    <th width="40%">@L["Display:Name"]</th>
+                                    <th width="30%">@L["Display:Date"]</th>
+                                    <th width="15%">@L["Display:FileSize"]</th>
+                                    <!--
+                                    <th width="15%">@L["Display:Function"]</th>
+                                    -->
+                                </tr>
+                                <tbody id="ftbody">
+                                </tbody>
+
+                            </table>
+
+                        </abp-column>
+                    </abp-row>
+                </abp-card-body>
+            </abp-card>
+            <br />
+            <abp-card border="Dark" id="hblCard" style="display:none;">
+                <abp-card-header style="background:#f3c200;color:#FFFFFF;">
+                    <abp-row>
+                        <abp-column size-md="_9">
+                            <abp-card-title>
+                                HB/L 123AAA <span id="f1" style="font-size:0.8em;">CLEARVILLE</span> <span id="f2" style="font-size:0.8em;"> (10-29-2022)</span>
+                                <span id="f3" style="font-size:0.8em;">CLEARVILLE</span> <span id="f4" style="font-size:0.8em;"> (12-29-2022)</span>
+                                <span id="f5" style="font-size:0.8em;"> <i class="fa fa-anchor"></i>BARAKAT</span>
+                            </abp-card-title>
+
+                        </abp-column>
+                        <abp-column size-md="_3" class="text-end">
+                            <!--
+                            <div class="btn-group dropdown">
+                                <button class="btn btn-secondary dropdown-toggle"  type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                    請選擇
+                                </button>
+                                <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                                    <a class='dropdown-item' href='#'>
+                                           <li class="fa fa-lock"></li> 鎖定
+                                        </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-trash"></i> 刪除
+                            </a>
+                                    <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                            <li class="fa fa-lock"></li> aaa
+                            </a>
+
+                                </div>
+                            </div>
+                            -->
+                            <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#hblDiv" aria-expanded="false" aria-controls="hblDiv">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </abp-column>
+
+                    </abp-row>
+                </abp-card-header>
+                <abp-card-body class="collapse " id="hblDiv">
+
+                </abp-card-body>
+            </abp-card>
+        </div>
+    </abp-column>
+    <abp-column size-md="_2">
+
+    </abp-column>
+</div>

@@ -1,0 +1,283 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.Telexrelease.TelexreleaseIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@*@section scripts
+{
+    <abp-script src="/Pages/Reports/TelexreleaseCosco.js" />
+}*@
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+</style>
+<script>
+    var zoom = 1;
+    $(document).ready(function () {
+        $('#zin').on('click', function () {
+            zoom += 0.1;
+            $('#form').css('transform', 'scale(' + zoom + ')');
+        });
+
+        $('#zout').on('click', function () {
+            zoom -= 0.1;
+            $('#form').css('transform', 'scale(' + zoom + ')');
+        });
+
+        document.getElementById("reportLink").onclick = function () {
+            document.getElementById("myForm").submit();
+        }
+    });
+
+    function onChangeTemplate(sel) {
+        if (sel.value === 'default') {
+            window.location.href = '@Url.Action("Telexrelease")';
+        }
+        else if (sel.value === 'cosco') {
+            window.location.href = 'javascript:void(0)';
+        }
+        else {
+            throw Error('unknown template value')
+        }
+    }
+</script>
+<form id="myForm" name="myForm" method="POST">
+<div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div style="float:right;">
+            <div style="display:inline-block"><p style="color:red"><strong>Template : </strong></p></div>
+            <div style="display:inline-block">            
+                <select onchange="onChangeTemplate(this)">
+                    <option value="default">Default</option>
+                    <option selected="selected" value="cosco">Cosco Version</option>
+                </select>
+            </div>
+        </div>
+        <br />
+        <center>
+            <hr />
+        </center>
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            @*<img src="./Telex Release2_files/saved_resource(1)">*@
+                            <div style="border: 1px solid;width:120px;height:120px;">圖片</div>
+                        </td>
+                        <td>
+                            <h3><span>@Model.Office</span></h3>
+                            <div>
+                                <span>
+                                    <br>
+                                    @{
+                                        if (Model.Address != "")
+                                        {
+                                                @Model.Address
+
+                                                <br />
+                                        }
+                                    }
+                                    TEL: @Model.Tel @{
+                                        if (Model.Fax != "")
+                                        {
+                                                <span>FAX:</span> @Model.Fax
+                                        }
+                                    }
+                                    <br />
+                                    EMAIL: @Model.Email
+
+                                    <br /><strong>Prepared by @Model.LastName @Model.FirstName @Model.DateTime (CST)</strong>
+
+                                </span>
+                            </div>
+                        </td>
+                        <td style="width:50px">&nbsp;</td>
+                        <td>
+                            <div style="border: 1px solid;width:350px;height:120px;display: flex;align-items: center;justify-content: center;">
+                                <h3>TELEX RELEASE</h3>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <div>Attachment Two - LETTER OF UNDERTAKING FOR TELEX RELEASE CARGO - For B/L Not-issued</div>
+            <div>LETTER OF UNDERTAKING FOR TELEX RELEASE CARGO</div>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Date</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                <input type="text" name="date" value="@Model.Date" id="id_current_date" style="width:720px">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>To</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                <div>
+                                    <input type="text" name="to" value="@Model.To" id="id_carrier_name" style="width:720px">
+                                </div>
+                            </div>
+                    </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <div>and/or the Owners /Charterers/Slot Charterers/ Managers/Operators or agents of the</div>
+                            <div>
+                                <div>
+                                    <input type="text" name="to_vessel_voyage" value="@Model.Vessel / @Model.Voyage" id="id_to_vessel_voyage" style="width:720px">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">Dear Sirs,</td>
+                    </tr>
+                    <tr>
+                        <td>Vessel / Voyage</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                <input type="text" name="vessel_voyage" value="@Model.Vessel / @Model.Voyage" id="id_vessel_voyage" style="width:720px">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>L/D Ports</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                <input type="text" name="LD_ports" value="@Model.Pol / @Model.Pod" id="id_LD_ports" style="width:720px">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Cargo</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                <textarea name="cargo" cols="95" rows="3" id="id_cargo" style="resize:none"></textarea>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Bills of lading</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                <input type="text" name="bills_of_lading" value="@Model.Mbl, @Model.Date_M, @Model.Pol" id="id_bills_of_lading" style="width:720px">
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+                <div>
+                    <div style="display:inline-block">
+                    We 
+                    </div>
+                    <div style="display:inline-block">
+                        <div>
+                            <input type="text" name="office" value="@Model.Office" id="id_shipping_agent_name" style="width:200px">
+                        </div>
+                    </div> 
+                    <div style="display:inline-block">
+                        confirm and hereby authorize a telex release of the above mentioned containers/cargo and you are required to release the cargo to: 
+                    </div>
+                    <div>
+                        <div>
+                            <input type="text" name="consignee" value="@Model.Consignee" id="id_oversea_agent_name" style="width:200px">
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div>
+                    In consideration of your complying with our above request, we hereby agree as follows ：
+                </div>
+                <ol>
+                    <li>To indemnify you, your servants and agents and to hold all of you harmless in respect of any liability, loss, damage or expense of whatsoever nature which you may sustain by reason of delivering the cargo in accordance with our request.</li>
+                    <li>In the event of any proceedings being commenced against you or any of your servants or agents in connection with the delivery of the cargo as aforesaid, to provide you or them on demand with sufficient funds to defend the same.</li>
+                    <li>If, in connection with the delivery of the cargo as aforesaid, the ship, or any other ship or property in the same or associated ownership, management or control, should be arrested or detained or should the arrest or detention thereof be threatened, or should there be any interference in the use or trading of the vessel （whether by virtue of a caveat being entered on the ship’s registry or otherwise howsoever）, to provide on demand such bail or other security as may be required to prevent such arrest or detention or to secure the release of such ship or property or to remove such interference and to indemnify you in respect of any liability, loss, damage or expense caused by such arrest or detention or threatened arrest or detention or such interference, whether or not such arrest or detention or threatened arrest or detention or such interference may be justified.</li>
+                    <li>We confirm that we don’t request your company to issue the original B/L and we agree to accept all the terms and conditions of the bill of lading.</li>
+                    <li>If the named consignee in the letter is not available or reject or is not able to take delivery of the shipment in 15 days from the day when the shipment was discharged in discharging port we agree that you could sell or dispose the shipment in any time and we will indemnify and hold the carrier harmless for any liability and cost and expense for the sale or disposal.</li>
+                    <li>The liability of each and every person under this indemnity shall be joint and several and shall not be conditional upon your proceeding first against any person, whether or not such person is party to or liable under this indemnity.</li>
+                    <li>This indemnity shall be governed by and construed in accordance with Chinese law and each and every person liable under this indemnity shall be at your request submit to the jurisdiction of the Maritime Court of PRC.</li>
+                </ol>
+                <div>Yours faithfully</div>
+                <br />
+                <div>
+                    For and on behalf of
+                    <div>
+                        <input type="text" name="textArea" value="@Model.TextArea" id="id_current_user_name" style="width:200px">
+                    </div>
+                </div>
+                <br />
+                <br />
+                <span>_______________________________</span>
+                <div>Signature</div>
+                <input type="hidden" name="attn" value="@Model.Attn" id="id_current_attn">
+                <input type="hidden" name="from" value="@Model.From" id="id_current_from">
+                <input type="hidden" name="cnee" value="@Model.Cnee" id="id_current_cnee">
+                <input type="hidden" name="address" value="@Model.Address" id="id_current_address">
+                <input type="hidden" name="tel" value="@Model.Tel" id="id_current_tel">
+                <input type="hidden" name="email" value="@Model.Email" id="id_current_email">
+                <input type="hidden" name="lastname" value="@Model.LastName" id="id_current_lastName">
+                <input type="hidden" name="firstname" value="@Model.FirstName" id="id_current_firstName">
+                <input type="hidden" name="datetime" value="@Model.DateTime" id="id_current_dateTime">
+                <input type="hidden" name="date_m" value="@Model.Date_M" id="id_current_date_m">
+
+                <input type="hidden" name="reportid" value="@Model.ReportId" id="id_current_reportid">
+            </div>
+        </div>
+    </div>
+</div>
+</form>

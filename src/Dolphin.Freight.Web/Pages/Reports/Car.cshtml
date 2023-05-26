@@ -1,0 +1,1121 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Reports.CarModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div class="wrap">
+        
+
+         <div class="header header-normal">
+            <table>
+                <tbody><tr>
+                    <td class="w-15 logo">
+                        <img src="/Pages/Reports/logo.png">
+                    </td>
+                    <td class="w-48">
+                        <h1 class="auto-font-size office-name">
+                            <span> </span>
+                        </h1>
+                        <div class="auto-font-size office-des">
+                            <span>
+                                @{
+                                    if (Model.InfoModel.Address != "")
+                                    {
+                                            @Model.InfoModel.Address
+                                            <br />
+                                    }
+                                }
+                                TEL: @Model.InfoModel.Tel<br>
+                                EMAIL: @Model.InfoModel.Email
+                                    <br /><strong>Prepared by @Model.InfoModel.LastName @Model.InfoModel.FirstName @Model.InfoModel.DateTime (CST)</strong>
+                                    
+                                <input type="hidden" name="Office" value="@Model.InfoModel.Office" />
+                                <input type="hidden" name="Address" value="@Model.InfoModel.Address" />
+                                <input type="hidden" name="TEL" value="@Model.InfoModel.Tel" />
+                                <input type="hidden" name="EMAIL" value="@Model.InfoModel.Email" />
+                                <input type="hidden" name="LastName" value="@Model.InfoModel.LastName" />
+                                <input type="hidden" name="FirstName" value="@Model.InfoModel.FirstName" />
+                                <input type="hidden" name="DateTime" value="@Model.InfoModel.DateTime" />
+                            </span>
+                        </div>
+                    </td>
+                    <td class="w-2">&nbsp;</td>
+                    <td class="w-35 title border-deep-blue text-center">
+                        <select name="form_title" class="select" id="id_form_title">
+  <option value="1">PICKUP &amp; DELIVERY ORDER</option>
+
+  <option value="2">REQUEST FOR TRANSPORT</option>
+
+</select>
+                    </td>
+                </tr>
+            </tbody></table>
+        </div>
+        <div class="con">
+            <table>
+                <tr>
+                    <td class="w-48 td">
+                        <table>
+                            <tr>
+                                <td class="td highlight-block">
+                                    <div class="title">
+                                        <div class="item-pdf">TRUCKER</div>
+                                        <div class="item-edit">
+                                            <table>
+                                                <tr>
+                                                    <td class="w-50">TRUCKER</td>
+                                                    <td class="w-50 data">
+                                                        <hc-form-trade-partner-info-picker
+                                                            on-changed="vm.updateTpInfo(info, 'trucker_area')"
+                                                        ></hc-form-trade-partner-info-picker>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="data">
+                                        <div class="item-edit">
+                                            <textarea name="trucker_area" cols="40" rows="5" class="text-scroll no-adjustment" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.trucker_area" id="id_trucker_area">
+</textarea>
+                                        </div>
+                                        <div class="item-pdf auto-font-size data-height-md __width-lg">
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            
+                                <tr>
+                                    <td class="td highlight-block">
+                                        <div class="title">
+                                            <div class="item-pdf">EMPTY PICK UP LOCATION</div>
+                                            <div class="item-edit">
+                                                <table>
+                                                    <tr>
+                                                        <td class="w-50">
+                                                            <input type="checkbox" name="is_show_empty_pickup_area" hc-user-preference="oe_mbl_pickup_delivery_order_is_show_empty_pickup_area" ng-model="vm.isShowEmptyPickupArea" id="id_is_show_empty_pickup_area"> EMPTY PICK UP LOCATION
+                                                        </td>
+                                                        <td class="w-50 data">
+                                                            <hc-form-trade-partner-info-picker
+                                                                on-changed="vm.updateTpInfo(info, 'empty_pickup_area')"
+                                                            ></hc-form-trade-partner-info-picker>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="data">
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <div class="item-edit">
+                                                            <textarea name="empty_pickup_area" cols="40" rows="7" class="text-scroll no-adjustment" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.empty_pickup_area" id="id_empty_pickup_area">
+TOH</textarea>
+                                                        </div>
+                                                        <div class="item-pdf auto-font-size __height-area __width-lg">
+                                                            <span>TOH</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table>
+                                                <tr class="text-12">
+                                                    <td class="w-20">REF. NO. :</td>
+                                                    <td class="w-80">
+                                                        <div class="item-edit">
+                                                            <input type="text" name="empty_pickup_ref_no" class="tune" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.empty_pickup_ref_no" id="id_empty_pickup_ref_no">
+                                                        </div>
+                                                        <div class="item-pdf"> </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="w-20">DATE:</td>
+                                                    <td class="w-80">
+                                                        <div class="item-edit w-96">
+                                                            <table>
+                                                                <tr>
+                                                                    <td class="w-48">
+                                                                        <input type="text" name="empty_pickup_date" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.empty_pickup_date" id="id_empty_pickup_date">
+                                                                    </td>
+                                                                    <td class="w-4">//</td>
+                                                                    <td class="w-48">
+                                                                        <input type="text" name="empty_pickup_time" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.empty_pickup_time" id="id_empty_pickup_time">
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                        <div class="item-pdf">  //  </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            
+                            <tr>
+                                <td class="td highlight-block">
+                                    <div class="title">
+                                        <div class="item-pdf">FREIGHT PICK UP LOCATION</div>
+                                        <div class="item-edit">
+                                            <table>
+                                                <tr>
+                                                    <td class="w-50">FREIGHT PICK UP LOCATION</td>
+                                                    <td class="w-50 data">
+                                                        <hc-form-trade-partner-info-picker
+                                                            init-code=""
+                                                            model="vm.cargoPickup"
+                                                            on-changed="vm.updateTpInfo(info, 'cargo_pickup_area')"
+                                                        ></hc-form-trade-partner-info-picker>
+                                                    </td>
+                                                    <td class="w-10 text-center">
+                                                        <hc-form-text-loader
+                                                            text="vm.cargoPickup.remark"
+                                                            target-name="cargo_pickup_area"
+                                                            tooltip-text="Load Trade Partner Remark"
+                                                        ></hc-form-text-loader>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="data">
+                                        <table>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <div class="item-edit">
+                                                        <textarea name="cargo_pickup_area" cols="40" rows="7" class="text-scroll no-adjustment" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.cargo_pickup_area" id="id_cargo_pickup_area">
+</textarea>
+                                                    </div>
+                                                    <div class="item-pdf auto-font-size __height-area __width-lg">
+                                                        <span></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table>
+                                            <tr class="text-12">
+                                                <td class="w-20">REF. NO. :</td>
+                                                <td class="w-80">
+                                                    <div class="item-edit">
+                                                        <input type="text" name="cargo_pickup_ref_no" class="tune" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.cargo_pickup_ref_no" id="id_cargo_pickup_ref_no">
+                                                    </div>
+                                                    <div class="item-pdf"> </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="w-20">DATE:</td>
+                                                <td class="w-80">
+                                                    <div class="item-edit w-96">
+                                                        <table>
+                                                            <tr>
+                                                                <td class="w-48">
+                                                                    <input type="text" name="cargo_pickup_date" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.cargo_pickup_date" id="id_cargo_pickup_date">
+                                                                </td>
+                                                                <td class="w-4">//</td>
+                                                                <td class="w-48">
+                                                                    <input type="text" name="cargo_pickup_time" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.cargo_pickup_time" id="id_cargo_pickup_time">
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div class="item-pdf">  //  </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            
+                                <tr>
+                                    <td class="td highlight-block">
+                                        <div class="title">
+                                            <div class="item-pdf">LOADED RETURN/DELIVERY TO</div>
+                                            <div class="item-edit">
+                                                <table>
+                                                    <tr>
+                                                        <td class="w-50">
+                                                            <input type="checkbox" name="is_show_delivery_to_area" hc-user-preference="oe_mbl_pickup_delivery_order_is_show_delivery_to_area" ng-model="vm.isShowDeliveryToArea" id="id_is_show_delivery_to_area"> LOADED RETURN/DELIVERY TO
+                                                        </td>
+                                                        <td class="w-50 data">
+                                                            <hc-form-trade-partner-info-picker
+                                                                on-changed="vm.updateTpInfo(info, 'delivery_to_area')"
+                                                            ></hc-form-trade-partner-info-picker>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="data">
+                                            <table>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <div class="item-edit">
+                                                            <textarea name="delivery_to_area" cols="40" rows="7" class="text-scroll no-adjustment" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.delivery_to_area" id="id_delivery_to_area">
+CMS LOGISTICS GROUP (S) PTE LTD.
+100D PASIR PANJANG ROAD
+#07-01, MEISSA BUILDING
+SINGAPORE, SINGAPORE 118520, SINGAPORE
+TEL: 6238 5115 FAX: 6238 5118</textarea>
+                                                        </div>
+                                                        <div class="item-pdf auto-font-size __height-area __width-lg">
+                                                            <span>CMS LOGISTICS GROUP (S) PTE LTD.<br>
+100D PASIR PANJANG ROAD<br>
+#07-01, MEISSA BUILDING<br>
+SINGAPORE, SINGAPORE 118520, SINGAPORE<br>
+TEL: 6238 5115 FAX: 6238 5118</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table>
+                                                <tr class="text-12">
+                                                    <td class="w-20">REF. NO. :</td>
+                                                    <td class="w-80">
+                                                        <div class="item-edit">
+                                                            <input type="text" name="delivery_to_ref_no" class="tune" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.delivery_to_ref_no" id="id_delivery_to_ref_no">
+                                                        </div>
+                                                        <div class="item-pdf"> </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="w-20">DATE:</td>
+                                                    <td class="w-80">
+                                                        <div class="item-edit w-96">
+                                                            <table>
+                                                                <tr>
+                                                                    <td class="w-48">
+                                                                        <input type="text" name="delivery_to_date" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.delivery_to_date" id="id_delivery_to_date">
+                                                                    </td>
+                                                                    <td class="w-4">//</td>
+                                                                    <td class="w-48">
+                                                                        <input type="text" name="delivery_to_time" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.delivery_to_time" id="id_delivery_to_time">
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                        <div class="item-pdf">  //  </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            
+                        </table>
+                    </td>
+                    <td class="w-4">&nbsp;</td>
+                    <td class="w-48 td border-t data-lg">
+                        <table>
+                            <tr>
+                                <td class="td w-49 border-b border-l">
+                                    <div class="title">MB/L NO.</div>
+                                    <div class="data data--highlight auto-font-size __width-sm">
+                                        <span>AA230400298</span>
+                                    </div>
+                                </td>
+                                <td class="w-2">&nbsp;</td>
+                                <td class="td w-49 border-b border-r">
+                                    <div class="title">HB/L NO.</div>
+                                    <div class="data data--highlight auto-font-size __width-sm">
+                                        <span>&nbsp;</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td border-b border-l">
+                                    <div class="title">OUR REF. NO.</div>
+                                    <div class="data auto-font-size __width-sm">
+                                        <span>OEX-23040001</span>
+                                    </div>
+                                </td>
+                                <td class="w-2">&nbsp;</td>
+                                <td class="td border-b border-r">
+                                    <div class="title">CARRIER BKG NO.</div>
+                                    <div class="data">
+                                        <div class="item-pdf auto-font-size __width-sm">
+                                            <span>PILUSIN300464511</span>
+                                        </div>
+                                        <div class="item-edit">
+                                            <input type="text" name="carrier_bkg_no" value="PILUSIN300464511" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.carrier_bkg_no" id="id_carrier_bkg_no">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="border-l border-r">
+                            <tr>
+                                <td class="td border-b">
+                                    <div class="title">
+                                        <div class="item-pdf">CARRIER</div>
+                                        <div class="item-edit">
+                                            <table>
+                                                <tr>
+                                                    <td class="w-50 td">CARRIER</td>
+                                                    <td class="w-50 data">
+                                                        <hc-form-trade-partner-info-picker
+                                                            class="select2-right"
+                                                            field-preset="name_only"
+                                                            on-changed="vm.updateTpInfo(info, 'carrier')"
+                                                        ></hc-form-trade-partner-info-picker>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="data">
+                                        <div class="item-edit">
+                                            <input type="text" name="carrier" value="PACIFIC INT&#x27;L LINE (PIL)" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.carrier" id="id_carrier">
+                                        </div>
+                                        <div class="item-pdf auto-font-size __width-lg">
+                                            <span>PACIFIC INT&#39;L LINE (PIL)</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td border-b">
+                                    <div class="title">VESSEL INFO.</div>
+                                    <div class="data auto-font-size __width-lg"><span>KOTA NAGA 2221N</span></div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td class="td border-b w-74 border-l">
+                                    <div class="title">PLACE OF RECEIPT</div>
+                                    <div class="data">
+                                        <div class="item-pdf auto-font-size __width-md"><span>HAIPHONG (VIETNAM)</span></div>
+                                        <div class="item-edit"><input type="text" name="POR_location" value="HAIPHONG (VIETNAM)" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.POR_location" id="id_POR_location"></div>
+                                    </div>
+                                </td>
+                                <td class="w-2">&nbsp;</td>
+                                <td class="td border-b w-24 border-r">
+                                    <div class="title">ETD</div>
+                                    <div class="data">
+                                        &nbsp;
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td border-b border-l">
+                                    <div class="title">PORT OF LOADING</div>
+                                    <div class="data">
+                                        <div class="item-pdf auto-font-size __width-md"><span>SINGAPORE (SINGAPORE)</span></div>
+                                        <div class="item-edit"><input type="text" name="POL_location" value="SINGAPORE (SINGAPORE)" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.POL_location" id="id_POL_location"></div>
+                                    </div>
+                                </td>
+                                <td class="w-2">&nbsp;</td>
+                                <td class="td border-b border-r">
+                                    <div class="title">ETD</div>
+                                    <div class="data">
+                                        05-04-2023
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td border-b border-l">
+                                    <div class="title">PORT OF DISCHARGE</div>
+                                    <div class="data">
+                                        <div class="item-pdf auto-font-size __width-md"><span>HAIPHONG (VIETNAM)</span></div>
+                                        <div class="item-edit"><input type="text" name="POD_location" value="HAIPHONG (VIETNAM)" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.POD_location" id="id_POD_location"></div>
+                                    </div>
+                                </td>
+                                <td class="w-2">&nbsp;</td>
+                                <td class="td border-b border-r">
+                                    <div class="title">ETA</div>
+                                    <div class="data">
+                                        05-04-2023
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="border-l border-r">
+                            <tr>
+                                <td class="td border-b">
+                                    <div class="title">Container/Qty.</div>
+                                    <div class="data">
+                                        <div class="item-pdf auto-font-size __width-lg"><span> </span></div>
+                                        <div class="item-edit"><input type="text" name="container_qty" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.container_qty" id="id_container_qty"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td class="td border-b border-l w-70">
+                                    <table>
+                                        <tr>
+                                            <td class="w-50 td">
+                                                <div class="title">TOTAL PACKAGES</div>
+                                                <div class="data">
+                                                    <div class="item-pdf">6</div>
+                                                    <div class="item-edit">
+                                                        <input type="text" name="total_packages_count" value="6" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.total_packages_count" id="id_total_packages_count">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="w-50 td">
+                                                <div class="title">&nbsp;</div>
+                                                <div class="data text-center">
+                                                    <div class="item-pdf auto-font-size __width-pkg">
+                                                        <span></span>
+                                                    </div>
+                                                    <div class="item-edit">
+                                                        <select name="package_unit" class="select w-100" id="id_package_unit">
+  <option value="AE">AEROSOL</option>
+
+  <option value="AR">ARTICLES</option>
+
+  <option value="AT">AUTO</option>
+
+  <option value="BG">BAG(S)</option>
+
+  <option value="BL">BALES</option>
+
+  <option value="AL">BALL</option>
+
+  <option value="BF">BALLOON</option>
+
+  <option value="BS">BALLOTS</option>
+
+  <option value="BR">BAR</option>
+
+  <option value="BA">BARREL</option>
+
+  <option value="B1">BASKET(S)</option>
+
+  <option value="B0">BIB</option>
+
+  <option value="BI">BIN</option>
+
+  <option value="BK">BLOCKS</option>
+
+  <option value="BD">BOARD</option>
+
+  <option value="BB">BOBBIN</option>
+
+  <option value="BT">BOLT</option>
+
+  <option value="BO">BOTTLE</option>
+
+  <option value="BC">BOTTLERACK</option>
+
+  <option value="BX">BOX</option>
+
+  <option value="BQ">BRIQUETTES</option>
+
+  <option value="BJ">BUCKET</option>
+
+  <option value="BU">BULK</option>
+
+  <option value="VQ">BULK, LIQUEFIED GAS</option>
+
+  <option value="VG">BULK,GAS</option>
+
+  <option value="VL">BULK,LIQUID</option>
+
+  <option value="BH">BUNCH</option>
+
+  <option value="BE">BUNDLE</option>
+
+  <option value="CG">CAGE</option>
+
+  <option value="CI">CANISTER</option>
+
+  <option value="CZ">CANVAS</option>
+
+  <option value="CA">CAR</option>
+
+  <option value="CM">CARD</option>
+
+  <option value="CT">CARTON(S)</option>
+
+  <option value="CS">CASES</option>
+
+  <option value="CK">CASK</option>
+
+  <option value="CH">CHEST</option>
+
+  <option value="CC">CHURN</option>
+
+  <option value="CF">COFFER</option>
+
+  <option value="CJ">COFFIN</option>
+
+  <option value="CL">COIL</option>
+
+  <option value="TD">COLLAPSIBLE TUBE</option>
+
+  <option value="CO">COLLIE</option>
+
+  <option value="CN">CONTAINER</option>
+
+  <option value="CV">COVER</option>
+
+  <option value="CR">CRATE</option>
+
+  <option value="CE">CREEL</option>
+
+  <option value="CB">CUBITAINER</option>
+
+  <option value="CU">CUP</option>
+
+  <option value="CY">CYLINDER</option>
+
+  <option value="DR">DRUM(S)</option>
+
+  <option value="EN">ENVELOPE</option>
+
+  <option value="FP">FILMPACK</option>
+
+  <option value="FI">FIRKIN</option>
+
+  <option value="FL">FLASK</option>
+
+  <option value="FE">FLEXITANK</option>
+
+  <option value="FO">FOOTLOCKER</option>
+
+  <option value="FR">FRAME</option>
+
+  <option value="FD">FRAMED CRATE</option>
+
+  <option value="FC">FRUIT CRATE</option>
+
+  <option value="GI">GIRDER</option>
+
+  <option value="GZ">GIRDERS</option>
+
+  <option value="GB">GLASS BOTTLE</option>
+
+  <option value="GY">GUNNY BAGS</option>
+
+  <option value="GL">GUNNY BALES</option>
+
+  <option value="HR">HAMPER</option>
+
+  <option value="HN">HANGER</option>
+
+  <option value="HG">HOGSHEAD</option>
+
+  <option value="13">IBC</option>
+
+  <option value="IN">INGOT</option>
+
+  <option value="IZ">INGOTS</option>
+
+  <option value="IT">ITEM</option>
+
+  <option value="JR">JAR</option>
+
+  <option value="JG">JUG</option>
+
+  <option value="JT">JUTEBAG</option>
+
+  <option value="KG">KEG</option>
+
+  <option value="LV">LIFT VAN</option>
+
+  <option value="LG">LOG</option>
+
+  <option value="LS">LOOSE</option>
+
+  <option value="LT">LOT</option>
+
+  <option value="MR">MASTER CARTON</option>
+
+  <option value="MT">MAT</option>
+
+  <option value="MX">MATCH BOX</option>
+
+  <option value="MC">MILK CRATE</option>
+
+  <option value="MB">MULTIPLE BAG(S)</option>
+
+  <option value="MS">MULTIWALL SACK</option>
+
+  <option value="NS">NEST</option>
+
+  <option value="NT">NET</option>
+
+  <option value="NO">NUMBERS</option>
+
+  <option value="GT">PACKAGE(S)</option>
+
+  <option value="PK">PACKAGES</option>
+
+  <option value="PA">PACKS</option>
+
+  <option value="PJ">PAIL</option>
+
+  <option value="PE">PALLET(S)</option>
+
+  <option value="PP">PAPER BAG</option>
+
+  <option value="PC">PARCEL</option>
+
+  <option value="PS" selected>PIECE(S)</option>
+
+  <option value="PI">PIPE</option>
+
+  <option value="PH">PITCHER</option>
+
+  <option value="PN">PLANK</option>
+
+  <option value="PL">PLASTIC BAG</option>
+
+  <option value="PB">PLASTIC BOTTLE</option>
+
+  <option value="IH">PLASTIC CASK</option>
+
+  <option value="PG">PLATE</option>
+
+  <option value="4D">PLYWOOD</option>
+
+  <option value="44">POLYBAG</option>
+
+  <option value="44A">POLYBAG</option>
+
+  <option value="PT">POT</option>
+
+  <option value="PO">POUCH</option>
+
+  <option value="QE">QE</option>
+
+  <option value="RK">RACK</option>
+
+  <option value="RT">REDNET</option>
+
+  <option value="RL">REELS</option>
+
+  <option value="RG">RING</option>
+
+  <option value="RD">ROD</option>
+
+  <option value="RO">ROLL</option>
+
+  <option value="RS">ROLLS</option>
+
+  <option value="SH">SACHET</option>
+
+  <option value="SA">SACK</option>
+
+  <option value="SE">SEA-CHEST</option>
+
+  <option value="ST">SET</option>
+
+  <option value="SC">SHALLOW CRATE</option>
+
+  <option value="SZ">SHEET</option>
+
+  <option value="SM">SHEETMETAL</option>
+
+  <option value="SW">SHRINKWRAPPED</option>
+
+  <option value="SK">SKID</option>
+
+  <option value="SL">SLABS</option>
+
+  <option value="SO">SOWS</option>
+
+  <option value="SD">SPINDLE</option>
+
+  <option value="SU">SUITCASE</option>
+
+  <option value="TK">TANK</option>
+
+  <option value="TY">TANK, CYLINDRICAL</option>
+
+  <option value="TC">TEA-CHEST</option>
+
+  <option value="TN">TIN</option>
+
+  <option value="TT">TOTE</option>
+
+  <option value="PU">TRAY PACK</option>
+
+  <option value="TR">TRUNK</option>
+
+  <option value="TS">TRUSS</option>
+
+  <option value="TB">TUB</option>
+
+  <option value="TU">TUBE</option>
+
+  <option value="TO">TUN</option>
+
+  <option value="UN">UNIT(S)</option>
+
+  <option value="VP">VACUUMPACKED</option>
+
+  <option value="VA">VAT</option>
+
+  <option value="VI">VIAL</option>
+
+  <option value="WB">WICKERBOTTLE</option>
+
+  <option value="QP">WOODEN BOX</option>
+
+  <option value="8C">WOODEN BUNDLE</option>
+
+  <option value="WC">WOODEN CASE</option>
+
+  <option value="WT">WOODEN CRATE</option>
+
+  <option value="WP">WOODEN PALLET</option>
+
+</select>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td class="w-2">&nbsp;</td>
+                                <td class="td border-b border-r w-28">
+                                    
+                                        <div class="title">PORT CUT-OFF</div>
+                                        <div class="data">
+                                            <small class="text-10">04-26-2023 00:00</small>
+                                        </div>
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr class="border-l border-r">
+                                <td class="td border-b">
+                                    <div class="title">GROSS WEIGHT</div>
+                                    <div class="data">
+                                        <table>
+                                            <tr>
+                                            
+                                                <td class="w-40 text-right">
+                                                    <div class="item-edit">
+                                                        <input type="text" name="gross_weight_kgs" value="1,000.00" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.gross_weight_kgs" id="id_gross_weight_kgs">
+                                                    </div>
+                                                    <div class="item-pdf">1,000.00</div>
+                                                </td>
+                                                <td class="w-10 text-center">KGS</td>
+                                            
+                                            
+                                                <td class="w-40 text-right">
+                                                    <div class="item-edit">
+                                                        <input type="text" name="gross_weight_lbs" value="2,204.62" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.gross_weight_lbs" id="id_gross_weight_lbs">
+                                                    </div>
+                                                    <div class="item-pdf">2,204.62</div>
+                                                </td>
+                                                <td class="w-10 text-center">LBS</td>
+                                            
+                                            
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-l border-r">
+                                <td class="td border-b">
+                                    <div class="title">MEASUREMENT</div>
+                                    <div class="data">
+                                        <table>
+                                            <tr>
+                                            
+                                                <td class="w-40 text-right">
+                                                    <div class="item-edit">
+                                                        <input type="text" name="measurement_cbm" value="4.50" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.measurement_cbm" id="id_measurement_cbm">
+                                                    </div>
+                                                    <div class="item-pdf">4.50</div>
+                                                </td>
+                                                <td class="w-10 text-center">CBM</td>
+                                            
+                                            
+                                                <td class="w-40 text-right">
+                                                    <div class="item-edit">
+                                                        <input type="text" name="measurement_cft" value="158.92" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.measurement_cft" id="id_measurement_cft">
+                                                    </div>
+                                                    <div class="item-pdf">158.92</div>
+                                                </td>
+                                                <td class="w-10 text-center">CFT</td>
+                                            
+                                            
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr class="border-l border-r">
+                                <td class="td border-b">
+                                    <div class="title">COMMODITY</div>
+                                    <div class="data">
+                                        
+                                            <div class="auto-font-size __width-lg">
+                                                <span>ELECTRONIC COMPONENT</span>
+                                            </div>
+                                        
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-l border-r">
+                                <td class="td border-b">
+                                    <div class="title">PO NO.</div>
+                                    <div class="data">
+                                        
+                                            &nbsp;
+                                        
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr class="border-l border-r">
+                                
+                                    <td class="td border-b">
+                                        <div class="title">
+                                            <div class="item-pdf">BILL TO</div>
+                                            <div class="item-edit">
+                                                <table>
+                                                    <!-- Show bill to section immediately while checkbox checked in edit mode-->
+                                                    <tr>
+                                                        <td>
+                                                            <label class="normal-style text-11 _margin-b-0">
+                                                                Show:
+                                                                    <input type="checkbox" name="is_show_bill_to" hc-user-preference="oe_mbl_pickup_delivery_order_is_show_bill_to" ng-model="vm.isShowBillTo" id="id_is_show_bill_to">
+                                                                Bill To Party
+                                                            </label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr ng-if="vm.isShowBillTo">
+                                                        <td class="w-15">BILL TO</td>
+                                                        <td class="w-55 data">
+                                                            <hc-form-trade-partner-info-picker
+                                                                class="select2-right"
+                                                                on-changed="vm.updateTpInfo(info, 'billing_to_area')"
+                                                            ></hc-form-trade-partner-info-picker>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="data" ng-if="vm.isShowBillTo">
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <div class="item-edit">
+                                                            <textarea name="billing_to_area" cols="40" rows="5" class="text-scroll no-adjustment" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.billing_to_area" id="id_billing_to_area">
+HARD CORE TECHNOLOGY
+198 PEARSON GATEWAY APT. 555
+NORTH JAMES, KY 98809-9933
+WALNUT, CA 91789, UNITED STATES
+ATTN: JENNIFER JIMENEZ TEL: 585.592.4848 FAX: 649-277-5122</textarea>
+                                                        </div>
+                                                        <div class="item-pdf auto-font-size __col-billto">
+                                                                <span>HARD CORE TECHNOLOGY<br>
+198 PEARSON GATEWAY APT. 555<br>
+NORTH JAMES, KY 98809-9933<br>
+WALNUT, CA 91789, UNITED STATES<br>
+ATTN: JENNIFER JIMENEZ TEL: 585.592.4848 FAX: 649-277-5122</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table>
+                                                <tr>
+                                                    <td class="w-20">REF. NO. :</td>
+                                                    <td class="w-80">
+                                                        <div class="item-edit">
+                                                            <input type="text" name="billing_to_ref_no" class="tune" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.billing_to_ref_no" id="id_billing_to_ref_no">
+                                                        </div>
+                                                        <div class="item-pdf"> </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <table class="margin-t">
+                <tr class="border-b border-t bg-light text-8">
+                    
+                    <th class="w-5 border-r text-center col-padding-double item-edit">
+                        <input type="checkbox" name="check_all_container">
+                    </th>
+                    
+                    <th class="w-15 border-r text-left col-padding-double">
+                        CONTAINER NO.
+                    </th>
+                    <th class="w-6 border-r text-center col-padding-double">
+                        TYPE
+                    </th>
+                    <th class="w-12 border-r text-left col-padding-double">
+                        SEAL NO.
+                    </th>
+                    <th class="w-15 border-r text-right col-padding-double">
+                        PACKAGE
+                    </th>
+                    <th class="w-24 border-r text-right col-padding-double">
+                        WEIGHT
+                    </th>
+                    <th class="w-12 border-r text-left col-padding-double">
+                        PICKUP NO.
+                    </th>
+                    <th class="w-10 text-center col-padding-double">
+                        L.F.D
+                    </th>
+                </tr>
+
+                
+                    
+                    
+                
+
+                
+
+                
+            </table>
+            <table class="margin-t">
+                <tr class="border">
+                    <td class="td border-r" rowspan="2">
+                        <div class="data padding-t-xs auto-font-size auto-link __col-remark">
+                            <span>P.O.D REQUIRED WITH BILLING INVOICE<br>
+PLEASE FAX PROOF OF DELIVERY TO 999-000-5555<br>
+<br>
+PLEASE FAX PROOF OF DELIVERY TO 999-000-5555<br>
+15631563</span>
+                        </div>
+                    </td>
+                    <td class="title col-padding-double">DESCRIPTION / INSTRUCTION</td>
+                </tr>
+                <tr class="border-r border-l border-b">
+                    <td class="border-b">
+                        <div class="data padding-t-xs">
+                            <div class="item-pdf auto-font-size __col-ins-des">
+                                <span></span>
+                            </div>
+                            <div class="item-edit">
+                                <textarea name="instruction_description" cols="40" rows="9" class="text-scroll no-adjustment" template-id="38bee438bf9f3be556bef281be12640af5112b19d174d78b729d2c7a1245dbe3:PickupDeliveryOrderReportForm.instruction_description" id="id_instruction_description">
+</textarea>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <!-- Footer -->
+            <table class="margin-t">
+                <tr>
+                    <td class="w-40">
+                        <div class="text-bold">
+                            <div class="text-16">
+                                <span class="item-edit">
+                                    <input type="checkbox" name="do_not_break_pallet" hc-user-preference="pdo_do_not_break_pallet" ng-model="vm.pdo_do_not_break_pallet" id="id_do_not_break_pallet">
+                                </span>
+                                
+                                    &nbsp;DO NOT BREAK DOWN PALLET
+                                
+                            </div>
+                            <strong>You are requested to inform us immediately of any occurrence.
+                                <br>Thank You for your service !</strong>
+                        </div>
+                    </td>
+                    <td class="w-60 td text-right">
+                        
+                    </td>
+                </tr>
+            </table>
+
+
+            
+
+            
+            
+            
+
+
+            
+        </div>
+    </div>
+</form>

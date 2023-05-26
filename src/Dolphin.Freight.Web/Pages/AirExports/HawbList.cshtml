@@ -1,0 +1,35 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.AwbNoRanges
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.AirExports.HawbListModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/Pages/AirExports/HawbList.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:AirExports"] />
+            <abp-breadcrumb-item title=@L["Menu:AirExports.HawbList"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <div class="title">
+                @L["Menu:AirExports.HawbList"]
+            </div>
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table striped-rows="true" id="HawbListTable"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>
+
+
+

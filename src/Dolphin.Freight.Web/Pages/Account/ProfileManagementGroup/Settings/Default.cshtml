@@ -1,0 +1,23 @@
+﻿@using Volo.Abp.Account.Localization
+@using Volo.Abp.Users
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<AccountResource> L
+@inject ICurrentUser CurrentUser
+@model Volo.Abp.Account.Web.Pages.Account.Components.ProfileManagementGroup.Settings.AccountProfileSettingsManagementGroupViewComponentCustom.SettingsInfoModel
+
+<h4>Settings</h4>
+<hr />
+<form id="SettingsForm">
+    <div class="mb-3">
+        <label asp-for="Language" class="form-label"></label>
+        <div class="input-group">
+            <select class="form-control" style="cursor:pointer; appearance:auto">
+                <option>English</option>
+                <option>繁體中文</option>
+                <option>简体中文</option>
+            </select>
+        </div>
+    </div>
+    <abp-button type="button" class="btn btn-cancel" text="Cancel" />
+    <abp-button type="submit" button-type="Primary" text="Save Changes" />
+</form>

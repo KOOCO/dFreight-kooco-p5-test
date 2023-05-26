@@ -1,0 +1,143 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.Components
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model Dolphin.Freight.Web.Pages.AccountingSettings.BillingCodes.CreateModalModel
+@inject IStringLocalizer<FreightResource> L
+@{
+    Layout = null;
+    <abp-script src="/Pages/AccountingSettings/BillingCodes/init.js" />
+}
+<abp-modal>
+    <abp-modal-header title="@L["Create"].Value"></abp-modal-header>
+    <abp-modal-body>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="BillingCode.Code" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="BillingCode.BillingName" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                <abp-input asp-for="BillingCode.LocalName" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "RevenueId", FieldName = "RevenueId",DefaultValue="", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CostId", FieldName = "CostId",DefaultValue="", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CreditId", FieldName = "CreditId",DefaultValue="", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column>
+                @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "DeitId", FieldName = "DeitId",DefaultValue="", IsShowLabel = true , IsRequired = false  })
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsAR" />
+            </abp-column>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsAP"  />
+            </abp-column>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsDC" />
+            </abp-column>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsGA" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_6">
+
+                <abp-input asp-for="BillingCode.IsOceanImportMbl" />
+            </abp-column>
+            <abp-column size-md="_6">
+                <abp-input asp-for="BillingCode.IsOceanImportHbl" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-input asp-for="BillingCode.IsOceanExportMbl" />
+            </abp-column>
+            <abp-column size-md="_6">
+                <abp-input asp-for="BillingCode.IsOceanExportHbl" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-input asp-for="BillingCode.IsAirImportMbl" />
+            </abp-column>
+            <abp-column size-md="_6">
+                <abp-input asp-for="BillingCode.IsAirImportHbl" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-input asp-for="BillingCode.IsAirExportMbl" />
+            </abp-column>
+            <abp-column size-md="_6">
+                <abp-input asp-for="BillingCode.IsAirExportHbl" />
+            </abp-column>
+        </abp-row>
+        <abp-row>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsTkm" />
+            </abp-column>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsMsm" />
+            </abp-column>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsWhs" />
+            </abp-column>
+            <abp-column size-md="_3">
+                <abp-input asp-for="BillingCode.IsUsed" />
+            </abp-column>
+        </abp-row>
+    </abp-modal-body>
+    <abp-modal-footer>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <abp-button class="btn btn-primary me-md-2" type="button" id="saveBtn">@L["Save"].Value</abp-button>
+        </div>
+        <form id="createForm" method="post" action="/AccountingSettings/BillingCodes/CreateModal">
+            <input type="hidden" name="Code" id="formCode" />
+            <input type="hidden" name="BillingName" id="formBillingName" />
+            <input type="hidden" name="LocalName" id="formLocalName" />
+            <input type="hidden" name="RevenueId" id="formRevenueId" />
+            <input type="hidden" name="CostId" id="formCostId" />
+            <input type="hidden" name="CreditId" id="formCreditId" />
+            <input type="hidden" name="DeitId" id="formDeitId" />
+            <input type="hidden" name="IsAR" id="formIsAR" />
+            <input type="hidden" name="IsAP" id="formIsAP" />
+            <input type="hidden" name="IsDC" id="formIsDC" />
+            <input type="hidden" name="IsGA" id="formIsGA" />
+            <input type="hidden" name="IsOceanImportMbl" id="formIsOceanImportMbl" />
+            <input type="hidden" name="IsOceanImportHbl" id="formIsOceanImportHbl" />
+            <input type="hidden" name="IsOceanExportMbl" id="formIsOceanExportMbl" />
+            <input type="hidden" name="IsOceanExportHbl" id="formIsOceanExportHbl" />
+            <input type="hidden" name="IsAirImportMbl" id="formIsAirImportMbl" />
+            <input type="hidden" name="IsAirImportHbl" id="formIsAirImportHbl" />
+            <input type="hidden" name="IsAirExportMbl" id="formIsAirExportMbl" />
+            <input type="hidden" name="IsAirExportHbl" id="formIsAirExportHbl" />
+            <input type="hidden" name="IsTkm" id="formIsTkm" />
+            <input type="hidden" name="IsMsm" id="formIsMsm" />
+            <input type="hidden" name="IsWhs" id="formIsWhs" />
+            <input type="hidden" name="IsUsed" id="formIsUsed" />
+
+        </form>
+    </abp-modal-footer>
+</abp-modal>

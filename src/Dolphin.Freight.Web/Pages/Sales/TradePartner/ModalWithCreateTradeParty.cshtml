@@ -1,0 +1,55 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@inject IStringLocalizer<FreightResource> L
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.ModalWithCreateTradePartyModel
+@{
+    Layout = null;
+}
+<form method="post" abp-model="TradePartyModel" asp-page="ModalWithCreateTradeParty">
+    <abp-modal>
+        <abp-modal-header title=@L["Display:TradePartner:AccordionItem:TradeParty"]-@L["Display:TradeParty:THead:" + Model.TradePartyType]></abp-modal-header>
+        <abp-modal-body>
+            @if (Model.Id != null)
+            {
+                <input name="CreateUpdateTradePartyDto.id" type="hidden" value="@Model.Id" />
+            }
+            <input name="CreateUpdateTradePartyDto.tradePartnerId" type="hidden" value="@Model.TradePartnerId" />
+            <input name="CreateUpdateTradePartyDto.tradePartyType" type="hidden" value="@Model.TradePartyType" />
+
+            <div class="form-group">
+                <label class="form-label">@L["Display:TradeParty:THead:Description"]</label>
+                <input type="text" name="CreateUpdateTradePartyDto.tradePartyDescription" value="@Model.TradePartyDescription" class="form-control valid" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">@L["Display:TradeParty:THead:CompanyName"]</label>
+                <select name="CreateUpdateTradePartyDto.targetTradePartnerId" class="form-select form-control">
+                    @foreach (var row in Model.TradePartnerLookupList)
+                    {
+                        if (row.Id == Model.TargetTradePartnerId)
+                        {
+                            <option value="@row.Id" selected>@String.Format("{0}({1})", row.TPName, row.TPCode)</option>
+                        }
+                        else if (row.Id != Model.TradePartnerId)
+                        {
+                            <option value="@row.Id">@String.Format("{0}({1})", row.TPName, row.TPCode)</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="CreateUpdateTradePartyDto.isDefault" value="true" id="defaultCheck1" />
+                <label class="form-check-label" for="defaultCheck1">@L["Display:TradeParty:THead:Default"]</label>
+            </div>
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>
+<script>
+    const checked = '@Model.IsDefault';
+    $('#defaultCheck1').prop('checked', checked);
+</script>
+

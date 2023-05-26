@@ -1,0 +1,39 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.ItNoRanges
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/Pages/Settings/ItNoRanges/Index.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Settings"] />
+            <abp-breadcrumb-item title=@L["Menu:ItNoRanges"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <div class="title">
+                @L["Menu:ItNoRanges"]
+            </div>
+            @if (await AuthorizationService.IsGrantedAsync(SettingsPermissions.ItNoRanges.Create))
+            {
+                <abp-button id="NewItNoRangeButton"
+                        text="@L["Create"].Value"
+                        icon="plus"
+                        class="btn btn-add" />
+            }
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table striped-rows="true" id="ItNoRangesTable"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

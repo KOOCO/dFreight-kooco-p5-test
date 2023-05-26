@@ -1,0 +1,783 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.Components
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Accounting.InvoiceModel
+@inject IStringLocalizer<FreightResource> L
+@section scripts
+    {
+    <script type="text/javascript">
+        var BillCodeItems = [];
+        var PPOrCCItems = [];
+        var BillTypeItems = [];
+        var UnitItems = [];
+        var CurrencyItems = [];
+        var InvoiceBills = [];
+        $(document).ready(function () {
+            dolphin.freight.accounting.invoiceBills.invoiceBill.queryInvoiceBills({
+                InvoiceNo: '@Model.InvoiceId'
+            }).done(function (result) {
+                InvoiceBills = result;
+                console.log(InvoiceBills);
+
+            });
+            dolphin.freight.accountingSettings.billingCodes.billingCode.queryListForTag({
+                IsUsed: true, BillType: @Model.InvoiceType, MethodType: @Model.MethodType
+                                }).done(function (result) {
+                    BillCodeItems = result;
+
+                });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'PPOrCC' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    PPOrCCItems = result;
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'BillType' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    BillTypeItems = result;
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'Unit' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    UnitItems = result;
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'Currency' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    CurrencyItems = result;
+                }
+            });
+            dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'IncotermsId' }).done(function (result) {
+                if (result != null && result.length > 0) {
+                    initSysCodeTag(result, "IncotermsId", $("#mIncotermsId").val())
+                }
+            });
+
+            dolphin.freight.common.ajaxDropdown.getAllTradePartners({}).done(function (result) {
+                var selectItems = result;
+                initTradePartnerSelect(selectItems, "InvoiceCompanyId", $("#mInvoiceCompanyId").val());
+                initTradePartnerSelect(selectItems, "ShipToId", $("#mShipToId").val());
+
+
+            });
+            $("#addBtn").click(function () {
+                addItems();
+            });
+            $("#add5Btn").click(function () {
+                for (var i = 0; i < 5; i++) {
+                    addItems();
+                }
+            });
+            var formControl = 0;
+            $("#saveBtn").click(function () {
+                formControl = 0;
+                $("#createForm").submit();
+            });
+            $("#saveDraftBtn").click(function () {
+                formControl = 1;
+                $("#InvoiceDto_InvoiceStatus").val(2);
+                $("#createForm").submit();
+            });
+            $("#saveNewBtn").click(function () {
+                formControl = 2;
+                $("#createForm").submit();
+            });
+            $("#checkAll").click(function () {
+                var checked = $(this).prop("checked");
+                $(".checkItem").each(function () {
+                    $(this).prop("checked", checked);
+                })
+            })
+            $("#deleteBtn").click(function () {
+                $(".checkItem").each(function () {
+                    if ($(this).prop("checked")) {
+                        $(this).parent().parent().remove()
+                    }
+                })
+            })
+            $("#copyBtn").click(function () {
+                $(".checkItem").each(function () {
+                    if ($(this).prop("checked")) {
+                        var id = $(this).val();
+                        copyItems(id);
+                    }
+                })
+            })
+            $('#createForm').on('abp-ajax-success', function (result) {
+                event.preventDefault();
+
+                switch (formControl) {
+                    case 0:
+                        abp.message.success('儲存成功', '系統訊息');
+                        if (@Model.MethodType == 0) location.href = '/OceanImports/EditModal3?Id=@Model.Mid';
+                        if (@Model.MethodType == 1) location.href = '/OceanExports/EditModal3?Id=@Model.Mid';
+                        if (@Model.MethodType == 2) location.href = '/AirImports/EditModal3?Id=@Model.MawbId';
+                        if (@Model.MethodType == 3) location.href = '/AirExports/EditModal3?Id=@Model.MawbId';
+                        if (@Model.MethodType == 4) location.href = '/OceanExports/ExportBookings/Edit2?Id=@Model.Bid';
+
+                        break;
+                    case 1:
+                        abp.message.success('以草稿儲存成功', '系統訊息');
+                        if (@Model.MethodType == 0) location.href = '/OceanImports/EditModal3?Id=@Model.Mid';
+                        if (@Model.MethodType == 1) location.href = '/OceanExports/EditModal3?Id=@Model.Mid';
+                        if (@Model.MethodType == 2) location.href = '/AirImports/EditModal3?Id=@Model.MawbId';
+                        if (@Model.MethodType == 3) location.href = '/AirExports/EditModal3?Id=@Model.MawbId';
+                        if (@Model.MethodType == 4) location.href = '/OceanExports/ExportBookings/Edit2?Id=@Model.Bid';
+
+                        break;
+                    case 2:
+                        abp.message.success('儲存成功', '系統訊息');
+                        location.reload();
+                        break;
+                }
+
+
+            });
+        });
+        var index = 0;
+        function addItems() {
+
+            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' type='checkbox' name='InvoiceBillDtos[" + index + "].Id' id='InvoiceBillDtosId_" + index + "' value='new_" + index + "'/></td>";
+            trhtml = trhtml + "<td>" + getBillCodeSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Description' id='Description_" + index + "' /></td>";
+            trhtml = trhtml + "<td>" + getPPOrCCSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td>" + getBillTypeSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td>" + getUnitSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td>" + getCurrencySelect(index, '') + "</td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' id='Quantity_" + index + "' /></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' id='Rate_" + index + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' /></td>";
+            trhtml = trhtml + "<td id='td_Amount_" + index + "'></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].AmountToAgent' id='AmountToAgent_" + index + "' /></td>";
+            trhtml = trhtml + "<td  style='text-align:center'><input type='checkbox' name='InvoiceBillDtos[" + index + "].IsNonProfit' id='IsNonProfit_" + index + "' value='true'/></td>";
+            trhtml = trhtml + "<td></td></tr>";
+            $("#trtbody").append(trhtml);
+            index++;
+        }
+        function copyItems(id) {
+            id = id.replace("new_", "");
+            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' type='checkbox' name='InvoiceBillDtos[" + index + "].Id' id='InvoiceBillDtosId_" + index + "' value='new_" + index + "'/></td>";
+            trhtml = trhtml + "<td>" + getBillCodeSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Description' id='Description_" + index + "' value='" + $("#Description_" + id).val() + "' /></td>";
+            trhtml = trhtml + "<td>" + getPPOrCCSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td>" + getBillTypeSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td>" + getUnitSelect(index, '') + "</td>";
+            trhtml = trhtml + "<td>" + getCurrencySelect(index, '') + "</td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' id='Quantity_" + index + "' value='" + $("#Quantity_" + id).val() + "' /></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' id='Rate_" + index + "' value='" + $("#Rate_" + id).val() + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' value='" + $("#Amount_" + id).val() + "'  /></td>";
+            trhtml = trhtml + "<td id='td_Amount_" + index + "'></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].AmountToAgent' id='AmountToAgent_" + index + "' value='" + $("#AmountToAgent_" + id).val() + "'  /></td>";
+            trhtml = trhtml + "<td  style='text-align:center'><input type='checkbox' name='InvoiceBillDtos[" + index + "].IsNonProfit' id='IsNonProfit_" + index + "' value='true'/></td>";
+            trhtml = trhtml + "<td></td></tr>";
+            $("#trtbody").append(trhtml);
+            index++;
+        }
+
+        function getBillCodeSelect(id, billCode) {
+            var selectHtml = "<select name='InvoiceBillDtos[" + index + "].Code' id='Code_" + id + "'>";
+            for (var i = 0; i < BillCodeItems.length; i++) {
+                var ovalue = BillCodeItems[i].code + ":" + BillCodeItems[i].billingName;
+                selectHtml = selectHtml + "<option value='" + ovalue + "'";
+                if (ovalue == billCode) selectHtml = selectHtml + " selected ";
+                selectHtml = selectHtml + " > " + ovalue + "</option>"
+            }
+            selectHtml = selectHtml + "</select>";
+            return selectHtml;
+        }
+        function getPPOrCCSelect(id, pPOrCC) {
+            var selectHtml = "<select name='InvoiceBillDtos[" + index + "].PPOrCC' id='PPOrCC_" + id + "'>";
+            for (var i = 0; i < PPOrCCItems.length; i++) {
+                selectHtml = selectHtml + "<option value='" + PPOrCCItems[i].codeValue + "'";
+                if (PPOrCCItems[i].codeValue == pPOrCC) selectHtml = selectHtml + " selected ";
+                selectHtml = selectHtml + " > " + PPOrCCItems[i].showName + "</option>"
+            }
+            selectHtml = selectHtml + "</select>";
+            return selectHtml;
+        }
+        function getBillTypeSelect(id, billType) {
+            var selectHtml = "<select name='InvoiceBillDtos[" + index + "].BillType' id='BillType_" + id + "'>";
+            for (var i = 0; i < BillTypeItems.length; i++) {
+                selectHtml = selectHtml + "<option value='" + BillTypeItems[i].codeValue + "'";
+                if (BillTypeItems[i].codeValue == billType) selectHtml = selectHtml + " selected ";
+                selectHtml = selectHtml + " > " + BillTypeItems[i].showName + "</option>"
+            }
+            selectHtml = selectHtml + "</select>";
+            return selectHtml;
+        }
+        function getUnitSelect(id, unit) {
+            var selectHtml = "<select name='InvoiceBillDtos[" + index + "].Unit' id='Unit_" + id + "'>";
+            for (var i = 0; i < UnitItems.length; i++) {
+                selectHtml = selectHtml + "<option value='" + UnitItems[i].codeValue + "'";
+                if (UnitItems[i].codeValue == unit) selectHtml = selectHtml + " selected ";
+                selectHtml = selectHtml + " > " + UnitItems[i].showName + "</option>"
+            }
+            selectHtml = selectHtml + "</select>";
+            return selectHtml;
+        }
+        function getCurrencySelect(id, currency) {
+            var selectHtml = "<select name='InvoiceBillDtos[" + index + "].Currency' id='Currency_" + id + "'>";
+            for (var i = 0; i < CurrencyItems.length; i++) {
+                selectHtml = selectHtml + "<option value='" + CurrencyItems[i].codeValue + "'";
+                if (CurrencyItems[i].codeValue == currency) selectHtml = selectHtml + " selected ";
+                selectHtml = selectHtml + " > " + CurrencyItems[i].showName + "</option>"
+            }
+            selectHtml = selectHtml + "</select>";
+            return selectHtml;
+        }
+        function goBlank() {
+            var mid = '@Model.Mid';
+            var bid = '@Model.Bid'
+            var mtype = @Model.MethodType;
+
+            var url = "";
+            switch (mtype) {
+                case 0:
+                    url = '/OceanImports/EditModal?Id=' + mid;
+                    break;
+                case 1:
+                    url = '/OceanExports/EditModal?Id=' + mid;
+                    break;
+                case 4:
+                    url = '/OceanExports/ExportBookings/Edit?Id=' + bid;
+                    break;
+                default:
+                    url = '/OceanExports/EditModal?Id=' + mid;
+                    break;
+            }
+            if (mtype == 4) {
+                url = '';
+            }
+            if (mtype == 1) {
+            }
+            window.open(url);
+        }
+
+    </script>
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Accounting"] />
+            @if (Model.InvoiceType == 0 && Model.InvoiceId == null)
+            {
+                <abp-breadcrumb-item title=@L["Menu:AccountingAR"] />
+            }
+            @if (Model.InvoiceType == 1)
+            {
+                <abp-breadcrumb-item title=@L["Menu:AccountingDC"] />
+            }
+            @if (Model.InvoiceType == 2)
+            {
+                <abp-breadcrumb-item title=@L["Menu:AccountingAP"] />
+            }
+            <abp-breadcrumb-item href="@Model.backUrl" title=@L["Menu:BackToMbl"] />
+
+        </abp-breadcrumb>
+    </div>
+</div>
+<form submit-button="true" data-ajaxForm="true" id="createForm">
+    <abp-card border="Dark">
+        <abp-card-header style="background:#00CCFF;color:#FFFFFF;">
+            <abp-row>
+                <abp-column size-md="_9">
+                    <abp-card-title>
+                        @if (Model.InvoiceType == 0 && Model.InvoiceId == null)
+                            @L["Title:AccountingAR_Add"]
+
+
+                            @if (Model.InvoiceType == 0 && Model.InvoiceId != null)
+                            @L["Title:AccountingAR_Edit"]
+
+
+                            @if (Model.InvoiceType == 1 && Model.InvoiceId == null)
+                            @L["Title:AccountingDC_Add"]
+
+
+                            @if (Model.InvoiceType == 1 && Model.InvoiceId != null)
+                            @L["Title:AccountingDC_Edit"]
+
+
+                            @if (Model.InvoiceType == 2 && Model.InvoiceId == null)
+                            @L["Title:AccountingAP_Add"]
+
+
+                            @if (Model.InvoiceType == 2 && Model.InvoiceId != null)
+                            @L["Title:AccountingAP_Edit"]
+
+
+
+                        </abp-card-title>
+
+                    </abp-column>
+                    <abp-column size-md="_3" class="text-end">
+
+                    </abp-column>
+
+                </abp-row>
+            </abp-card-header>
+            <abp-card-body class="collapse show customForm" id="mblDiv">
+                <abp-row>
+                    <abp-column size-md="_12">
+                        @L["Title:Basic"]
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+
+                    <abp-column size-md="_4">
+                        <abp-row>
+                            <abp-column size-md="_7">
+                                <abp-input asp-for="InvoiceMblDto.FilingNo" readonly="true" />
+                            </abp-column>
+                            <abp-column size-md="_3">
+
+                                <input type="text" id="AbbreviationName" name="AbbreviationName" value="@Model.InvoiceBasicDto.AbbreviationName" class="form-control " readonly="true">
+                            </abp-column>
+                            <abp-column size-md="_2">
+
+                                <button title="" class="btn btn-outline-info" type="button" id="exportBtn" data-busy-text="Processing..." data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="top" onclick="goBlank()">
+                                <li class="fa fa-file-export"></li></button >
+                            </abp-column>
+                        </abp-row>
+
+                    </abp-column>
+                    <abp-column size-md="_4">
+                        <abp-input asp-for="InvoiceMblDto.MblOverseaAgentName" readonly="true" />
+                    </abp-column>
+                    <abp-column size-md="_4">
+                        <abp-row>
+                            <abp-column size-md="_8">
+                                <label class="form-label" for="Counts">@L["Counts"]</label>
+                                <input type="text" id="Counts" name="Counts" value="" class="form-control " readonly="">
+                            </abp-column>
+                            <abp-column size-md="_4">
+
+                                <input type="text" id="Ctype" name="Ctype" value="" class="form-control " readonly="">
+                            </abp-column>
+                        </abp-row>
+                    </abp-column>
+                    <abp-column size-md="_7">
+                        <abp-row>
+                            <abp-column size-md="_8">
+                                <abp-input asp-for="InvoiceMblDto.PorName" readonly="true" />
+                            </abp-column>
+                            <abp-column size-md="_4">
+
+                                <label class="form-label" for="InvoiceMblDto_PorEtd"> ETD</label>
+                                <input type="text" id="InvoiceMblDto_PorEtd" name="InvoiceMblDto.PorEtd" value=" @Html.DisplayFor(item=>Model.InvoiceMblDto.PorEtd)" class="form-control " readonly="">
+                            </abp-column>
+                        </abp-row>
+
+                    </abp-column>
+
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_3">
+                        <abp-input asp-for="InvoiceMblDto.MblNo" readonly="true" />
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <label class="form-label" for="ShipperName">@L["IHblShipperName"]</label>
+                        <input type="text" id="ShipperName" name="ShipperName" value="@Model.InvoiceBasicDto.ShipperName" class="form-control " readonly="">
+                    </abp-column>
+
+                    <abp-column size-md="_3">
+
+                        <div class="input-group">
+                            <label class="form-label" for="ShipperName">@L["KOS"]</label>
+                            <input type="text" id="Counts" name="KOS" value="" class="form-control " readonly="">
+                            <div class="input-group-append">
+                                &nbsp;&nbsp;  K
+                            </div>
+                        </div>
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <div class="input-group">
+                            <input type="text" id="Ctype" name="Ctype" value="" class="form-control " readonly="">
+                            <div class="input-group-append">
+                                &nbsp;&nbsp;L
+                            </div>
+                        </div>
+
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_7">
+                        <abp-row>
+                            <abp-column size-md="_8">
+                                <abp-input asp-for="InvoiceMblDto.PolName" readonly="true" />
+                            </abp-column>
+                            <abp-column size-md="_4">
+                                <label class="form-label" for="InvoiceMblDto_PolEtd"> ETD</label>
+                                <input type="text" id="InvoiceMblDto_PolEtd" name="InvoiceMblDto.PolEtd" value="@Html.DisplayFor(item=>Model.InvoiceMblDto.PolEtd)" class="form-control " readonly="">
+                            </abp-column>
+                        </abp-row>
+                    </abp-column>
+                </abp-row>
+
+                <abp-row>
+                    <abp-column size-md="_3">
+                        <label class="form-label" for="Hblno">@L["IHblno"]</label>
+                        <input type="text" id="Hblno" name="Hblno" value="@Model.Hblno" class="form-control " readonly="">
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <label class="form-label" for="ShipperName">@L["MblConsigneeName"]</label>
+                        <input type="text" id="ShipperName" name="MblConsigneeName" value="@Model.InvoiceBasicDto.MblConsigneeName" class="form-control " readonly="">
+                    </abp-column>
+                    <abp-column size-md="_3">
+
+                        <div class="input-group">
+                            <input type="text" id="Cbm" name="Cbm" value="" class="form-control " readonly="">
+                            <div class="input-group-append">
+                                &nbsp;&nbsp; CBM
+                            </div>
+                        </div>
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <div class="input-group">
+
+                            <input type="text" id="Cft" name="Cft" value="" class="form-control " readonly="">
+                            <div class="input-group-append">
+                                &nbsp;&nbsp; CFT
+                            </div>
+                        </div>
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_7">
+                        <abp-row>
+                            <abp-column size-md="_8">
+                                <abp-input asp-for="InvoiceMblDto.PodName" readonly="true" />
+                            </abp-column>
+                            <abp-column size-md="_4">
+                                <label class="form-label" for="InvoiceMblDto_PolEtd"> ETD</label>
+                                <input type="text" id="InvoiceMblDto_PolEtd" name="InvoiceMblDto.PodEta" value="@Html.DisplayFor(item=>Model.InvoiceMblDto.PodEta)" class="form-control " readonly="">
+                            </abp-column>
+                        </abp-row>
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_7">
+                        <abp-row>
+                            <abp-column size-md="_8">
+                                <abp-input asp-for="InvoiceMblDto.DelName" readonly="true" />
+                            </abp-column>
+                            <abp-column size-md="_4">
+                                <label class="form-label" for="InvoiceMblDto_PolEtd"> ETA</label>
+                                <input type="text" id="InvoiceMblDto_DelEta" name="InvoiceMblDto.PodEta" value="@Html.DisplayFor(item=>Model.InvoiceMblDto.DelEta)" class="form-control " readonly="">
+                            </abp-column>
+                        </abp-row>
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_7">
+                        <abp-row>
+                            <abp-column size-md="_8">
+                                <abp-input asp-for="InvoiceMblDto.FdestName" readonly="true" />
+                            </abp-column>
+                            <abp-column size-md="_4">
+                                <label class="form-label" for="InvoiceMblDto_PolEtd"> ETD</label>
+                                <input type="text" id="InvoiceMblDto_PolEtd" name="InvoiceMblDto.PodEta" value="@Html.DisplayFor(item=>Model.InvoiceMblDto.FdestEta)" class="form-control " readonly="">
+                            </abp-column>
+                        </abp-row>
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_3">
+                        <abp-input asp-for="InvoiceMblDto.SoNo" readonly="true" />
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <label class="form-label" for="ShipperName">@L["MblNotifyName"]</label>
+                        <input type="text" id="MblNotifyName" name="MblNotifyName" value="@Model.InvoiceBasicDto.MblNotifyName" class="form-control " readonly="">
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <label class="form-label" for="VesselNameVoyage"> @L["VesselNameVoyage"]</label>
+                        <input type="text" id="VesselNameVoyage" name="VesselNameVoyage" value="@Model.InvoiceBasicDto.VesselNameVoyage" class="form-control " readonly="">
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <label class="form-label" for="VesselNameVoyage"> @L["MblOperatorId"]</label>
+                        <input type="text" id="MblOperatorId" name="MblOperatorId" value="@Model.InvoiceBasicDto.MblOperatorName" class="form-control " readonly="">
+                    </abp-column>
+
+                </abp-row>
+
+                <abp-row>
+                    <abp-column>
+                        <hr />
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_12">
+                        @L["Title:Invoice"]
+                        <input type="hidden" name="InvoiceDto.InvoiceStatus" id="InvoiceDto_InvoiceStatus" value="0" />
+                        <input type="hidden" name="InvoiceDto.InvoiceType" id="InvoiceDto_InvoiceType" value="@Model.InvoiceType" />
+                    </abp-column>
+                </abp-row>
+
+        @if (Model.InvoiceType == 0)
+        {
+            <abp-row>
+                <abp-column size-md="_3">
+                    <label for="InvoiceNo" class="form-label">
+                        @L["Display:InvoiceNo"]
+                    </label>
+                        
+                    <input type="text" name="InvoiceDto.InvoiceNo" id="InvoiceNo"  value="@Model.InvoiceDto.InvoiceNo" class="form-control " />
+                </abp-column>
+                <abp-column size-md="_3">
+                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "ShipToId", FieldName = "ShipToId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                    <input type="hidden" name="ShipToId" id="mShipToId" value="@Model.InvoiceDto.ShipToId"/>
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.OutstandingAmount" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                        <label for="InvoiceNo" class="form-label">
+                            @L["Display:LastDate"]
+                        </label>
+                        <input type="date" name="InvoiceDto.LastDate" id="LastDate" value="@Model.InvoiceDto.InvoiceNo" class="form-control " />
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_3">
+                        <label for="InvoiceNo" class="form-label">
+                        @L["Display:InvoiceCompanyIdAR"]
+                    </label>
+                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "InvoiceCompanyId", FieldName = "InvoiceCompanyId",DefaultValue="" , IsShowLabel = false , IsRequired = false })
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.PostDate" type="text" abp-data-datepicker="false" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.PaidAmount" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "IncotermsId", FieldName = "IncotermsId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.AttentionTo" />
+                </abp-column>
+                <abp-column size-md="_3">
+                        <abp-input asp-for="InvoiceDto.InvoiceDate" type="text" abp-data-datepicker="false" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_6">
+                    <abp-input asp-for="InvoiceDto.PoNo" />
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.LastNo" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.DueDate" type="text" abp-data-datepicker="false" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_6">
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_6">
+                    <label for="Memorandum" class="form-label">@L["Memorandum"]</label>
+                    <abp-button class="btn btn-info me-md-2" style="color:#FFFFFF;" type="button" onclick="Btn:CopyFromSpecification()">@L["Btn:CopyFromSpecification"]</abp-button>
+                    <textarea name="InvoiceDto.Memorandum" id="Memorandum" class="form-control"></textarea>
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.IsAmountConfirmed" />
+                        <label for="InvoiceDto_IsAmountConfirmed" class="form-label">@L["IsAmountConfirmed"]<input type="checkbox" name="InvoiceDto.IsAmountConfirmed" id="InvoiceDto_IsAmountConfirmed" value="true" checked="@Model.InvoiceDto.IsAmountConfirmed" /></label>
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CcyRateSourceId", FieldName = "CcyRateSourceId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                    </abp-column>
+                </abp-row>
+            }
+            @if (Model.InvoiceType == 1)
+            {
+                <abp-row>
+                    <abp-column size-md="_3">
+                        <label for="InvoiceNo" class="form-label">
+                        @L["Display:DCNo"]
+                    </label>
+                    <input type="text" name="InvoiceDto.InvoiceNo" id="InvoiceNo" value="@Model.InvoiceDto.InvoiceNo" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.PostDate" type="text" abp-data-datepicker="false" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.OutstandingAmount" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.LastNo" readonly="true" />
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_3">
+                    <label for="InvoiceNo" class="form-label">
+                        @L["Display:InvoiceCompanyIdDC"]
+                    </label>
+                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "InvoiceCompanyId", FieldName = "InvoiceCompanyId",DefaultValue="" , IsShowLabel = false , IsRequired = false })
+                </abp-column>
+                <abp-column size-md="_3">
+                        <abp-input asp-for="InvoiceDto.InvoiceDate" type="text" abp-data-datepicker="false" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.PaidAmount" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                        <label for="InvoiceNo" class="form-label">
+                        @L["Display:LastDate"]
+                    </label>
+                    <input type="text" name="InvoiceDto.LastDate" id="LastDate" value="@Model.InvoiceDto.InvoiceNo" readonly />
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.CustomerRefNo" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.DueDate" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.ProfitShare" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "IncotermsId", FieldName = "IncotermsId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_6">
+                    <label for="Memorandum" class="form-label">@L["Memorandum"]</label>
+                    <abp-button class="btn btn-info me-md-2" style="color:#FFFFFF;" type="button" onclick="Btn:CopyFromSpecification()">@L["Btn:CopyFromSpecification"]</abp-button>
+                    <textarea name="InvoiceDto.Memorandum" id="Memorandum" class="form-control"></textarea>
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.IsAmountConfirmed" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CcyRateSourceId", FieldName = "CcyRateSourceId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                </abp-column>
+            </abp-row>
+        }
+        @if (Model.InvoiceType == 2)
+        {
+            <abp-row>
+                <abp-column size-md="_3">
+                    <label for="InvoiceNo" class="form-label">
+                        @L["Display:InvoiceCompanyIdAP"]
+                    </label>
+                    @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "InvoiceCompanyId", FieldName = "InvoiceCompanyId",DefaultValue="" , IsShowLabel = false , IsRequired = false })
+                    <input type="hidden" name="InvoiceDto.InvoiceCompanyId" id="mInvoiceCompanyId" value="@Model.InvoiceDto.InvoiceCompanyId"/>
+                </abp-column>
+                <abp-column size-md="_3">
+                        <abp-input asp-for="InvoiceDto.PostDate" type="text" abp-data-datepicker="false" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.OutstandingAmount" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.LastNo" readonly="true" />
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_3">
+                    <label for="InvoiceNo" class="form-label">
+                        @L["Display:InvoiceNoAP"]
+                    </label>
+                    <input type="text" name="InvoiceDto.InvoiceNo" id="InvoiceNo" value="@Model.InvoiceDto.InvoiceNo" />
+
+                </abp-column>
+                <abp-column size-md="_3">
+                        <abp-input asp-for="InvoiceDto.InvoiceDate" type="text" abp-data-datepicker="false" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.PaidAmount" readonly="true" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <label for="InvoiceNo" class="form-label">
+                        @L["Display:LastDate"]
+                    </label>
+                    <input type="text" name="InvoiceDto.LastDate" id="LastDate" value="@Model.InvoiceDto.InvoiceNo" readonly />
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.SystemNo" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="InvoiceDto.DueDate" />
+                </abp-column>
+                <abp-column size-md="_6">
+
+                    </abp-column>
+                </abp-row>
+                <abp-row>
+                    <abp-column size-md="_6">
+                        <label for="Memorandum" class="form-label">@L["Memorandum"]</label>
+                        <abp-button class="btn btn-info me-md-2" style="color:#FFFFFF;" type="button" onclick="Btn:CopyFromSpecification()">@L["Btn:CopyFromSpecification"]</abp-button>
+                        <textarea name="InvoiceDto.Memorandum" id="Memorandum" class="form-control"></textarea>
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        <abp-input asp-for="InvoiceDto.IsAmountConfirmed" />
+                    </abp-column>
+                    <abp-column size-md="_3">
+                        @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "CcyRateSourceId", FieldName = "CcyRateSourceId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
+                    </abp-column>
+                </abp-row>
+            }
+
+            <abp-row><abp-column>&nbsp;</abp-column></abp-row>
+            <abp-row>
+                <abp-column>
+                    <abp-button class="btn btn-success me-md-2" type="button" id="addBtn">+</abp-button>
+                    <abp-button class="btn btn-outline-success me-md-2" type="button" id="add5Btn">+5</abp-button>
+                    <abp-button class="btn btn-outline-warning me-md-2" type="button" id="copyBtn">@L["Btn:Copy"]</abp-button>
+                    <abp-button class="btn btn-outline-danger me-md-2" type="button" id="deleteBtn">@L["Btn:Delete"]</abp-button>
+                </abp-column>
+            </abp-row>
+            <abp-row>
+                <abp-column style="overflow-x:scroll">
+                    <table border="1" style="width:2600px;border-block-color:#333333;padding-left:10px;margin:4px;  table-layout: fixed; ">
+                        <tr style="border:1;border-block-color:#333333;padding-left:10px;margin-left:4px;">
+                            <th width="6%" style="text-align:center"><input type="checkbox" id="checkAll" /></th>
+                            <th width="8%">@L["Display:BillCode"]</th>
+                            <th width="8%">@L["Display:BillDescription"]</th>
+                            <th width="8%">@L["Display:PPOrCC"]</th>
+                            <th width="8%">@L["Display:BillType"]</th>
+                            <th width="8%">@L["Display:BillUnit"]</th>
+                            <th width="8%">@L["Display:BillCurrency"]</th>
+                            <th width="8%">@L["Display:BillQuantity"]</th>
+                            <th width="8%">@L["Display:BillRate"]</th>
+                            <th width="8%">@L["Display:BillAmount"]</th>
+                            <th width="8%">@L["Display:AmountToAgent"]</th>
+                            <th width="6%" style="text-align:center">N</th>
+                            <th width="8%">@L["Display:BillStatus"]</th>
+                        </tr>
+                        <tbody id="trtbody">
+                        </tbody>
+                        <tfoot>
+                            <tr border="1">
+                                <th colspan="5" style="text-align:right;border-block-color:#333333;" border="1">小計</th>
+                                <th>TWD</th>
+                                <th>0</th>
+                                <th>USD</th>
+                                <th>0</th>
+                                <th>RMB</th>
+                                <th>0</th>
+                                <th>HKD</th>
+                                <th>0</th>
+                            </tr>
+                            <tr border="1">
+                                <th colspan="12" style="text-align:right;border-block-color:#333333;" border="1">總計</th>
+                                <th>0</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </abp-column>
+            </abp-row>
+        </abp-card-body>
+    </abp-card>
+    <abp-row>
+        <abp-column>
+            <abp-button class="btn btn-primary me-md-2" type="button" id="saveDraftBtn">@L["Btn:SaveDraft"].Value</abp-button>
+            <abp-button class="btn btn-primary me-md-2" type="button" id="saveBtn">@L["Btn:Save"].Value</abp-button>
+            <abp-button class="btn btn-primary me-md-2" type="button" id="saveNewBtn">@L["Btn:SaveNew"].Value</abp-button>
+        </abp-column>
+    </abp-row>
+</form>

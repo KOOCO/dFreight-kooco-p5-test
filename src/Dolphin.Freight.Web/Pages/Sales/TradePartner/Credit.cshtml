@@ -1,0 +1,53 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.CreditModel
+@inject IStringLocalizer<FreightResource> L
+@section scripts{
+    <abp-script src="/Pages/Sales/TradePartner/Credit.js" />
+    <script>
+        $(function () {
+            $('#TradePartnerGroupButton').click(function () {
+                location.href = "Credit/Group";
+            });
+        });
+    </script>
+
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:TradePartner"] />
+            <abp-breadcrumb-item title=@L["Menu:TradePartner.CreditEntry"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-row>
+        <abp-column>
+            <abp-card-title>@L["Menu:TradePartner.CreditEntry"]</abp-card-title>
+        </abp-column>
+        <abp-column size-md="_6" class="text-end">
+            <abp-button id="FilterTradePartnerCreditButton"
+                        text=@L["Display:Button:Filter"]
+                        icon="filter"
+                        button-type="Outline_Secondary" />
+            <abp-button id="ExportTradePartnerCreditExcelButton"
+                        text=@L["Display:Button:Excel"]
+                        icon="file-excel"
+                        button-type="Outline_Secondary" />
+        </abp-column>
+    </abp-row>
+    <hr />
+    <abp-button id="TradePartnerCreditButton"
+                text=@L["Display:Button:TradePartner"]
+                button-type="Secondary" />
+    <abp-button id="TradePartnerGroupButton"
+                text=@L["Display:Button:Group"]
+                button-type="Outline_Secondary" />
+    <abp-card>
+        <abp-card-body>
+            <abp-table striped-rows="true" id="TPCreditsTable"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

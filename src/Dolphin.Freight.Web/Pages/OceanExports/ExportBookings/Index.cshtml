@@ -1,0 +1,309 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.AwbNoRanges
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.OceanExports.ExportBookings.IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var l = abp.localization.getResource('Freight');
+            var dataTable = $('#ExportBookingListTable').DataTable(
+                abp.libs.datatables.normalizeConfiguration({
+                    serverSide: true,
+                    paging: true,
+                    order: [[2, "asc"]],
+                    searching: true,
+                    scrollX: true,
+                    responsive: {
+                        details: {
+                            type: 'column'
+                        }
+                    },
+                    ajax: abp.libs.datatables.createAjax(dolphin.freight.importExport.oceanExports.exportBookings.exportBooking.queryList),
+                    columnDefs: [
+                        {
+                            className: 'dtr-control',
+                            orderable: false,
+                            "defaultContent": ""
+                        },
+                        {
+                            title: l('Actions'),
+                            rowAction: {
+                                items:
+                                    [
+                                        {
+                                            text: l('Edit'),
+                                            visible: abp.auth.isGranted('Settings.ItNoRanges.Edit'), //CHECK for the PERMISSION
+                                            action: function (data) {
+                                                if (data.record.isLocked) {
+
+                                                }
+                                                location.href = 'Edit?Id=' + data.record.id;
+
+                                            }
+                                        },
+                                        {
+                                            text: l('Btn:Copy'),
+
+                                            action: function (data) {
+                                                $("#CopyId").val(data.record.id);
+                                                $("#checkModal").modal("show");
+
+                                            }
+                                        },
+                                        {
+                                            text: l('Delete'),
+                                            visible: function (data) {
+
+                                                return !data.isLocked && abp.auth.isGranted('Settings.ItNoRanges.Delete')
+                                            },
+
+                                            action: function (data) {
+
+                                                abp.message.confirm(l('DeletionConfirmationMessage'))
+                                                    .then(function (confirmed) {
+                                                        if (confirmed) {
+                                                            dolphin.freight.importExport.oceanExports.exportBookings.exportBooking
+                                                                .delete(data.record.id)
+                                                                .then(function () {
+                                                                    abp.message.success(l('SuccessfullyDeleted'));
+                                                                    dataTable.ajax.reload();
+                                                                });
+                                                        }
+                                                    });
+
+
+
+                                                /*
+                                                if (!data.record.isLocked) {
+                                                    dolphin.freight.importExport.oceanExports.oceanExportMbl
+                                                        .delete(data.record.id)
+                                                        .then(function () {
+                                                            abp.message.success(l('SuccessfullyDeleted'));
+                                                            dataTable.ajax.reload();
+                                                        });
+                                                } else {
+                                                    abp.message.warn("鎖定不能刪除")
+                                                }*/
+
+                                            }
+                                        }
+                                    ]
+                            }
+                        },
+                        {
+                            //SO號碼
+                            title: l('SoNo'),
+                            data: "soNo"
+                        },
+                        {
+                            //HB/L號碼
+                            title: l('HblNo'),
+                            data: "hblNo"
+                        },
+                        {
+                            //實際託運人
+                            title: l('ShipperName'),
+                            data: "shipperName"
+                        },
+                        {
+                            //船期編號
+                            title: l('ReferenceNo'),
+                            data: "referenceNo"
+                        },
+                        {
+                            //分站
+                            title: l('OfficeId'),
+                            data: "officeName"
+                        },
+                        {
+                            //船公司
+                            title: l('CarrierName'),
+                            data: "carrierName"
+                        },
+                        {
+                            //船公司S/O
+                            title: l('CarrierBkgNo'),
+                            data: "carrierBkgNo"
+                        },
+                        {
+                            //代理
+                            title: l('ShippingAgentName'),
+                            data: "shippingAgentName"
+                        },
+                        {
+                            //船名
+                            title: l('VesselName'),
+                            data: "vesselName"
+                        },
+                        {
+                            //航次
+                            title: l('Voyage'),
+                            data: "voyage"
+                        },
+                        {
+                            //貨物就緒日期
+                            title: l('CargoArrivalDate'),
+                            data: "cargoArrivalDate"
+                        },
+                        {
+                            //ETD
+                            title: l('PolEtd'),
+                            data: "polEtd"
+                        },
+                        {
+                            //ETA
+                            title: l('PodEta'),
+                            data: "podEta"
+                        },
+                        {
+                            //收貨地(POR)
+                            title: l('PorName'),
+                            data: "porName"
+                        },
+                        {
+                            //裝貨地(POl)
+                            title: l('PolName'),
+                            data: "polName"
+                        },
+                        {
+                            //卸貨港(POD)
+                            title: l('PodName'),
+                            data: "podName"
+                        },
+                        {
+                            //交貨地(DEL)
+                            title: l('DelName'),
+                            data: "delName"
+                        },
+                        {
+                            //運輸條款
+                            title: l('SvcName'),
+                            data: "svcName"
+                        },
+                        {
+                            //文件結關日
+                            title: l('DocCutOffTime'),
+                            data: "docCutOffTime"
+                        },
+                        {
+                            //港口截關日
+                            title: l('PortCutOffTime'),
+                            data: "portCutOffTime"
+                        },
+                        {
+                            //VGM截關日期
+                            title: l('VgmCutOffTime'),
+                            data: "vgmCutOffTime"
+                        },
+
+                        {
+                            //鐵路截關日
+                            title: l('RailCutOffTime'),
+                            data: "railCutOffTime"
+                        },
+                        {
+                            //最終目的地
+                            title: l('FdestName'),
+                            data: "fdestName"
+                        }
+
+                    ]
+                })
+            );
+
+            $('[type=search]').on('keyup', function () {
+                dataTable.search(this.value).draw();
+            });
+
+            $('#NewExportBookingButton').click(function (e) {
+                location.href = 'Create';
+            });
+
+        });
+        function closeModal() {
+            $("#checkModal").modal("hide");
+        }
+        function doCopy() {
+            var WithInvoice = 0;
+            if ($("#WithInvoice").is(":checked")) WithInvoice = 1;
+            var IsAR = 0;
+            if ($("#IsAR").is(":checked")) IsAR = 1;
+            var IsAP = 0;
+            if ($("#IsAP").is(":checked")) IsAP = 1;
+            var IsDC = 0;
+            if ($("#IsDC").is(":checked")) IsDC = 1;
+            var CopyId = $("#CopyId").val();
+            var url = 'Edit?WithInvoice=' + WithInvoice + "&IsAR=" + IsAR + "&IsAP=" + IsAP + "&IsDC=" + IsDC + '&CopyId=' + CopyId;
+            location.href = url
+        }
+    </script>
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:OceanExports"] />
+            <abp-breadcrumb-item title=@L["Menu:ExportBookings.Index"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <div class="title">
+                @L["Menu:ExportBookings.Index"]
+            </div>
+            <abp-button id="NewExportBookingButton"
+                        text="@L["Create"].Value"
+                        icon="plus"
+                        class="btn btn-add" />
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table striped-rows="true" id="ExportBookingListTable"></abp-table>
+        </abp-card-body>
+    </abp-card>
+    <div id="checkModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">&nbsp;&nbsp;</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <abp-row>
+                        <abp-column>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" id="WithInvoice" checked />@L["Check:WithInvoice"]
+                            </label>
+
+                        </abp-column>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <label class="checkbox-inline">
+                                &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="IsAR" checked>@L["Menu:AccountingAR"]
+                            </label>
+                            <label class="checkbox-inline">
+                                &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="IsAP" checked>@L["Menu:AccountingAP"]
+                            </label>
+                            <label class="checkbox-inline">
+                                &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="IsDC" checked>@L["Menu:AccountingDC"]
+                            </label>
+                        </abp-column>
+                    </abp-row>
+                    <input type="hidden" name="CopyId" id="CopyId" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="doCopy()">@L["Btn:Ok"]</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal()">@L["Btn:Cancel"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

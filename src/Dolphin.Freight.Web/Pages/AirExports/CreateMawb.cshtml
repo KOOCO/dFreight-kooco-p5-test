@@ -1,0 +1,591 @@
+﻿@page
+@using Dolphin.Freight.AirExports
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.AirExports.CreateMawbModel
+@inject IStringLocalizer<FreightResource> L
+@section styles
+{
+    <style>
+        .redStar::before {
+            content: "*";
+            color: red;
+        }
+    </style>
+}
+@section scripts
+{
+    <abp-script src="/Pages/AirExports/CreateMawb.js" />
+
+     <script type="text/javascript">
+         $(document).ready(function () {
+            
+            // Awb Cancel Area
+            $("#checkboxAwbCancelled").change(function () {
+                if (this.checked) {
+                    console.log("here");
+                    $("#AwbCancelledDate").removeAttr("disabled");
+                    $("#AwbCancelledOpId").removeAttr("disabled");
+                    $("#ReasonForCancel").removeAttr("disabled");
+                    $("#AwbCancelledDate").val(getDate());
+                }else{
+                     $("#AwbCancelledDate").attr("disabled", "disabled");
+                     $("#AwbCancelledOpId").attr("disabled", "disabled");
+                     $("#ReasonForCancel").attr("disabled", "disabled");
+                     $("#AwbCancelledDate").val('');
+                     $("#AwbCancelledOpId").val('');
+                    $("#ReasonForCancel").val('');
+
+                }
+            });
+
+            // Calculate Weight Kg to Lb
+            $("#GrossWeightKg").on('keyup', function () {
+                $("#GrossWeightLb").val(Math.round($("#GrossWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            $("#AwbGrossWeightKg").on('keyup', function () {
+                $("#AwbGrossWeightLb").val(Math.round($("#AwbGrossWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            $("#ChargeableWeightKg").on('keyup', function () {
+                $("#ChargeableWeightLb").val(Math.round($("#ChargeableWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            $("#AwbChargeableWeightKg").on('keyup', function () {
+                $("#AwbChargeableWeightLb").val(Math.round($("#AwbChargeableWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            // Calculate Weight Lb to Kg
+            $("#GrossWeightLb").on('keyup', function () {
+                $("#GrossWeightKg").val(Math.round($("#GrossWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+            $("#AwbGrossWeightLb").on('keyup', function () {
+                $("#AwbGrossWeightKg").val(Math.round($("#AwbGrossWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+            $("#ChargeableWeightLb").on('keyup', function () {
+                $("#ChargeableWeightKg").val(Math.round($("#ChargeableWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+            $("#AwbChargeableWeightLb").on('keyup', function () {
+                $("#AwbChargeableWeightKg").val(Math.round($("#AwbChargeableWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+         });
+
+            $('#createForm').on('abp-ajax-success', function () {
+                event.preventDefault();
+                abp.message.success('Successfully saved.');
+            });
+
+         function getDate(){
+            var date = new Date(); 
+            var dd = date.getDate(); 
+            var mm = date.getMonth() + 1; 
+            var yyyy = date.getFullYear(); 
+            var todayDate = mm + "-" + dd + "-" +yyyy;
+            return todayDate;
+         }
+    </script>
+}
+
+<abp-breadcrumb>
+    <abp-breadcrumb-item href="#" title=@L["Menu:Home"] />
+    <abp-breadcrumb-item title=@L["Menu:AirExport"] />
+    <abp-breadcrumb-item title=@L["Menu:AirExport.CreateMawb"] />
+</abp-breadcrumb>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" href="#">@L["Tab:Basic"]</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled" href="#">@L["Tab:Accounting"]</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled" href="#">@L["Tab:Doc"]</a>
+    </li>
+</ul>
+
+<form abp-model="MawbModel" submit-button="true" data-ajaxForm="true" id="createForm" >
+    <abp-row>
+        <abp-column size-md="_10">
+            <abp-card  border="Dark">
+                <!-- 標題區域 -->
+                <abp-card-header style="background:#555555;color:#FFFFFF;">
+                    <abp-row>
+                        <abp-column size-md="_9">
+                            <abp-card-title>
+                                MAWB Information    
+                                @*<span id="title0"></span>
+                                <span id="title0" style="font-size:0.8em;"></span>
+                                <span id="title2" style="font-size:0.8em;"></span>
+                                <span id="title3" style="font-size:0.8em;"></span> 
+                                <span id="title4" style="font-size:0.8em;"></span>
+                                <span id="title5" style="font-size:0.8em;"></span>*@
+                            </abp-card-title>
+                        </abp-column>
+                        <abp-column size-md="_3" class="text-end">
+                            <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#mawbDiv" aria-expanded="false" aria-controls="mawbDiv">
+                                    <i class="fa fa-caret-down" style="color:#FFFFFF;"></i>
+                            </button>
+                        </abp-column>
+                    </abp-row>
+                </abp-card-header>
+                <!-- Mawb資訊欄 -->
+                <abp-card-body id="mawbDiv">
+                    <!--第一列-->
+                    <abp-row>
+                        <abp-input asp-for="MawbModel.Id" type="hidden" />
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.FilingNo" disabled="true" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.MawbCarrierId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.IssuingCarrierId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.AwbType" size="Small"/>
+                        </abp-column>
+                    </abp-row>
+                    <!--第二列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.MawbNo" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.AwbDate" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.ItnNo" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.ShipperId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                    <!--第三列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.ConsigneeId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.NotifyId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.PostDate" size="Small" type="text" abp-data-datepicker="false" readonly="true" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="MawbModel.OfficeId" class="redStar form-label">Office</label>
+                            <select asp-for="MawbModel.OfficeId" class="form-select-sm form-control">
+                                <option value = '' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                @foreach (var substation in Model.SubstationLookupList)
+                                {
+                                    <option value=@substation.Value>@substation.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="MawbModel.OfficeId" class="text-danger"></span>
+                        </abp-column>
+                    </abp-row>
+                    <!--第四列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.IsDirectMaster"/>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.AwbAcctCarrierId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.CoLoaderId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.MawbOperatorId" size="Small" readonly="true">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                    <!--第五列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.DepatureId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="MawbModel.DepatureDate" class="redStar form-label">Depature Date</label>
+                            <span asp-validation-for="MawbModel.DepatureDate" class="text-danger"></span>
+                            <input asp-for="MawbModel.DepatureDate" class="form-control" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.FlightNo" size="Small"/>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <a class="btn btn-primary btn-sm" data-bs-toggle="collapse" href="#collapseRoute" role="button" aria-expanded="false" aria-controls="collapseRoute">
+                                <i class="fa fa-plane" aria-hidden="true"></i>
+                                Add Connecting Flight
+                            </a>
+                        </abp-column>
+                    </abp-row>
+                    <!--第六列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.DestinationId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.DestinationId" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.DVCarriage" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.DVCustomer" size="Small" />
+                        </abp-column>
+                    </abp-row>
+                    <!--第七列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.Insurance" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.CarrierSpotNo" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    Wtval
+                                </abp-column>
+                                <abp-column>
+                                    <abp-radio asp-for="MawbModel.WtVal" inline="true" />
+                                </abp-column>
+                            </abp-row>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-row>
+                                <abp-column size-md="_3">
+                                    Other
+                                </abp-column>
+                                <abp-column>
+                                    <abp-radio asp-for="MawbModel.Other" inline="true" />
+                                </abp-column>
+                            </abp-row>
+                        </abp-column>
+                    </abp-row>
+                    <!--第八列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.DeliveryId" size=" Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.ShippingInfo" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.ShipperLoad" size="Small" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.Sci" size="Small" />
+                        </abp-column>
+                    </abp-row>
+                    <!--Route區塊-->
+                    <abp-row>
+                        <div class="collapse" id="collapseRoute"> 
+                            <div class="card card-body">
+                                <h3>Route</h3>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Airport</th>
+                                            <th>Arrival Date/Time</th>
+                                            <th>Depature Date/Time</th>
+                                            <th>Flight No.</th>
+                                            <th>Carrier</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>Trans1</th>
+                                            <td>
+                                                <select asp-for="MawbModel.RouteTrans1Id" class="form-select-sm">
+                                                    <option value = '' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    @foreach (var airport in Model.AirportLookupList)
+                                                    {
+                                                        <option value=@airport.Value>@airport.Text</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                               <input asp-for="MawbModel.RouteTrans1ArrivalDate" size="Small" />
+                                            </td>
+                                            <td>
+                                                <input asp-for="MawbModel.RouteTrans1DepatureDate" size="Small" />
+                                            </td>
+                                            <td>
+                                                <input asp-for="MawbModel.RouteTrans1FlightNo" size="Small" />
+                                            </td>
+                                            <td>
+                                                <select asp-for="MawbModel.RouteTrans1CarrierId" class="form-select-sm">
+                                                    <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    @foreach (var tradePartner in Model.TradePartnerLookupList)
+                                                    {
+                                                        <option value=@tradePartner.Value>@tradePartner.Text</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Trans2</th>
+                                            <td>
+                                                <select asp-for="MawbModel.RouteTrans2Id" class="form-select-sm">
+                                                    <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    @foreach (var airport in Model.AirportLookupList)
+                                                    {
+                                                        <option value=@airport.Value>@airport.Text</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input asp-for="MawbModel.RouteTrans2ArrivalDate" size="Small" />
+                                            </td>
+                                            <td>
+                                                <input asp-for="MawbModel.RouteTrans2DepatureDate" size="Small" />
+                                            </td>
+                                            <td>
+                                                <input asp-for="MawbModel.RouteTrans2FlightNo" size="Small" />
+                                            </td>
+                                            <td>
+                                                <select asp-for="MawbModel.RouteTrans2CarrierId" class="form-select-sm">
+                                                    <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    @foreach (var tradePartner in Model.TradePartnerLookupList)
+                                                    {
+                                                        <option value=@tradePartner.Value>@tradePartner.Text</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Trans3</th>
+                                            <td>
+                                                <select asp-for="MawbModel.RouteTrans3Id" class="form-select-sm">
+                                                    <option value = '' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    @foreach (var airport in Model.AirportLookupList)
+                                                    {
+                                                            <option value=@airport.Value>@airport.Text</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                               <input asp-for="MawbModel.RouteTrans3ArrivalDate" size="Small" />
+                                            </td>
+                                            <td>
+                                                <input asp-for="MawbModel.RouteTrans3DepatureDate" size="Small" />
+                                            </td>
+                                            <td>
+                                                <input asp-for="MawbModel.RouteTrans3FlightNo" size="Small" />
+                                            </td>
+                                            <td>
+                                                <select asp-for="MawbModel.RouteTrans3CarrierId" class="form-select-sm">
+                                                    <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    @foreach (var tradePartner in Model.TradePartnerLookupList)
+                                                    {
+                                                            <option value=@tradePartner.Value>@tradePartner.Text</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </abp-row>
+                    <!--第九列 Package, Weight Settings Area-->
+                    <abp-row>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <table class="table table-borderless">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                         </thead>
+                                         <tbody>
+                                            <tr>
+                                                <th>Package</th>
+                                                <td><input asp-for="MawbModel.Package" class="form-control" /></td>
+                                                <td colspan="3">
+                                                        <select asp-for="MawbModel.MawbPackageUnitId" class="form-select">
+                                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                            @foreach (var packageUnit in Model.PackageUnitLookupList)
+                                                        {
+                                                                <option value=@packageUnit.Value>@packageUnit.Text</option>
+                                                        }
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Buying Rate</th>
+                                                <td><input asp-for="MawbModel.BuyingRate" class="form-control" /></td>
+                                                <td>per</td>
+                                                <td>
+                                                    <select asp-for="MawbModel.BuyingRateUnitType" asp-items="Html.GetEnumSelectList(typeof(RateUnitType))" class="form-select form-control">
+                                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    </select>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Selling Rate</th>
+                                                <td><input asp-for="MawbModel.SellingRate" class="form-control" /></td>
+                                                <td>per</td>
+                                                <td>
+                                                    <select asp-for="MawbModel.SellingRateUnitType" asp-items="Html.GetEnumSelectList(typeof(RateUnitType))" class="form-select form-control">
+                                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                                                    </select>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Volume Weight</th>
+                                                <td><input asp-for="MawbModel.VolumeWeightKg" class="form-control" /></td>
+                                                <td>KG</td>
+                                                <td>
+                                                    <input asp-for="MawbModel.VolumeWeightCbm" class="form-control" />
+                                                </td>
+                                                <td>CBM</td>
+                                            </tr>
+                                            <tr>
+                                                <th></th>
+                                                <td colspan="4"><abp-button size="Small" button-type="Primary" text="Set Dimensions" disabled="true" icon="pencil-square" /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col">
+                                    <table class="table table-borderless">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>KG</th>
+                                                <th>LB</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>Gross Weight</th>
+                                                <td><input asp-for="MawbModel.GrossWeightKg" class="form-control" id="GrossWeightKg" /></td>
+                                                <td><input asp-for="MawbModel.GrossWeightLb" class="form-control" id="GrossWeightLb" /></td>
+                                                <td><input asp-for="MawbModel.GrossWeightAmount" class="form-control" /></td>
+                                            </tr>
+                                            <tr>
+                                                <th>AWB Gross Weight</th>
+                                                <td><input asp-for="MawbModel.AwbGrossWeightKg" class="form-control" id="AwbGrossWeightKg" /></td>
+                                                <td><input asp-for="MawbModel.AwbGrossWeightLb" class="form-control" id="AwbGrossWeightLb" /></td>
+                                                <td><input asp-for="MawbModel.AwbGrossWeightAmount" class="form-control" /></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Chargeable Weight</th>
+                                                <td><input asp-for="MawbModel.ChargeableWeightKg" class="form-control" id="ChargeableWeightKg" /></td>
+                                                <td><input asp-for="MawbModel.ChargeableWeightLb" class="form-control" id="ChargeableWeightLb" /></td>
+                                                <td><input asp-for="MawbModel.ChargeableWeightAmount" class="form-control" /></td>
+                                            </tr>
+                                            <tr>
+                                                <th>AWB Chargeable Weight</th>
+                                                <td><input asp-for="MawbModel.AwbChargeableWeightKg" class="form-control" id="AwbChargeableWeightKg" /></td>
+                                                <td><input asp-for="MawbModel.AwbChargeableWeightLb" class="form-control" id="AwbChargeableWeightLb" /></td>
+                                                <td><input asp-for="MawbModel.AwbChargeableWeightAmount" class="form-control" /></td>
+                                            </tr>
+                                            <tr>
+                                                <th></th>
+                                                <td colspan="3"><abp-button size="Small" button-type="Primary" text="Sun Package & Weight" disabled="true" icon="pencil-square" /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>  
+                    </abp-row>
+                    <!--第10列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.IncotermsType" asp-items="Html.GetEnumSelectList(typeof(IncotermsType))" class="form-select-sm form-control">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.ServiceTermTypeFrom" asp-items="Html.GetEnumSelectList(typeof(ServiceTermType))" class="form-select-sm form-control">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.ServiceTermTypeTo" asp-items="Html.GetEnumSelectList(typeof(ServiceTermType))" class="form-select-sm form-control">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.DisplayUnit" asp-items="Html.GetEnumSelectList(typeof(DisplayUnitType))" class="form-select-sm form-control">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                    <!--第11列 Awb取消Checkbox, IsEcom-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.IsAwbCancelled" id="checkboxAwbCancelled"/>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.IsECom" />
+                        </abp-column>
+                    </abp-row>
+                    <!--第12列 Awb取消Area-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.AwbCancelledDate" class="form-select-sm form-control" disabled id="AwbCancelledDate" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-input asp-for="MawbModel.AwbCancelledOpId" disabled id="AwbCancelledOpId" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="MawbModel.ReasonForCancel" asp-items="Html.GetEnumSelectList(typeof(ReasonForCancelType))" class="form-select-sm form-control" disabled="true" id="ReasonForCancel">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                             <abp-select asp-for="MawbModel.BusinessReferredId" size="Small">
+                                <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                </abp-card-body>
+            </abp-card>
+        </abp-column>
+    </abp-row>
+    <!-- 下方Save按鈕 -->
+    <abp-row class="mt-3">
+        <abp-column>
+            <abp-button class="btn btn-primary me-md-2" type="submit" id="saveBtn">@L["Display:Button:Submit"]</abp-button>
+        </abp-column>
+    </abp-row>
+    <abp-row>
+        <abp-column>
+            &nbsp;
+        </abp-column>
+    </abp-row>
+
+</form>

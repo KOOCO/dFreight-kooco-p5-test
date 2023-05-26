@@ -1,0 +1,45 @@
+﻿@using Volo.Abp.UI.Navigation
+@model ApplicationMenuItem
+@{
+    var elementId = string.IsNullOrEmpty(Model.ElementId) ? string.Empty : $"id=\"{Model.ElementId}\"";
+    var cssClass = string.IsNullOrEmpty(Model.CssClass) ? string.Empty : Model.CssClass;
+    var disabled = Model.IsDisabled ? "disabled" : string.Empty;
+    var url = string.IsNullOrEmpty(Model.Url) ? "#" : Url.IsLocalUrl(Model.Url) ? Url.Content(Model.Url.EnsureStartsWith('~')) : Model.Url;
+    var modelName =  Model.Name.Replace(".", "_");
+}
+@if (Model.IsLeaf)
+{
+    if (Model.Url != null)
+    {
+        <li id="p_@(modelName)" class="menuli">
+            <a class="@cssClass @disabled" href="@url" target="@Model.Target" @Html.Raw(elementId) href="@url">
+                @if (Model.Icon != null)
+                {
+                    if (Model.Icon.StartsWith("fa"))
+                    {
+                        <i class="@Model.Icon"></i>
+                    }
+                }
+                @Model.DisplayName
+            </a>
+        </li>
+    }
+}
+else
+{
+    <li id="up_@(modelName)"  class="menuli">
+        <a class="menu-item" data-bs-toggle="collapse" data-bs-target="#collapse@(modelName)" aria-expanded="false" aria-controls="collapse@(modelName)">
+            <div class="sb-nav-link-icon">
+                <i class="@(Model.Icon ?? "")"></i>
+            </div>
+                @Model.DisplayName
+        </a>
+        <ul id="collapse@(modelName)" class="collapse menuul" data-parent="#navigation">
+            @foreach (var childMenuItem in Model.Items)
+            {
+                childMenuItem.CustomData = modelName;
+                @await Html.PartialAsync("~/Themes/Basic/Components/Menu/_MenuItem.cshtml", childMenuItem)
+            }
+        </ul>
+    </li>
+}

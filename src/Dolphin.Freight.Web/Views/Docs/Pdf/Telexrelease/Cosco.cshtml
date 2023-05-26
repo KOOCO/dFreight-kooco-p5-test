@@ -1,0 +1,185 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.Telexrelease.TelexreleaseIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;">      
+        <br />
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div style="border: 1px solid;width:120px;height:120px;">圖片</div>
+                        </td>
+                        <td>
+                            <h3><span>@Model.Office</span></h3>
+                            <div>
+                                <span>
+                                    <br>
+                                    @{
+                                        if (Model.Address != "")
+                                        {
+                                                @Model.Address
+
+                                                <br />
+                                        }
+                                    }
+                                    TEL: @Model.Tel @{
+                                        if (Model.Fax != "")
+                                        {
+                                                <span>FAX:</span> @Model.Fax
+                                        }
+                                    }
+                                    <br />
+                                    EMAIL: @Model.Email
+
+                                    <br /><strong>Prepared by @Model.LastName @Model.FirstName @Model.DateTime (CST)</strong>
+
+                                </span>
+                            </div>
+                        </td>
+                        <td style="width:50px">&nbsp;</td>
+                        <td>
+                            <div style="border: 1px solid;width:350px;height:120px;display:flex;align-items:center;justify-content:center;color:darkblue;border-color:darkblue">
+
+                                <p>&nbsp;</p>
+                                <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TELEX RELEASE</h3>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <div>Attachment Two - LETTER OF UNDERTAKING FOR TELEX RELEASE CARGO - For B/L Not-issued</div>
+            <div>LETTER OF UNDERTAKING FOR TELEX RELEASE CARGO</div>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Date</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                @Model.Date
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>To</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                <div>
+                                    @Model.To
+                                </div>
+                            </div>
+                    </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <div>and/or the Owners /Charterers/Slot Charterers/ Managers/Operators or agents of the</div>
+                            <div>
+                                <div>
+                                    @Model.to_vessel_voyage
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">Dear Sirs,</td>
+                    </tr>
+                    <tr>
+                        <td>Vessel / Voyage</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                @Model.vessel_voyage
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>L/D Ports</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                @Model.LD_ports
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Cargo</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                @Model.cargo
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Bills of lading</td>
+                        <td>:</td>
+                        <td>
+                            <div>
+                                @Model.bills_of_lading
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+                <div>
+                    <div style="display:inline-block">
+                    We 
+                    </div>
+                    <div style="display:inline-block">
+                        <div>
+                            @Model.Office
+                        </div>
+                    </div> 
+                    <div style="display:inline-block">
+                        confirm and hereby authorize a telex release of the above mentioned containers/cargo and you are required to release the cargo to: 
+                    </div>
+                    <div>
+                        <div>
+                            @Model.Consignee
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div>
+                    In consideration of your complying with our above request, we hereby agree as follows ：
+                </div>
+                <ol>
+                    <li>To indemnify you, your servants and agents and to hold all of you harmless in respect of any liability, loss, damage or expense of whatsoever nature which you may sustain by reason of delivering the cargo in accordance with our request.</li>
+                    <li>In the event of any proceedings being commenced against you or any of your servants or agents in connection with the delivery of the cargo as aforesaid, to provide you or them on demand with sufficient funds to defend the same.</li>
+                    <li>If, in connection with the delivery of the cargo as aforesaid, the ship, or any other ship or property in the same or associated ownership, management or control, should be arrested or detained or should the arrest or detention thereof be threatened, or should there be any interference in the use or trading of the vessel （whether by virtue of a caveat being entered on the ship’s registry or otherwise howsoever）, to provide on demand such bail or other security as may be required to prevent such arrest or detention or to secure the release of such ship or property or to remove such interference and to indemnify you in respect of any liability, loss, damage or expense caused by such arrest or detention or threatened arrest or detention or such interference, whether or not such arrest or detention or threatened arrest or detention or such interference may be justified.</li>
+                    <li>We confirm that we don’t request your company to issue the original B/L and we agree to accept all the terms and conditions of the bill of lading.</li>
+                    <li>If the named consignee in the letter is not available or reject or is not able to take delivery of the shipment in 15 days from the day when the shipment was discharged in discharging port we agree that you could sell or dispose the shipment in any time and we will indemnify and hold the carrier harmless for any liability and cost and expense for the sale or disposal.</li>
+                    <li>The liability of each and every person under this indemnity shall be joint and several and shall not be conditional upon your proceeding first against any person, whether or not such person is party to or liable under this indemnity.</li>
+                    <li>This indemnity shall be governed by and construed in accordance with Chinese law and each and every person liable under this indemnity shall be at your request submit to the jurisdiction of the Maritime Court of PRC.</li>
+                </ol>
+                <div>Yours faithfully</div>
+                <br />
+                <div>
+                    For and on behalf of
+                    <div>
+                        @Model.TextArea
+                    </div>
+                </div>
+                <br />
+                <br />
+                <span>_______________________________</span>
+                <div>Signature</div>
+            </div>
+        </div>
+    </div>
+</div>

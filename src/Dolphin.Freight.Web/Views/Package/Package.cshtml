@@ -1,0 +1,64 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.Package.PackageIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+@*<div style="background-color:black;display: flex;justify-content:center;">*@
+    <div style="width:400px;background-color:white;">
+        <br />
+
+        <div>
+                <div><center><h2>@Model.Office</h2></center></div>
+        </div>
+        <center>
+            <hr/>
+        </center>
+            <div><i>TO</i></div>
+            <div style="display:inline-block;width:5px">&nbsp;</div>
+            <div style="display:inline-block;width:5px">
+                <pre style="font-weight:bold;font-size:large;"><b>@Model.To</b></pre>
+            </div>
+            <br />
+            <center>
+                <hr/>
+            </center>
+            <div><i>MBL NO.</i></div>
+            <div style="display:inline-block;width:5px">&nbsp;</div>
+            <div style="display:inline-block;width:5px"><font size="6"><b><span style="white-space: nowrap;">@Model.MblNo</span></b></font></div>
+            <center>
+                <hr/>
+            </center>
+            <div>
+                <div>
+                    <div><i>HBL NO.</i></div>
+                    <div style="display:inline-block;width:5px">&nbsp;</div>
+                    <div style="display:inline-block;width:5px">
+                <div><font size="6"><b><span style="white-space: nowrap;">@Model.HblNo</span></b></font></div>
+                    </div>
+                </div>
+            </div>
+            <center>
+                <hr/>
+            </center>
+            <div><i>DESTINATION</i></div>
+            <div>
+                <div style="display:inline-block;width:5px">&nbsp;</div>
+                <div style="display:inline-block;">
+            <span style="font-weight:bold;font-size:large;white-space: nowrap;">@Model.Destination</span>
+        </div>
+            </div>
+            <center>
+                <hr/>
+            </center>
+            <div>
+                <div><i>PIECES</i></div>
+                <div style="display:inline-block;width:5px">&nbsp;</div>
+                <div style="display:inline-block;"><font size="6"><b><span>@Model.Pieces/@Model.TotalPieces</span></b></font></div>                
+            </div>
+        </div>
+@*</div>*@

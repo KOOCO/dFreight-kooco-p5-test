@@ -1,0 +1,127 @@
+﻿@page
+@using Dolphin.Freight.Accounting;
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@inject IStringLocalizer<FreightResource> L
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.DefaultFreight.CreateUpdateDCModal
+@{
+    Layout = null;
+}
+<form method="post" action="/Sales/TradePartner/DefaultFreight/CreateUpdateDC">
+    <abp-modal>
+        @if (Model.Id == null)
+        {
+            <abp-modal-header title="@L["Create"]"></abp-modal-header>
+        }
+        else
+        {
+            <abp-modal-header title="@L["Update"]"></abp-modal-header>
+        }
+        <abp-modal-body>
+            @if (Model.Id != null)
+            {
+                <input name="DCDto.id" type="hidden" value="@Model.Id" />
+            }
+            <input name="DCDto.tradePartnerId" type="hidden" value="@Model.TradePartnerId" />
+            <input name="DCDto.category" type="hidden" value="@Model.Category" />
+
+            @if (DefaultFreightCategory.OI.Equals(Model.Category) || DefaultFreightCategory.OE.Equals(Model.Category))
+            {
+                <label class="form-label">@L["Display:TradePartner:DefaultFreight:ShipMode"]</label>
+                <div class="input-group">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="true" name="DCDto.shipModeFCL" @String.Format("{0}", Model.ShipModeFCL == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox1">FCL</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="true" name="DCDto.shipModeLCL" @String.Format("{0}", Model.ShipModeLCL == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox2">LCL</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="true" name="DCDto.shipModeFAK" @String.Format("{0}", Model.ShipModeFAK == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox3">FAK</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox4" value="true" name="DCDto.shipModeBULK" @String.Format("{0}", Model.ShipModeBULK == true ? "checked" : "")>
+                        <label class="form-check-label" for="inlineCheckbox4">BULK</label>
+                    </div>
+                </div>
+            }
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:FreightCode"]</label>
+            <select name="DCDto.freightCode" class="form-select form-control" required>
+                @foreach (var row in Model.FreightCodeList)
+                {
+                    if (row.Id == Model.FreightCode)
+                    {
+                        <option value="@row.Id" selected>@row.BillingName</option>
+                    }
+                    else
+                    {
+                        <option value="@row.Id">@row.BillingName</option>
+                    }
+                }
+            </select>
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:FreightDescription"]</label>
+            <input name="DCDto.freightDescription" class="form-control" value="@Model.FreightDescription" type="text" />
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:PC"]</label>
+            <select name="DCDto.pcType" class="form-select form-control" required>
+                @foreach (var row in Enum.GetValues(typeof(PCType)))
+                {
+                    if (row.Equals(Model.Type))
+                    {
+                        <option value="@row" selected>@L["Display:TradePartner:DefaultFreight:" + row]</option>
+                    }
+                    else
+                    {
+                        <option value="@row">@L["Display:TradePartner:DefaultFreight:" + row]</option>
+                    }
+                }
+            </select>
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Type"]</label>
+            <select name="DCDto.type" class="form-select form-control" required>
+                @foreach (var row in Enum.GetValues(typeof(DefaultFreightDCType)))
+                {
+                    if (row.Equals(Model.Type))
+                    {
+                        <option value="@row" selected>@L["Display:TradePartner:DefaultFreight:" + row]</option>
+                    }
+                    else
+                    {
+                        <option value="@row">@L["Display:TradePartner:DefaultFreight:" + row]</option>
+                    }
+                }
+            </select>
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Unit"]</label>
+            <select name="DCDto.unit" class="form-select form-control" required>
+                @foreach (var row in Enum.GetValues(typeof(UnitType)))
+                {
+                    if (row.Equals(Model.Unit))
+                    {
+                        <option value="@row" selected>@row.ToString().Replace('_', ' ')</option>
+                    }
+                    else
+                    {
+                        <option value="@row">@row.ToString().Replace('_', ' ')</option>
+                    }
+                }
+            </select>
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Vol"]</label>
+            <input name="DCDto.vol" class="form-control" value="@Model.Vol" type="number" required />
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:Rate"]</label>
+            <input name="DCDto.rate" class="form-control" value="@Model.Rate" type="number" required />
+
+            <label class="form-label">@L["Display:TradePartner:DefaultFreight:AgentAmount"]</label>
+            <input name="DCDto.agentAmount" class="form-control" value="@Model.AgentAmount" type="number" required />
+
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

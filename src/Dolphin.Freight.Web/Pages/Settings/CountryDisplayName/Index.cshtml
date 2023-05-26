@@ -1,0 +1,73 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.CountryDisplayName
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model CountryDisplayNameIndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section styles {
+}
+@section scripts{
+    <abp-script src="/Pages/Settings/CountryDisplayName/Index.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Settings"] />
+            <abp-breadcrumb-item title=@L["Menu:CountryDisplayName"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <abp-row>
+                <abp-column size="_12">
+                    <abp-card-title>@L["Menu:CountryDisplayName"]</abp-card-title>
+                </abp-column>
+            </abp-row>
+        </abp-card-header>
+        <abp-card-body>
+            <abp-row>
+                <abp-column size="_2">
+                    <h5>@L["OfficeId"]</h5>
+                    <select class="form-select form-control" id="office-id">
+                        @foreach (var row in Model.Offices)
+                        {
+                            <option value="@row.Id">@row.OfficeName</option>
+                        }
+                    </select>
+                </abp-column>
+                <div class="col">
+                    <div class="row justify-content-end">
+                        <div class="col-1">
+                            <h5>&emsp;</h5>
+                            <h5>@L["CountryDisplayName:Country"]</h5>
+                        </div>
+                        <div class="col-2">
+                            <h5>@L["CountryDisplayName:HasDisplayName"]</h5>
+                            <select class="form-select form-control" id="has-data">
+                                <option value="none"></option>
+                                <option value="yes">@L["CountryDisplayName:Yes"]</option>
+                                <option value="no">@L["CountryDisplayName:No"]</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <h5>@L["CountryDisplayName:ShipLine"]</h5>
+                            <select class="form-select form-control" id="ship-line">
+                                <option value=""></option>
+                                @foreach (var row in Model.Airports)
+                                {
+                                    <option value="@row.Id">@row.AirportName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </abp-row>
+            <abp-table striped-rows="true" id="CountryDisplayName"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

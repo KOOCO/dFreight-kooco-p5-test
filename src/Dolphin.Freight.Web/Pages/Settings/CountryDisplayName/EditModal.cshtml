@@ -1,0 +1,86 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Web.Pages.CountryDisplayName
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model EditModalModel
+@inject IStringLocalizer<FreightResource> L
+@{
+    Layout = null;
+}
+<form action="/Settings/CountryDisplayName/EditModal" method="post">
+    <abp-modal>
+        <abp-modal-header title="@L["Update"]"></abp-modal-header>
+        <abp-modal-body>
+            @if (Model.Id != null)
+            {
+                <input name="CreateUpdateCountryDisplayNameDto.id" type="hidden" value="@Model.Id" />
+            }
+            <input name="CreateUpdateCountryDisplayNameDto.countryId" type="hidden" value="@Model.CountryId" />
+            <input name="CreateUpdateCountryDisplayNameDto.officeId" type="hidden" value="@Model.OfficeId" />
+
+            <label class="form-label">@L["CountryDisplayName:Office"]</label>
+            <h5>@Model.OfficeName</h5>
+            <label class="form-label">@L["CountryDisplayName:Country"]</label>
+            <h5>@Model.CountryName</h5>
+            <label class="form-label">@L["CountryDisplayName:DisplayName"]</label>
+            <input type="text" name="CreateUpdateCountryDisplayNameDto.displayName" value="@Model.DisplayName" class="form-control valid" />
+            <label class="form-label">@L["CountryDisplayName:SelectOrCreateShipLine"]</label>
+            <select name="CreateUpdateCountryDisplayNameDto.airportId" class="form-select form-control" id="airport-id">
+                <option value=""></option>
+                @foreach (var row in Model.Airports)
+                {
+                    if (row.Id == Model.AirportId)
+                    {
+                        <option value="@row.Id" selected>@row.AirportName</option>
+                    }
+                    else
+                    {
+                        <option value="@row.Id">@row.AirportName</option>
+                    }
+                }
+            </select>
+            <label class="form-label">@L["CountryDisplayName:AirportName"]</label>
+            <input type="text" name="CreateUpdateCountryDisplayNameDto.airportName" class="form-control valid air" />
+            <label class="form-label">@L["CountryDisplayName:AirportCode"]</label>
+            <input type="text" name="CreateUpdateCountryDisplayNameDto.airportCode" id="airport-code" class="form-control valid air" />
+            <h6>@L["CountryDisplayName:AirportCodeErrorMessage"]</h6>
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>
+<style>
+    .red-border {
+        border-color: red;
+    }
+    h6 {
+        display: none;
+        color: red;
+        margin-top: 5px;
+    }
+</style>
+<script>
+    $(function () {
+        $('.air').on('keydown', () => {
+            $('#airport-id').val('');
+        });
+        $('#airport-id').on('change', () => {
+            $('.air').val('');
+        });
+        $('#airport-code').on('keyup', function() {
+            const self = $(this);
+            const button = $('[type=submit]');
+            const message = $('h6');
+            if (self.val().length > 3) {
+                self.addClass('red-border');
+                button.prop('disabled', true);
+                message.show();
+                return;
+            }
+
+            self.removeClass('red-border');
+            button.prop('disabled', false);
+            message.hide();
+        });
+    });
+</script>

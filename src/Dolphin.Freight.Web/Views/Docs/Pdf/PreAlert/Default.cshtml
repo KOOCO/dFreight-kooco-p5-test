@@ -1,0 +1,245 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Http
+@model Dolphin.Freight.Web.ViewModels.PreAlert.PreAlertIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+@if (!string.IsNullOrEmpty(Model.BaseUrl))
+{
+    <base href="@Model.BaseUrl">
+}
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }  
+
+    .w-10, .w-20, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size:10px;
+    }
+</style>
+<link href="/Pages/Reports/Reports.css" rel="stylesheet">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" class="edit">
+        <div class="wrap">
+         <div class="header header-normal">
+            <table>
+                <tbody><tr>
+                    <td class="w-15 logo">
+                        <img src="/Pages/Reports/logo.png">
+                    </td>
+                    <td class="w-48">
+                        <h1 class="auto-font-size office-name">
+                            <span>@Model.Office</span>
+                        </h1>
+                        <div class="auto-font-size office-des">
+                            <span>
+                                @{
+                                    if (Model.Address != "")
+                                    {
+                                        @Model.Address
+
+                                        <br />
+                                    }
+                                }
+                                TEL: @Model.Tel<br>
+                                EMAIL: @Model.Email
+                                    <br /><strong>Prepared by @Model.LastName @Model.FirstName @Model.DateTime (CST)</strong>
+                            </span>
+                        </div>
+                    </td>
+                    <td class="w-2">&nbsp;</td>
+                    <td class="w-35 title border-deep-blue text-center">
+                        <h2 class="blue-lg">PRE-ALERT</h2>
+                    </td>
+                </tr>
+            </tbody></table>
+        </div>
+        <div class="con">
+            <table class="table-padding-double border text-12">
+                <colgroup>
+                    <col class="w-10 border-r">
+                    <col class="w-40 border-r">
+                    <col class="w-12 border-r">
+                    <col class="w-38">
+                </colgroup>
+                <tbody><tr class="border-b">
+                    <td class="text-bold">TO</td>
+                    <td>
+                        <div class="item-edit">@Model.TO</div>
+                    </td>
+                    <td class="text-bold">JOBNO</td>
+                    <td>
+                        <div class="item-edit">@Model.JOBNO</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">ATTN</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.ATTN</div>
+                    </td>
+                </tr>
+            </tbody></table>
+            <table class="table-padding-double border text-12 margin-t-md">
+                <colgroup>
+                    <col class="w-10 border-r">
+                    <col class="w-40 border-r">
+                    <col class="w-10 border-r">
+                    <col class="w-40">
+                </colgroup>
+                <tbody><tr class="border-b">
+                    <td class="text-bold">MB/L</td>
+                    <td>
+                        <div class="item-edit">@Model.MBL</div>
+                    </td>
+                    <td class="text-bold">HB/L</td>
+                    <td>
+                        <div class="item-edit">@Model.HBL</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">SHPR</td>
+                    <td>
+                        <div class="item-edit">@Model.SHPR</div>
+                    </td>
+                    <td class="text-bold">CNEE</td>
+                    <td>
+                        <div class="item-edit">@Model.CNEE</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">CARR</td>
+                    <td>
+                        <div class="item-edit">@Model.CARR</div>
+                    </td>
+                    <td class="text-bold">VSL/VOV</td>
+                    <td>
+                        <div class="item-edit">@Model.VSLVOV</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">POR</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.POR</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">POL</td>
+                    <td>
+                        <div class="item-edit">@Model.POL</div>
+                    </td>
+                    <td class="text-bold">ETD</td>
+                    <td>
+                        <div class="item-edit">@Model.ETD</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">2<sup>ND</sup> V/V</td>
+                    <td>
+                        <div class="item-edit">@Model._2NDVV</div>
+                    </td>
+                    <td class="text-bold">ETD KAO</td>
+                    <td>
+                        <div class="item-edit">@Model.ETDKAO</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">POD</td>
+                    <td>
+                        <div class="item-edit">@Model.POD</div>
+                    </td>
+                    <td class="text-bold">ETA</td>
+                    <td>
+                        <div class="item-edit">@Model.ETA</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">DEST</td>
+                    <td>
+                        <div class="item-edit">@Model.DEST</div>
+                    </td>
+                    <td class="text-bold">DEST ETA</td>
+                    <td>
+                        <div class="item-edit">@Model.DESTETA</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">VOL</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.VOL</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">CNTR NO</td>
+                    <td colspan="3">
+                        <div class="item-edit">
+                            @Html.Raw((Model.CNTRNO ?? "").Replace(Environment.NewLine, "<br/>"))
+                        </div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">COMM</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.COMM</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">PONBR</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.PONBR</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">PKGS</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.PKGS</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">G. WT</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.GWT</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">MSRMT</td>
+                    <td colspan="3">
+                        <div class="item-edit">@Model.MSRMT</div>
+                    </td>
+                </tr>
+                <tr class="border-b">
+                    <td class="text-bold">RMK</td>
+                    <td class="text-bold" colspan="3">
+                        <div class="item-edit">
+                            @Html.Raw((Model.RMK ?? "").Replace(Environment.NewLine, "<br/>"))
+                        </div>
+                    </td>
+                </tr>
+            </tbody></table>
+        </div>
+    </div>
+    </div>
+</div>

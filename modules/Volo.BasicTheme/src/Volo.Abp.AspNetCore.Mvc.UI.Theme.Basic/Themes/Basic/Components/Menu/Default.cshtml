@@ -1,0 +1,50 @@
+﻿@using Volo.Abp.UI.Navigation
+@model ApplicationMenu
+@foreach (var menuItem in Model.Items)
+{
+    var elementId = string.IsNullOrEmpty(menuItem.ElementId) ? string.Empty : $"id=\"{menuItem.ElementId}\"";
+    var cssClass = string.IsNullOrEmpty(menuItem.CssClass) ? string.Empty : menuItem.CssClass;
+    var disabled = menuItem.IsDisabled ? "disabled" : string.Empty;
+    var url = string.IsNullOrEmpty(menuItem.Url) ? "#" : Url.IsLocalUrl(menuItem.Url) ? Url.Content(menuItem.Url.EnsureStartsWith('~')) : menuItem.Url;
+    var menuItemName = menuItem.Name.Replace(".", "_");
+    if (menuItem.IsLeaf)
+    {
+        if (menuItem.Url != null)
+        {
+            <li class="nav-item" id="n_@(menuItemName)">
+                <a  href="@url" target="@menuItem.Target">
+                    @if (menuItem.Icon != null)
+                    {
+                        if (menuItem.Icon.StartsWith("fa"))
+                        {
+                            <i class="@menuItem.Icon"></i>
+                        }
+                    }
+                        @menuItem.DisplayName
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="nav-item" id="n_@(menuItemName)">
+            <a class="menu-item" href="#" data-bs-toggle="collapse" data-bs-target="#collapse@(menuItemName)" aria-expanded="false" aria-controls="collapse@(menuItemName)">
+                @if (menuItem.Icon != null)
+                {
+                    if (menuItem.Icon.StartsWith("fa"))
+                    {
+                        <i class="@menuItem.Icon"></i>
+                    }
+                }
+                    @menuItem.DisplayName
+            </a>
+            <ul id="collapse@(menuItemName)" class="collapse" data-parent="#navigation">
+                @foreach (var childMenuItem in menuItem.Items)
+                {
+                    childMenuItem.CustomData = menuItemName;
+                    @await Html.PartialAsync("~/Themes/Basic/Components/Menu/_MenuItem.cshtml", childMenuItem)
+                }
+            </ul>
+        </li>
+    }
+}

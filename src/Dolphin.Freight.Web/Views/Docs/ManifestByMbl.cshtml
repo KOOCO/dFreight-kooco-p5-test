@@ -1,0 +1,445 @@
+﻿
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.ViewModels.Manifest.ManifestIndexViewModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    *{
+         font-size: 100%;
+    }
+
+    body{
+        background-color: black;
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+
+    .w-10, .w-20, .w-50, .w-100, .text-right, .text-center, .auto-font-size, textarea {
+        font-size: 10px;
+        padding-top: 2px;
+        margin-left: 2px;
+    }
+
+    .item-pdf{
+        display: none;
+    }
+</style>
+<abp-style src="/Pages/Reports/Reports.css" />
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+</script>
+<script>
+    function toCurrency(num){
+        var parts = num.toFixed(2).toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+    }
+
+    var cal = function(){
+        var total_PACKAGE = 0;
+        var total_GROSS_WEIGHT_KGS = 0;
+        var total_GROSS_WEIGHT_LBS = 0;
+        var total_MEASUREMENT_CBM = 0;
+        var total_MEASUREMENT_CFT = 0;
+
+        $( ".cal" ).each(function() {
+            
+            var chk = $(this).find("input[name$='.chk']").prop('checked')
+            if(chk)
+            {
+              var PACKAGE = parseFloat($(this).find("input[name$='.PACKAGE']").val().replaceAll(',',''));
+              if(!isNaN(PACKAGE))
+                total_PACKAGE += PACKAGE;
+
+              var GROSS_WEIGHT_KGS = parseFloat($(this).find("input[name$='.GROSS_WEIGHT_KGS']").val().replaceAll(',',''));
+              if(!isNaN(GROSS_WEIGHT_KGS))
+                total_GROSS_WEIGHT_KGS += GROSS_WEIGHT_KGS;
+
+              var GROSS_WEIGHT_LBS = parseFloat($(this).find("input[name$='.GROSS_WEIGHT_LBS']").val().replaceAll(',',''));
+              if(!isNaN(GROSS_WEIGHT_LBS))
+                total_GROSS_WEIGHT_LBS += GROSS_WEIGHT_LBS;
+
+              var MEASUREMENT_CBM = parseFloat($(this).find("input[name$='.MEASUREMENT_CBM']").val().replaceAll(',',''));
+              if(!isNaN(MEASUREMENT_CBM))
+                total_MEASUREMENT_CBM += MEASUREMENT_CBM;
+
+              var MEASUREMENT_CFT = parseFloat($(this).find("input[name$='.MEASUREMENT_CFT']").val().replaceAll(',',''));
+              if(!isNaN(MEASUREMENT_CFT))
+                total_MEASUREMENT_CFT += MEASUREMENT_CFT;
+            }
+        });
+
+        $('.total_PACKAGE').html(total_PACKAGE + ' PKGS');
+        $('.total_GROSS_WEIGHT_KGS').html(toCurrency(total_GROSS_WEIGHT_KGS) + ' KGS')
+        $('.total_GROSS_WEIGHT_LBS').html(toCurrency(total_GROSS_WEIGHT_LBS) + ' LBS');
+        $('.total_MEASUREMENT_CBM').html(toCurrency(total_MEASUREMENT_CBM) + ' CBM');
+        $('.total_MEASUREMENT_CFT').html(toCurrency(total_MEASUREMENT_CFT) + ' CFT');
+        
+        $('[name=total_PACKAGE]').val(total_PACKAGE);
+        $('[name=total_GROSS_WEIGHT_KGS]').val(toCurrency(total_GROSS_WEIGHT_KGS));
+        $('[name=total_GROSS_WEIGHT_LBS]').val(toCurrency(total_GROSS_WEIGHT_LBS));
+        $('[name=total_MEASUREMENT_CBM]').val(toCurrency(total_MEASUREMENT_CBM));
+        $('[name=total_MEASUREMENT_CFT]').val(toCurrency(total_MEASUREMENT_CFT));
+    }
+
+    $(document).ready(function(){
+        cal();
+    });
+</script>
+<form id="myForm" name="myForm" method="POST">
+    <div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:1200px;background-color:white;" id="form" name = "form" class="edit">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+
+
+<div class="wrap landscape oe-cargo-manifest-mbl">
+   <div class="header header-normal">
+      <table>
+         <tbody>
+            <tr>
+               <td class="w-12 logo">
+                    <img src="/Pages/Reports/logo.png">
+               </td>
+               <td class="w-51">
+                    <h1 class="auto-font-size office-name">
+                        <span>@Model.Office</span>
+                    </h1>
+                  <div class="auto-font-size office-des">
+                    <span>
+                        @{
+                            if (Model.Address != "")
+                            {
+                                @Model.Address
+                                <br />
+                            }
+                        }
+                        TEL: @Model.Tel FAX: @Model.Fax <br>
+                        EMAIL: @Model.Email
+                        <br /><strong>Prepared by @Model.LastName @Model.FirstName @Model.DateTime (CST)</strong>
+                                    
+                        <input type="hidden" name="Office" value="@Model.Office" />
+                        <input type="hidden" name="Address" value="@Model.Address" />
+                        <input type="hidden" name="TEL" value="@Model.Tel" />
+                        <input type="hidden" name="EMAIL" value="@Model.Email" />
+                        <input type="hidden" name="LastName" value="@Model.LastName" />
+                        <input type="hidden" name="FirstName" value="@Model.FirstName" />
+                        <input type="hidden" name="DateTime" value="@Model.DateTime" />
+                    </span>
+                  </div>
+               </td>
+               <td class="w-2">&nbsp;</td>
+               <td class="w-35 title text-center td">
+                  <div class="border-deep-blue col-padding-sm">
+                     <h2 class="item-pdf blue-lg">
+                     </h2>
+                     <div class="item-edit">
+                        <select name="cargo_title" class="select w-90 ng-valid ng-dirty ng-not-empty ng-touched" id="id_cargo_title">
+                           <option value="CARGO MANIFEST">CARGO MANIFEST</option>
+                           <option value="CONTAINER MANIFEST">CONTAINER MANIFEST</option>
+                           <option value="PRE-ALERT" selected>PRE-ALERT</option>
+                        </select>
+                     </div>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="con oe-cargo-manifest">
+      <table>
+         <tbody>
+            <tr>
+               <td class="td w-28">
+                  <div class="space_area">&nbsp;</div>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="highlight-block">
+                              <div class="title">FROM :</div>
+                              <div class="data">
+                                 <div class="item-pdf auto-font-size __width-lg"><span></span></div>
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <input type="text" name="from_trade_partner" value="@Model.from_trade_partner" id="id_from_trade_partner" class="ng-isolate-scope">
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                           <td class="highlight-block">
+                              <div class="title">TO :</div>
+                              <div class="data">
+                                 <div class="item-pdf auto-font-size __col-textarea">
+                                    <span></span>
+                                 </div>
+                                 <div class="item-edit hover-toggle-icon-text-template">
+                                    <textarea name="to_trade_partner_area" cols="40" rows="5" class="text-scroll no-adjustment ng-isolate-scope" id="id_to_trade_partner_area">
+                                    @{
+                                        if (Model.to_trade_partner_area != "")
+                                        {
+                                            @Model.to_trade_partner_area
+                                        }
+                                    }
+                                    </textarea>
+                                 </div>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>&nbsp;</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+               <td class="td w-2"></td>
+               <td class="td w-70">
+                  <div class="space_area">&nbsp;</div>
+                  <table>
+                  </table>
+                  <table class="border table-padding-double">
+                     <tbody>
+                        <tr class="border-b">
+                           <td class="w-18 bg-light border-r">MASTER B/L NO.</td>
+                           <td class="w-42">@Model.MblNo<input type="hidden" name="MblNo" value="@Model.MblNo" /></td>
+                           <td class="w-12 bg-light border-r border-l">FILE NO.</td>
+                           <td class="w-28">
+                              <div class="item-pdf"></div>
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="filing_no" value="@Model.filing_no" id="id_filing_no" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                        </tr>
+                        <tr class="border-b">
+                           <td class="bg-light border-r">BOOKING NO.</td>
+                           <td>@Model.BookingNo<input type="hidden" name="BookingNo" value="@Model.BookingNo" /></td>
+                           <td class="bg-light border-r border-l">CARRIER</td>
+                           <td>@Model.Carrier<input type="hidden" name="Carrier" value="@Model.Carrier" /></td>
+                        </tr>
+                        <tr class="border-b">
+                           <td class="bg-light border-r">VESSEL</td>
+                           <td>
+                              <div class="item-pdf"></div>
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="vessel_name" value="@Model.vessel_name" id="id_vessel_name" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                           <td class="bg-light border-r border-l">VOYAGE</td>
+                           <td>
+                              <div class="item-pdf"></div>
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="voyage" value="@Model.voyage" id="id_voyage" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                        </tr>
+                        <tr class="border-b">
+                           <td class="bg-light border-r">P.O.L</td>
+                           <td>
+                              <div class="item-pdf"></div>
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="POL_location" value="@Model.POL_location" id="id_POL_location" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                           <td class="bg-light border-r border-l">ETD</td>
+                           <td>@Model.ETD<input type="hidden" name="ETD" value="@Model.ETD" /></td>
+                        </tr>
+                        <tr class="border-b">
+                           <td class="bg-light border-r">P.O.D</td>
+                           <td>
+                              <div class="item-pdf">BANGKOK (THAILAND)</div>
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="POD_location" value="@Model.POD_location" id="id_POD_location" class="ng-isolate-scope">
+                              </div>
+                           </td>
+                           <td class="bg-light border-r border-l">ETA</td>
+                           <td>@Model.ETA<input type="hidden" name="ETA" value="@Model.ETA" /></td>
+                        </tr>
+                        <tr class="border-b">
+                           <td class="bg-light border-r">PO NO.</td>
+                           <td>
+                              <span class="item-edit hover-toggle-icon-text-template">
+                                 <input type="text" name="po_nos_text" value="@Model.po_nos_text" id="id_po_nos_text" class="ng-isolate-scope">
+                              </span>
+                              <span class="item-pdf"></span>
+                           </td>
+                           <td class="bg-light border-r border-l">CARGO READY DATE</td>
+                           <td>@Model.CargoReadyDate<input type="hidden" name="CargoReadyDate" value="@Model.CargoReadyDate" /></td>
+                        </tr>
+                        <tr class="border-b">
+                           <td class="bg-light border-r">REMARK</td>
+                           <td colspan="3">
+                              <div class="item-pdf auto-font-size __col-remark">
+                                 <span></span>
+                              </div>
+                              <div class="item-edit hover-toggle-icon-text-template">
+                                 <textarea name="remarks" cols="40" rows="3" class="text-scroll no-adjustment ng-isolate-scope" id="id_remarks">                                    
+                                    @{
+                                    if (Model.remarks != "")
+                                    {
+                                        @Model.remarks
+                                    }
+                                }
+                                </textarea>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div>&nbsp;</div>
+      <table class="table-padding table-valign-top _text-12">
+         <colgroup>
+            <col class="w-2">
+            <!-- Show Container -->
+            <col class="w-11">
+            <!-- Container No. -->
+            <col class="w-9">
+            <!-- Seal No. -->
+            <col class="w-11">
+            <!-- Container Size -->
+            <col class="w-30">
+            <!-- Shipper // Consignee -->
+            <col class="w-10">
+            <!-- B/L No. -->
+            <col class="w-7">
+            <!-- Package -->
+            <col class="w-10">
+            <!-- Gross Weight -->
+            <col class="w-10">
+            <!-- Measurement -->
+         </colgroup>
+         <thead>
+            <tr class="border-t border-b col-bg-grey-light">
+               <!-- hide show container -->
+               <th></th>
+               <th class="text-left">CONTAINER NO.</th>
+               <th class="text-left">SEAL NO.</th>
+               <th class="text-left">CONTAINER SIZE</th>
+               <th class="text-left padding-t-sm padding-b-sm">SHIPPER<br>CONSIGNEE</th>
+               <th class="text-left">B/L NO.</th>
+               <th class="text-right">PACKAGE</th>
+               <th class="text-right">GROSS WEIGHT</th>
+               <th class="text-right">MEASUREMENT</th>
+            </tr>
+         </thead>
+         <tbody>
+            @if (Model.ContainerList != null && Model.ContainerList.Count > 0)
+            {
+                for (int i = 0; i < Model.ContainerList.Count; i++)
+                {
+                    var container = Model.ContainerList[i];
+                    <tr class="border-b-grey cal">
+                        <td>
+                            <input type="checkbox" value="true" onchange="cal()" name="ContainerList[@(i.ToString())].chk" class="ng-pristine ng-untouched ng-valid ng-not-empty" checked>
+                        </td>
+                        <td>@container.CONTAINER_NO <input type="hidden" name="ContainerList[@(i.ToString())].CONTAINER_NO" value="@container.CONTAINER_NO" /></td>
+                        <td>@container.SEAL_NO <input type="hidden" name="ContainerList[@(i.ToString())].SEAL_NO" value="@container.SEAL_NO" /></td>
+                        <td>@container.CONTAINER_SIZE <input type="hidden" name="ContainerList[@(i.ToString())].CONTAINER_SIZE" value="@container.CONTAINER_SIZE" /></td>
+                        <td>
+                            <div class="border-b-grey">
+                                @container.SHIPPER <input type="hidden" name="ContainerList[@(i.ToString())].SHIPPER" value="@container.SHIPPER" />
+                            </div>
+                            <div>
+                                @container.CONSIGNEE <input type="hidden" name="ContainerList[@(i.ToString())].CONSIGNEE" value="@container.CONSIGNEE" />
+                            </div>
+                        </td>
+                        <td>@container.BL_NO <input type="hidden" name="ContainerList[@(i.ToString())].BL_NO" value="@container.BL_NO" /></td>
+                        <td class="text-right">@container.PACKAGE <input type="hidden" name="ContainerList[@(i.ToString())].PACKAGE" value="@container.PACKAGE" /></td>
+                        <td class="text-right">@container.GROSS_WEIGHT_KGS KGS<input type="hidden" name="ContainerList[@(i.ToString())].GROSS_WEIGHT_KGS" value="@container.GROSS_WEIGHT_KGS" /><br>@container.GROSS_WEIGHT_LBS LBS<input type="hidden" name="ContainerList[@(i.ToString())].GROSS_WEIGHT_LBS" value="@container.GROSS_WEIGHT_LBS" /></td>
+                        <td class="text-right">@container.MEASUREMENT_CBM CBM<input type="hidden" name="ContainerList[@(i.ToString())].MEASUREMENT_CBM" value="@container.MEASUREMENT_CBM" /><br>@container.MEASUREMENT_CFT CFT<input type="hidden" name="ContainerList[@(i.ToString())].MEASUREMENT_CFT" value="@container.MEASUREMENT_CFT" /></td>
+                    </tr>
+                }
+            }
+
+            <tr class="border-t border-b col-bg-grey-light text-bold">
+               <!-- hide show container -->
+               <td></td>
+               <td colspan="5"></td>
+               <td class="text-right">
+                  <span class="item-edit ng-binding total_PACKAGE"></span>
+               </td>
+               <td class="text-right">
+                  <span class="item-edit ng-binding total_GROSS_WEIGHT_KGS"></span>
+                  <br>
+                  <span class="item-edit ng-binding total_GROSS_WEIGHT_LBS"></span>
+               </td>
+               <td class="text-right">
+                  <span class="item-edit ng-binding total_MEASUREMENT_CBM"></span>
+                  <br>
+                  <span class="item-edit ng-binding total_MEASUREMENT_CFT"></span>
+               </td>
+            </tr>
+            <input type="hidden" name="total_PACKAGE" />
+            <input type="hidden" name="total_GROSS_WEIGHT_KGS" />
+            <input type="hidden" name="total_GROSS_WEIGHT_LBS" />
+            <input type="hidden" name="total_MEASUREMENT_CBM" />
+            <input type="hidden" name="total_MEASUREMENT_CFT" />
+         </tbody>
+      </table>
+   </div>
+</div>
+
+
+    </div>
+</div>
+</form>

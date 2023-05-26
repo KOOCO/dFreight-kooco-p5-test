@@ -1,0 +1,53 @@
+﻿@using Dolphin.Freight.Web.Pages.Components
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model ComponentData
+@inject IStringLocalizer<FreightResource> L
+@if (Model.IsShowLabel) 
+{ 
+    <label for="@Model.FieldName" class="form-label">
+
+    @L[Model.FieldName]
+        @if (Model.IsRequired)
+        {
+            <span class="text-danger">*</span>
+        }
+</label>
+}
+<div class="dropdown form-control">
+    <button class="btn dropdown-toggle "  type="button" id="drop_@Model.TagName" data-bs-toggle="dropdown"  @Model.Disabled >
+        @L["Dropdown:Select"] 
+    </button>
+    @if (Model.SelectType == 1) 
+    {
+
+        <button title="" class="btn btn-info " style="color:#ffffff; " type="button" id="btn_@Model.GetFiledContentName()" data-busy-text="Processing..." data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="top" data-bs-content="@Model.GetShowFiledContent()" data-bs-original-title="@L["Title:ReportFormTitle"]"  onclick="editTitle('@Model.GetFiledContentName()','@Model.GetShowFiledContent()')">
+            <li class="fas fa-edit"></li>
+        </button>
+        <div class="modal" tabindex="-1" id="modal_@Model.GetFiledContentName()">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@L["Title:ReportFormTitle"]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            <textarea class="form-control" name="@Model.GetFiledContentName()" id="@Model.GetFiledContentName()" onchange="changeTextarea('@Model.GetFiledContentName()')">@Model.GetShowFiledContent()</textarea>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    }
+    
+    <ul class="dropdown-menu " aria-labelledby="@Model.TagName" id="dropdownMenuButton_@Model.TagName">
+    </ul>
+    <input type="hidden" name="@Model.FieldName" id="@Model.FieldName" value="@Model.DefaultValue" />
+</div>
+@if (Model.IsRequired)
+{
+    <span id="err_@Model.FieldName" class="text-danger" style="display:none;">@L["Message:SelectRequired"]</span>
+
+}

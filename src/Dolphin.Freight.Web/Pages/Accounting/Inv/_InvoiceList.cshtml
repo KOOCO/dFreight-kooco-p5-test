@@ -1,0 +1,16 @@
+﻿@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.Extensions.Localization
+@model string
+@inject IStringLocalizer<FreightResource> L
+<input type="hidden" id="Accounting_InvoiceList_PaymentId" value="@ViewData["PId"]" />
+<abp-card>
+    <abp-card-header>
+        <div class="title">
+            @L["InvoiceList"]
+        </div>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="InvTable"></abp-table>
+    </abp-card-body>
+</abp-card>

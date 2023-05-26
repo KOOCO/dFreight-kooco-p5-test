@@ -1,0 +1,21 @@
+﻿@using Volo.Abp.Account.Localization
+@using Volo.Abp.Users
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<AccountResource> L
+@inject ICurrentUser CurrentUser
+<div class="profile">
+    <div class="profile-image">
+        <img src="images/user.jpg">
+    </div>
+    <div class="radio-button">
+        <label class="radio-inline"><input type="radio" name="optradio" checked="">Option 1</label>
+        <label class="radio-inline"><input type="radio" name="optradio">Option 2</label>
+    </div>
+    <h3>Hanjun Line</h3>
+    <ul class="user-info-list">
+        <li><a href="#">Accounting Manager</a></li>
+        <li><a href="#">General Manager</a></li>
+        <li><a href="#">Operation Manager</a></li>
+    </ul>
+    <p class="copyright-text">Hard Core Technology(Gst/Vat)</p>
+</div>

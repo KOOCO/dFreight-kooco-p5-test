@@ -1,0 +1,299 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Reports
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.Reports.TelexreleaseModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@*@section scripts
+{
+    <abp-script src="/Pages/Reports/Telexrelease.js" />
+}*@
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<style>
+    .btn {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: gray;
+        }
+
+        .container{
+           display:flex; /*一開始需要在父層宣告為 flex 才有效*/
+        }
+        ​
+        .item-right, .item-center, .item-left{
+         flex:1;
+        }
+</style>
+<script>
+    var zoom = 1;
+    $(document).ready(function(){
+		$('#zin').on('click', function(){
+			zoom += 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+		$('#zout').on('click', function(){
+			zoom -= 0.1;
+			$('#form').css('transform', 'scale(' + zoom + ')');
+		});
+
+        document.getElementById("reportLink").onclick = function() {
+            document.getElementById("myForm").submit();
+        }
+    });
+
+    function onChangeTemplate(sel) {
+                if (sel.value === 'default') {
+                    window.location.href = 'javascript:void(0)';
+                }
+                else if (sel.value === 'cosco') {
+                    window.location.href = '/Reports/Telexrelease?handler=ReportCosco';
+                }
+                else {
+                  throw Error('unknown template value')
+                }
+            }
+</script>
+<form id="myForm" name="myForm" method="POST">
+<div style="background-color:black;display: flex;justify-content:center;">
+    <div style="width:900px;background-color:white;" id="form" name = "form">
+        <div class="container" style="background-color:black">    
+            <div style="display:flex;justify-content: center;" class="item-left">
+                @*<button class="btn"><i class="fa fa-file-pdf-o"></i></button>
+                <button class="btn"><i class="fa fa-print"></i></button>*@
+                @*<a class="btn" href="../OceanExports/print?handler=Download"><i class="fa fa-print">儲存PDF或列印</i></a>*@
+                <a class="btn" href="#" id="reportLink" name="reportLink" ><i class="fa fa-print">儲存PDF或列印</i></a>
+            </div>
+            @*<div style="float:right;" class="item-right">
+                <button class="btn zoom" id="zout" name="zout"><i class="fa fa-search-minus"></i></button>
+                <button class="btn zoom-out" id="zin" name="zin"><i class="fa fa-search-plus"></i></button>
+            </div>*@
+        </div>
+        <div style="float:right;">
+            <div style="display:inline-block"><p style="color:red"><strong>Template : </strong></p></div>
+            <div style="display:inline-block">            
+                <select onchange="onChangeTemplate(this)">
+                    <option selected="selected" value="default">Default</option>
+                    <option value="cosco">Cosco Version</option>
+                </select>
+            </div>
+        </div>
+        <br />
+        <center>
+            <hr/>
+        </center>
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <h3><span>@Model.InfoModel.Office</span></h3>
+                            <div>
+                                <span>
+                                    <br />
+                                    @{
+                                        if (Model.InfoModel.Address != "")
+                                        {
+                                                                            @Model.InfoModel.Address
+
+                                                                            <br />
+                                        }
+                                    }
+                                    TEL: @Model.InfoModel.Tel @{
+                                        if (Model.InfoModel.Fax != "")
+                                        {
+                                                                            <span>FAX:</span> @Model.InfoModel.Fax
+                                        }
+                                    }
+                                    <br />
+                                    EMAIL: @Model.InfoModel.Email
+
+                                    <br /><strong>Prepared by @Model.InfoModel.LastName @Model.InfoModel.FirstName @Model.InfoModel.DateTime (CST)</strong>
+                                </span>
+                            </div>
+                        </td>
+                        <td style="width:100px">&nbsp;</td>
+                        <td>
+                            <div style="border: 1px solid;width:350px;height:120px;display: flex;align-items: center;justify-content: center;">
+                                <h3>TELEX RELEASE</h3>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <div>
+            <div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Date</td>
+                            <td>:</td>
+                            <td>
+                                <div>
+                                    <input type="text" name="date" value="@Model.InfoModel.Date" id="id_current_date" style="width:784px">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>To</td>
+                            <td>:</td>
+                            <td>
+                                <div>
+                                    <input type="text" name="to" value="@Model.InfoModel.To" id="id_carrier_name" style="width:784px">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Attn</td>
+                            <td>:</td>
+                            <td>
+                                <div>
+                                    <input type="text" name="attn" value="@Model.InfoModel.Attn" id="id_attn" style="width:784px">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>From</td>
+                            <td>:</td>
+                            <td>
+                                <div>
+                                    <input type="text" name="from" value="@Model.InfoModel.From" id="id_shipping_agent_name" style="width:784px">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align:text-top;">Ref.</td>
+                            <td style="vertical-align:text-top;">:</td>
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>VESSEL</td>
+                                            <td>:</td>
+                                            <td>
+                                                <div>
+                                                    <input type="text" name="vessel" value="@Model.InfoModel.Vessel" id="id_vessel_name" style="width:720px">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>MB/L #</td>
+                                            <td>:</td>
+                                            <td>
+                                                <div>
+                                                    <input type="text" name="mbl" value="@Model.InfoModel.Mbl" id="id_MBL_NO" style="width:720px">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>POD</td>
+                                            <td>:</td>
+                                            <td>
+                                                <div>
+                                                    <input type="text" name="pod" value="@Model.InfoModel.Pod" id="id_POD_location" style="width:720px">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>CNEE.</td>
+                                            <td>:</td>
+                                            <td>
+                                                <div>
+                                                    <input type="text" name="cnee" value="@Model.InfoModel.Cnee" id="id_consignee_name" style="width:720px">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <br />
+            <center>
+                <hr@* style="color:black;width:95%;" *@ />
+            </center>
+            <div>
+                <div style="display:inline-block">
+                    Enclosed please find check
+                </div>
+                <div style="display:inline-block">
+                    <div>
+                        <input type="text" name="find_check" value="" id="id_find_check" style="width:420px">
+                    </div>
+                </div>
+                <div style="display:inline-block">
+                    for O/F and copy of B/L.
+                </div>
+                <br />
+                <div style="display:inline-block">
+                    Please keep three original B/L and please send TELEX RELEASE to your agent in
+                </div>
+                <br />
+                <div style="display:inline-block">
+                    <div>
+                        <input type="text" name="agent_location" value="@Model.InfoModel.Pod" id="id_agent_location" style="width:420px">
+                    </div>
+                </div>
+                <div style="display:inline-block">
+                    office to release container without originals.
+                </div>
+                <br />
+                <div style="display:inline-block">
+                    Please send telex release copy to us at fax #
+                </div>
+                <div style="display:inline-block">
+                    <div>
+                        <input type="text" name="fax" value="@Model.InfoModel.Fax" id="id_current_user_fax" style="width:300px">
+                    </div>
+                </div>
+                or<br />email to
+                <div style="display:inline-block">
+                    <div>
+                        <input type="text" name="email_u" value="@Model.InfoModel.Email_U" id="id_current_user_email" style="width:420px">
+                    </div>
+                </div>.
+                <br />
+                And also please send B/L copy to us.
+            </div>
+            <br />
+            <br />
+            <div>
+                <div>
+                    <textarea name="textarea" cols="40" rows="3" limit-rows="" id="id_current_user_name_area" style="resize:none">@Model.InfoModel.TextArea</textarea>
+                </div>
+            </div>
+            <input type="hidden" name="office" value="@Model.InfoModel.Office" id="id_current_office">
+            <input type="hidden" name="address" value="@Model.InfoModel.Address" id="id_current_address">
+            <input type="hidden" name="tel" value="@Model.InfoModel.Tel" id="id_current_tel">
+            <input type="hidden" name="email" value="@Model.InfoModel.Email" id="id_current_email">
+            <input type="hidden" name="lastname" value="@Model.InfoModel.LastName" id="id_current_lastName">
+            <input type="hidden" name="firstname" value="@Model.InfoModel.FirstName" id="id_current_firstName">
+            <input type="hidden" name="datetime" value="@Model.InfoModel.DateTime" id="id_current_dateTime">
+            <input type="hidden" name="date_m" value="@Model.InfoModel.Date_M" id="id_current_date_m">
+            <input type="hidden" name="voyage" value="@Model.InfoModel.Voyage" id="id_current_voyage">
+            <input type="hidden" name="pol" value="@Model.InfoModel.Pol" id="id_current_pol">
+            <input type="hidden" name="consignee" value="@Model.InfoModel.Consignee" id="id_current_consignee">
+        </div>
+    </div>
+</div>
+</form>

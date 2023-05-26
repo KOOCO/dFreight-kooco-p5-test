@@ -1,0 +1,171 @@
+﻿@using Volo.Abp.AspNetCore.Mvc.UI.Components.LayoutHook
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Bundling
+@using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Themes.Basic.Components.MainNavbar
+@using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Themes.Basic.Components.Menu
+@using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Themes.Basic.Components.PageAlerts
+@using Volo.Abp.AspNetCore.Mvc.UI.Theming
+@using Volo.Abp.AspNetCore.Mvc.UI.Widgets.Components.WidgetScripts
+@using Volo.Abp.AspNetCore.Mvc.UI.Widgets.Components.WidgetStyles
+@using Volo.Abp.Localization
+@using Volo.Abp.Ui.Branding
+@inject IBrandingProvider BrandingProvider
+@inject IPageLayout PageLayout
+@{
+    Layout = null;
+    var containerClass = "container-fluid px-4"; //ViewBag.FluidLayout == true ? "container-fluid" : "container"; //TODO: Better and type-safe options
+
+    var pageTitle = ViewBag.Title == null ? BrandingProvider.AppName : ViewBag.Title; //TODO: Discard to get from Title
+
+    if (PageLayout.Content.Title != null)
+    {
+        if (!string.IsNullOrWhiteSpace(pageTitle))
+        {
+            pageTitle = " | " + pageTitle;
+        }
+
+        pageTitle = PageLayout.Content.Title + pageTitle;
+    }
+
+    var rtl = CultureHelper.IsRtl ? "rtl" : string.Empty;
+}
+
+<!DOCTYPE html>
+
+<html lang="@CultureInfo.CurrentCulture.Name" dir="@rtl">
+<head>
+    @await Component.InvokeLayoutHookAsync(LayoutHooks.Head.First, StandardLayouts.Application)
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>@pageTitle</title>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@500&family=Oswald:wght@500&display=swap">
+    <abp-style-bundle name="@BasicThemeBundles.Styles.Global" />
+    <!---->
+    <abp-style src="/css/tempus-dominus.css"></abp-style>
+    <abp-style src="/global-styles.css"></abp-style>
+    <abp-style src="/css/styles.css"></abp-style>
+
+    <abp-style src="/newwebsite/assets/bootstrap/css/bootstrap.min.css"></abp-style>
+    <abp-style src="/newwebsite/assets/bootstrap-select/css/bootstrap-select.min.css"></abp-style>
+
+    <abp-style src="/css/jquery.tag.css"></abp-style>
+    <abp-style src="/css/fix2.css"></abp-style>
+    <abp-style src="/css/fixTable.css"></abp-style>
+
+    <abp-style src="/newwebsite/assets/fontawesome/css/all.min.css"></abp-style>
+    <abp-style src="/newwebsite/css/style.css"></abp-style>
+    <abp-style src="/newwebsite/assets/datatables/responsive.dataTables.min.css"></abp-style>
+   
+    @await Component.InvokeAsync(typeof(WidgetStylesViewComponent))
+
+    @await RenderSectionAsync("styles", false)
+
+    @await Component.InvokeLayoutHookAsync(LayoutHooks.Head.Last, StandardLayouts.Application)
+</head>
+
+
+
+
+
+<body >
+    <div class="container main-container">
+
+        <div class="wrapper main-wrapper fixed-navbar">
+            
+             @await Component.InvokeLayoutHookAsync(LayoutHooks.Body.First, StandardLayouts.Application)
+           
+    <!-- Navbar-->
+    @(await Component.InvokeAsync<MainNavbarViewComponent>())
+           
+
+    <!-- LeftSideMenu-->
+    <aside>
+        <div class="sidebar" id="navBar">
+            <ul id="navigation" class="sidebar-menu">
+                  @(await Component.InvokeAsync<MainNavbarMenuViewComponent>())
+            </ul>
+        </div>
+    </aside>
+    <main role="main" class="main-content container-fluid">
+        <div class="content-wrapper">
+           
+            @(await Component.InvokeAsync<PageAlertsViewComponent>())
+            @await Component.InvokeLayoutHookAsync(LayoutHooks.PageContent.First, StandardLayouts.Application)
+            @RenderBody()
+            @await Component.InvokeLayoutHookAsync(LayoutHooks.PageContent.Last, StandardLayouts.Application)
+        </div>
+    </main>
+    <footer>
+        <div class="copyright">
+            <ul>
+                <li>Copyright © dFreight 2023 @RenderSection("content_toolbar", false)</li>
+            </ul>
+        </div>
+    </footer>
+
+    <abp-script-bundle name="@BasicThemeBundles.Scripts.Global" />
+
+    <script src="~/Abp/ApplicationConfigurationScript"></script>
+    <script src="~/Abp/ServiceProxyScript"></script>
+    <script>
+        $(function () {
+
+
+                    // selectpicker
+                    $('.selectpicker').on('hide.bs.select', function () {
+                        $(this).trigger("focusout");
+                    });
+
+
+                    // aside
+                    $('.sidebar-toggle-box').on('click', function (e) {
+                        e.preventDefault();
+                        $(this).toggleClass('open');
+                        $('body').toggleClass('hidden-left');
+                        $('#navbar-mobile').removeClass('show');
+                    })
+                    $('.toggle-right-box').on('click', function (e) {
+                        e.preventDefault();
+                        $('body').toggleClass('show-right');
+                    })
+
+
+                    if (768 >= $(window).width()) {
+                        $('body').addClass('mb');
+                    }
+
+                    if (768 < $(window).width()) {
+                        $('body').removeClass('show-right hidden-left').removeClass('mb');
+                    } else {
+                        $('body').addClass('mb');
+                    }
+
+
+
+                    if (1365 < $(window).width()) {
+                        $("#switch").click(function () {
+                            $('aside').toggleClass('on');
+                        });
+                    } else {
+                        $('aside').removeClass('on');
+                        $("#switch").prop("checked", false);
+
+                    }
+        });
+    </script>
+
+    @await Component.InvokeAsync(typeof(WidgetScriptsViewComponent))
+
+    @await RenderSectionAsync("scripts", false)
+
+    @await Component.InvokeLayoutHookAsync(LayoutHooks.Body.Last, StandardLayouts.Application)
+        </div>
+    </div>
+</body>
+
+
+</html>

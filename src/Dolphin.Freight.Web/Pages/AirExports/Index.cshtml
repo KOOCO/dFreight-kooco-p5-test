@@ -1,0 +1,38 @@
+﻿@page
+@using Dolphin.Freight.Localization;
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.Extensions.Localization;
+@model Dolphin.Freight.Web.Pages.AirExports.IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/Pages/AirExports/Index.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:AirExport"] />
+            <abp-breadcrumb-item title=@L["Menu:AirExport.List"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <abp-row class="w-100">
+                <abp-column size-md="_6">
+                    <abp-card-title>@L["Menu:AirExport.List"]</abp-card-title>
+                </abp-column>
+                <abp-column size-md="_6" class="text-end p-0">
+                    <abp-button id="NewMblButton"
+                                text="@L["Create"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                </abp-column>
+            </abp-row>
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table striped-rows="true" id="MblListTable"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

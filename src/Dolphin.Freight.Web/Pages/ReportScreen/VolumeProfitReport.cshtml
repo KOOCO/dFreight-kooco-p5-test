@@ -1,0 +1,425 @@
+﻿@page
+@using Dolphin.Freight.AirExports
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.ReportScreen.VolumeProfileReportModel
+@inject IStringLocalizer<FreightResource> L
+@section styles
+    {
+    <style>
+        .redStar::before {
+            content: "*";
+            color: red;
+        }
+    </style>
+}
+@section scripts
+    {
+    <abp-script src="/Pages/ReportScreen/VolumeProfitReport.js" />
+
+    <script type="text/javascript">
+
+        var l = abp.localization.getResource('Freight');
+
+        $(document).ready(function () {
+
+            // Awb Cancel Area
+            $("#checkboxAwbCancelled").change(function () {
+                if (this.checked) {
+                    console.log("here");
+                    $("#AwbCancelledDate").removeAttr("disabled");
+                    $("#AwbCancelledOpId").removeAttr("disabled");
+                    $("#ReasonForCancel").removeAttr("disabled");
+                    $("#AwbCancelledDate").val(getDate());
+                } else {
+                    $("#AwbCancelledDate").attr("disabled", "disabled");
+                    $("#AwbCancelledOpId").attr("disabled", "disabled");
+                    $("#ReasonForCancel").attr("disabled", "disabled");
+                    $("#AwbCancelledDate").val('');
+                    $("#AwbCancelledOpId").val('');
+                    $("#ReasonForCancel").val('');
+
+                }
+            });
+
+            // Calculate Weight Kg to Lb
+            $("#GrossWeightKg").on('keyup', function () {
+                $("#GrossWeightLb").val(Math.round($("#GrossWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            $("#AwbGrossWeightKg").on('keyup', function () {
+                $("#AwbGrossWeightLb").val(Math.round($("#AwbGrossWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            $("#ChargeableWeightKg").on('keyup', function () {
+                $("#ChargeableWeightLb").val(Math.round($("#ChargeableWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            $("#AwbChargeableWeightKg").on('keyup', function () {
+                $("#AwbChargeableWeightLb").val(Math.round($("#AwbChargeableWeightKg").val() * 2.2046226218 * 100) / 100);
+            });
+            // Calculate Weight Lb to Kg
+            $("#GrossWeightLb").on('keyup', function () {
+                $("#GrossWeightKg").val(Math.round($("#GrossWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+            $("#AwbGrossWeightLb").on('keyup', function () {
+                $("#AwbGrossWeightKg").val(Math.round($("#AwbGrossWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+            $("#ChargeableWeightLb").on('keyup', function () {
+                $("#ChargeableWeightKg").val(Math.round($("#ChargeableWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+            $("#AwbChargeableWeightLb").on('keyup', function () {
+                $("#AwbChargeableWeightKg").val(Math.round($("#AwbChargeableWeightLb").val() * 0.45359237 * 100) / 100);
+            });
+        });
+
+        $('#createForm').on('abp-ajax-success', function () {
+            event.preventDefault();
+            abp.message.success('Successfully saved.');
+        });
+
+        function getDate() {
+            var date = new Date();
+            var dd = date.getDate();
+            var mm = date.getMonth() + 1;
+            var yyyy = date.getFullYear();
+            var todayDate = mm + "-" + dd + "-" + yyyy;
+            return todayDate;
+        }
+
+        function showTable() {
+
+            var isDataTable = $.fn.dataTable.isDataTable('#mawReport');
+
+            if(!isDataTable){
+                var dataTable = $('#mawReport').DataTable(
+                    abp.libs.datatables.normalizeConfiguration({
+                        serverSide: true,
+                        paging: true,
+                        order: [[1, "asc"]],
+                        searching: true,
+                        scrollX: true,
+                        processing: true,
+                        ajax: abp.libs.datatables.createAjax(dolphin.freight.reportLog.reportLog.getMawbReport),
+                        columnDefs: [
+                            {
+                                title: l('reportType'),
+                                data: 'reportType'
+                            },
+                            {
+                                title: l('no'),
+                                data: "no"
+                            },
+                            {
+                                title: l('consigneeId'),
+                                data: 'consigneeId'
+                            },
+                            {
+                                title: l('overseaAgentId'),
+                                data: 'overseaAgentId'
+                            },
+                            {
+                                title: l('officeId'),
+                                data: "officeId"
+                            },
+                            {
+                                title: l('free'),
+                                data: "free"
+                            }
+                        ]
+                    })
+                );
+            }
+
+            $('#result').toggle();
+            
+        }
+    </script>
+}
+<form abp-model="MawbModel" submit-button="true" data-ajaxForm="true" id="createForm">
+    <abp-row>
+        <abp-column size-md="_10">
+            <abp-card border="Dark">
+                <!-- 標題區域 -->
+                <abp-card-header style="background:#555555;color:#FFFFFF;">
+                    <abp-row>
+                        <abp-column size-md="_9">
+                            <abp-card-title>
+                                @L["Title:VolumeProfileReport"]
+        
+                            </abp-card-title>
+                        </abp-column>
+                        <abp-column size-md="_3" class="text-end">
+                            <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#mawbDiv" aria-expanded="false" aria-controls="mawbDiv">
+                                <i class="fa fa-caret-down" style="color:#FFFFFF;"></i>
+                            </button>
+                        </abp-column>
+                    </abp-row>
+                </abp-card-header>
+                <!-- Mawb資訊欄 -->
+                <abp-card-body id="mawbDiv">
+                    <!--第一列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.Report" class="form-label">Report</label>
+                            <abp-radio asp-for="VPRM.Report" asp-items="Model.ReportList" inline="true" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.OutputFormat" class="form-label">Output Format</label>
+                            <abp-radio asp-for="VPRM.OutputFormat" asp-items="Model.Format" inline="true" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.PeriodType" class="form-label">Period Type</label>
+                            <abp-radio asp-for="VPRM.PeriodType" asp-items="Model.PeriodType" inline="true" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.PeriodRange" class="form-label">Period Range</label>
+                            <input asp-for="VPRM.PeriodRange" class="form-control" />
+                        </abp-column>
+                   
+
+                    </abp-row>
+                    <!--第二列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.Office" size="Small" asp-items="@Model.Office">
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.ShippingType" class="form-label">Shipping Type</label>
+                            <input asp-for="VPRM.ShippingType" class="form-control" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.Currency" size="Small" asp-items="@Model.Currency">
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.Profit" class="form-label">Profite</label>
+                            <abp-radio asp-for="VPRM.Profit" asp-items="Model.Profit" inline="true" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.ShipMode" size="Small" asp-items="@Model.ShipMode">
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                    <!--第三列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.FreightCode" size="Small" asp-items="@Model.FreightCode">
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.FreightTerm" size="Small" asp-items="@Model.FreightTerm">
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.Detail" class="form-label">Detail</label>
+                            <input asp-for="VPRM.Detail" class="form-control" />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.Sales" size="Small" asp-items="@Model.Sales">
+                            </abp-select>
+                            <span asp-validation-for="MawbModel.OfficeId" class="text-danger"></span>
+                        </abp-column>
+                    </abp-row>
+                    <!--第四列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.OutputType" size="Small" asp-items="@Model.OutputType">
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.ServiceTermStart" size="Small" asp-items="@Model.ServiceTermStart"></abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.ServiceTermEnd" size="Small" asp-items="@Model.ServiceTermEnd">
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.Status" size="Small" asp-items="@Model.Status">
+                            </abp-select>
+                        </abp-column>
+                    </abp-row>
+                    <!--第五列-->
+                    <abp-row>
+                        <abp-column size-md="_3">
+                            <label asp-for="VPRM.SalesType" class="form-label">Sales Type</label>
+                            <input asp-for="VPRM.SalesType" class="form-control"   />
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.InvoiceType" size="Small" asp-items="@Model.InvoiceType">
+                            </abp-select>
+                        </abp-column>
+                        <abp-column size-md="_3">
+                            <abp-select asp-for="VPRM.ECommerce" size="Small" asp-items="@Model.ECommerce">
+                            </abp-select>
+                        </abp-column>
+           
+                    </abp-row>
+                    <!--第六列-->
+                    <abp-row>
+                        <label asp-for="VPRM.OutputBy" class="form-label">Output By</label>
+                     <abp-row>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Shipper" label="Shipper" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.OverseaAgent" label="Oversea Agent" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Consignee" label="Consignee" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Customer" label="Customer" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Carrier" label="Carrier" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.CustomsBroker" label="Customs Broker" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Trucker" label="Trucker" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.AccountGroup" label="Account Group" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.BillTo" label="Bill To" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.ReferredBy" label="Referred By" />
+                            </abp-column>
+                             <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.OutputOffice" label="Output Office" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.ETD" label="ETD" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.ETA" label="ETA" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.OutputFreightTerm" label="Freight Term" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Incoterms" label="Incoterms" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.ServiceTerm" label="Service Term" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.MBLOP" label="MB/L OP" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Operation" label="Operation" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.OPCOOPOP" label="OP/Co-op OP" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.ShipLine" label="Ship Line" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.POL" label="POL" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.POD" label="POD" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.CountryOfPOL" label="Country of POL" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.CountryOfPOD" label="Country of POD" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.DEL" label="DEL" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.FinalDestination" label="Final Destination" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.VesselFlight" label="Vessel / Flight" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.MblMawbWarehouse" label="MBL / MAWB No. / Warehouse B/L No." />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.HblHawb" label="HB/L | HAWB No." />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.OutputFile" label="File No." />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.DoorMove" label="Door Move" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.Clearance" label="C.Clearance" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.ISF" label="ISF No." />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.FBAFC" label="FBA FC" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.OutputSalesType" label="Sales Type" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.HblNominatedAgent" label="HB/L Referred By / Nominated Agent" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.OutputECommerce" label="E-Commerce" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.ForwardingAgent" label="Forwarding Agent" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.CarrierContractNo" label="Carrier Contract No." />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.MblColorRemark" label="MBL Color Remark" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.HblColorRemark" label="HBL Color Remark" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.CoLoader" label="Co-Loader" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.BlType" label="B/L Type" />
+                            </abp-column>
+                            <abp-column size-md="Auto">
+                                <abp-input size-md="Auto" asp-for="VPRM.LatestGateIn" label="Latest Gate In" />
+                            </abp-column>
+                     </abp-row>
+                    </abp-row>        
+                </abp-card-body>
+            </abp-card>
+        </abp-column>
+    </abp-row>
+    <!-- 下方Save按鈕 -->
+    <abp-row class="mt-3">
+        <abp-column>
+            <button class="btn btn-block btn-primary" type="button" id="showResultBtn" onclick="showTable()">
+                <i class="fa-solid"></i>Show Result
+            </button>
+        </abp-column>
+    </abp-row>
+    <abp-row>
+        <abp-column>
+            &nbsp;
+        </abp-column>
+    </abp-row>
+
+</form>
+
+<div id="result" style="display:none;">
+    <abp-row>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="mawReport" class="stripe row-border order-column" style="width:100%;">
+
+        </abp-table>
+    </abp-card-body>
+</abp-row>
+
+
+</div>
+

@@ -1,0 +1,123 @@
+﻿@model Dolphin.Freight.Web.Pages.OceanExports.PrintExport.MblPrintModel
+@{
+    Layout = null;
+}
+<html>
+<head>
+<style type="text/css">
+    body{
+  
+        background-color:#000000;
+    }   
+    .printbody
+    {
+
+        width: 1024px;
+        background-color:#ffffff;
+        margin:0px auto;
+        height:100%;
+        padding:20px;
+    }
+    .printParent{
+        text-align:center;
+        align:center;
+        margin:0px auto;
+    }
+    .printTable
+    {
+        position: relative;
+        top:20px;
+        left:5%
+    }
+    .officedes
+    {
+        width: 365px;
+        height: 75px;
+        line-height: 0.6em;
+    }
+    .msgbox
+    {
+        border-left: 2pt #31437c solid;
+        border-bottom: .25pt #31437c solid;
+    }
+    .printTextarea
+    {
+        position: relative;
+        left:5px;
+        button:5px;
+    }
+}
+</style>
+</head>
+<body>
+    <div class="printParent">
+         <img src="~/img/pdf.png" width="40px;"/>
+         <img src="~/img/print.png" width="40px;"/>
+        <div class="printbody">
+            
+            <hr style='width:90%'/>
+            <table width="90%" class="printTable">
+                <tr>
+                    <td  width="15%">
+                        <img src="~/img/printlogo.png" width="103px;" height="103px;"/>
+                    </td>
+                    <td width="50%">
+                        <h1 class="auto-font-size office-name">
+                            <span>Dolphin Logistics Taipei Office</span>
+                        </h1>
+                        <div class="auto-font-size office-des">
+                            <span>
+                                 <br>
+                                    TEL: +886-2-2545-9900#8671<br>
+                                    EMAIL: it@dolphin-gp.com
+                                    <br><strong>Prepared by  萬泰 02-14-2023 09:11 (CST)</strong>
+                                
+                            </span>
+                        </div>
+                    </td>
+                    <td width="40%">
+                        <div style="width:80%;border-style:solid;height:100px;">ehi</div>
+                    </td>
+                </tr>
+            </table>
+            <table  width="90%" class="printTable">
+                <tr>
+                    <td width="50%">
+                        <div class="msgbox">
+                            SHIPPER / EXPORTER
+                            <textarea rows="4" cols="56" class="printTextarea"></textarea>
+                        </div>
+                    </td>
+                    <td width="50%" rowspan="4">aaa</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="msgbox">
+                            CONSIGNEE
+                            <textarea rows="4" cols="56" class="printTextarea"></textarea>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                       <div class="msgbox">
+                            NOTIFY PARTY
+                            <textarea rows="4" cols="56" class="printTextarea"></textarea>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                       <div class="msgbox">
+                            NOTIFY PARTY
+                            <textarea rows="4" cols="56" class="printTextarea"></textarea>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+</body>
+</html>

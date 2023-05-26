@@ -1,0 +1,47 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Dolphin.Freight.Web.Pages.DisplaySetting
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+
+
+@model IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/Pages/Settings/DisplaySetting/Index.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Settings"] />
+            <abp-breadcrumb-item title=@L["Menu:DisplaySetting"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <div class="p-3">
+            <div>已完成票貨定義</div>
+            <div>
+                請設置完成裝運的天數。此設置將應用於客戶門戶，客戶可以在其中選擇顯示或隱藏已完成票貨。
+            </div>
+            <div>
+                <p>
+                    裝運旅程的最後階段後多少天將被視為“已完成票貨”？
+                </p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="14" aria-label="CompleteDay" aria-describedby="save">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button">@L["save"]</button>
+                    </div>
+                </div>
+                <p> 已完成票貨定義：抵達運輸行程最後一階段並且經過 14 天的票貨 </p>
+            </div>
+        </div>
+
+
+    </abp-card>
+</div>

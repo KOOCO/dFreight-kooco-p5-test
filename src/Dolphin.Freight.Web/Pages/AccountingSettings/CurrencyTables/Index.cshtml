@@ -1,0 +1,40 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.AccountingSetting.CurrencyTables.IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/Pages/AccountingSettings/CurrencyTables/Index.js" />
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:AccountingSettings"] />
+            <abp-breadcrumb-item title=@L["Menu:CurrencyTables"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <abp-row>
+                <abp-column size-md="_6">
+                    <abp-card-title>@L["Menu:CurrencyTables"]</abp-card-title>
+                </abp-column>
+                <abp-column size-md="_6" class="text-end">
+                    <abp-button id="NewCurrencyTableButton"
+                                text="@L["Create"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                </abp-column>
+            </abp-row>
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table striped-rows="true" id="CurrencyTablesTable"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>
+

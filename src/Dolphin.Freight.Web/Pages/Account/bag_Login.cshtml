@@ -1,0 +1,38 @@
+﻿@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.Account.Localization
+@using Volo.Abp.Account.Settings
+@using Volo.Abp.Settings
+@model Acme.BookStore.Web.Pages.Account.CustomLoginModel
+@inject IHtmlLocalizer<AccountResource> L
+@inject Volo.Abp.Settings.ISettingProvider SettingProvider
+
+@if (Model.EnableLocalLogin)
+{
+    <div class="card mt-3 shadow-sm rounded">
+        <div class="card-body p-5">
+            <h4>@L["Login"]</h4>
+            <form method="post" class="mt-4">
+                <input asp-for="ReturnUrl" />
+                <input asp-for="ReturnUrlHash" />
+                <div class="form-group">
+                    <label asp-for="LoginInput.UserNameOrEmailAddress"></label>
+                    <input asp-for="LoginInput.UserNameOrEmailAddress" class="form-control" />
+                    <span asp-validation-for="LoginInput.UserNameOrEmailAddress" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LoginInput.Password"></label>
+                    <input asp-for="LoginInput.Password" class="form-control" />
+                    <span asp-validation-for="LoginInput.Password" class="text-danger"></span>
+                </div>
+                <div class="form-check">
+                    <label asp-for="LoginInput.RememberMe" class="form-check-label">
+                        <input asp-for="LoginInput.RememberMe" class="form-check-input" />
+                        @Html.DisplayNameFor(m => m.LoginInput.RememberMe)
+                    </label>
+                </div>
+                <abp-button type="submit" button-type="Primary" name="Action" value="Login" class="btn-block btn-lg mt-3">@L["Login"]</abp-button>
+            </form>
+        </div>
+    </div>
+}

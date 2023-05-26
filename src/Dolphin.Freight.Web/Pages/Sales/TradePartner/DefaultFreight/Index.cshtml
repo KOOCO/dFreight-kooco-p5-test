@@ -1,0 +1,151 @@
+﻿@page "{id:Guid}"
+@using Dolphin.Freight.Accounting;
+@using Dolphin.Freight.Localization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<FreightResource> L
+@model Dolphin.Freight.Web.Pages.Sales.TradePartner.DefaultFreight.IndexModel
+@{
+}
+@section styles {
+    <style>
+        .title {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .tab-pane {
+            padding-top: 25px;
+        }
+
+        .default-freight-block:not(:last-of-type) {
+            margin-bottom: 25px;
+        }
+    </style>
+}
+@section scripts{
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <abp-script src="/Pages/Sales/TradePartner/DefaultFreight/Index.js" />
+    <script>
+        const l = abp.localization.getResource('Freight');
+        const tradePartnerId = '@Model.Id';
+        const categoryMapper = [];
+        @foreach (var row in Enum.GetValues(typeof(DefaultFreightCategory)))
+        {
+            @Html.Raw(String.Format("categoryMapper['{0}'] = {1};", row, (int)row))
+        }
+        const pcMapper = [];
+        @foreach (var row in Enum.GetValues(typeof(PCType)))
+        {
+            @Html.Raw(String.Format("pcMapper[{0}] = '{1}';", (int)row, L["Display:TradePartner:DefaultFreight:" + row]))
+        }
+        const unitMapper = [];
+        @foreach (var row in Enum.GetValues(typeof(UnitType)))
+        {
+            @Html.Raw(String.Format("unitMapper[{0}] = '{1}';", (int)row, row.ToString().Replace('_', ' ')))
+        }
+        const typeMapper = {
+            ar: [],
+            ap: [],
+            dc: [],
+        };
+        @foreach (var row in Enum.GetValues(typeof(DefaultFreightARType)))
+        {
+            @Html.Raw(String.Format("typeMapper['ar'][{0}] = '{1}';", (int)row, L["Display:TradePartner:DefaultFreight:" + row]))
+        }
+        @foreach (var row in Enum.GetValues(typeof(DefaultFreightAPType)))
+        {
+            @Html.Raw(String.Format("typeMapper['ap'][{0}] = '{1}';", (int)row, L["Display:TradePartner:DefaultFreight:" + row]))
+        }
+        @foreach (var row in Enum.GetValues(typeof(DefaultFreightDCType)))
+        {
+            @Html.Raw(String.Format("typeMapper['dc'][{0}] = '{1}';", (int)row, L["Display:TradePartner:DefaultFreight:" + row]))
+        }
+    </script>
+}
+
+<nav class="submenu">
+    <ol>
+        <li class="menu-item">
+            <a class="nav-link" href="/Sales/TradePartner/EditTradePartnerInfo/@Model.Id">@L["Display:TradePartner:NavTab:Basic"]</a>
+        </li>
+        <li class="menu-item active">
+            <a class="nav-link" href="javascript:void(0)">@L["Display:TradePartner:NavTab:AccountingSetting"]</a>
+        </li>
+        <li class="menu-item">
+            <a class="nav-link disabled" href="javascript:void(0)">@L["Display:TradePartner:NavTab:DocCenter"]</a>
+        </li>
+        <li class="menu-item">
+            <a class="nav-link disabled" href="javascript:void(0)">@L["Display:TradePartner:NavTab:Status"]</a>
+        </li>
+    </ol>
+</nav>
+
+<abp-card>
+    <abp-card-body>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            @{
+                string className = "active";
+            }
+            @foreach (var row in Enum.GetNames(typeof(DefaultFreightCategory)))
+            {
+                <li class="nav-item">
+                    <a class="nav-link @className" data-toggle="tab" href="#tab-@row" data-category="@row" role="tab">@L["Display:TradePartner:DefaultFreight:NavTab:" + row]</a>
+                </li>
+                className = "";
+            }
+        </ul>
+        <div class="tab-content">
+            @{
+                className = "show active";
+            }
+            @foreach (var row in Enum.GetNames(typeof(DefaultFreightCategory)))
+            {
+                <div class="tab-pane fade @className" id="tab-@row" role="tabpanel">
+                    <abp-row>
+                        <abp-column>
+                            <abp-button class="add-default-freight"
+                                    text=@L["Display:Button:New"]
+                                    icon="plus"
+                                    button-type="Outline_Secondary"
+                                        data-category="@row"
+                                        data-type="ar" />
+                            <span class="title">@L["Display:TradePartner:DefaultFreight:AR"]</span>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row class="default-freight-block">
+                        <abp-table small="true" border-style="Bordered" class="default-freight-table" data-type="ar" data-category="@row"></abp-table>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-button class="add-default-freight"
+                                    text=@L["Display:Button:New"]
+                                    icon="plus"
+                                    button-type="Outline_Secondary"
+                                        data-category="@row"
+                                        data-type="ap" />
+                            <span class="title">@L["Display:TradePartner:DefaultFreight:AP"]</span>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row class="default-freight-block">
+                        <abp-table small="true" border-style="Bordered" class="default-freight-table" data-type="ap" data-category="@row"></abp-table>
+                    </abp-row>
+                    <abp-row>
+                        <abp-column>
+                            <abp-button class="add-default-freight"
+                                    text=@L["Display:Button:New"]
+                                    icon="plus"
+                                    button-type="Outline_Secondary"
+                                        data-category="@row"
+                                        data-type="dc" />
+                            <span class="title">@L["Display:TradePartner:DefaultFreight:DC"]</span>
+                        </abp-column>
+                    </abp-row>
+                    <abp-row class="default-freight-block">
+                        <abp-table small="true" border-style="Bordered" class="default-freight-table" data-type="dc" data-category="@row"></abp-table>
+                    </abp-row>
+                </div>
+                className = "";
+            }
+        </div>
+    </abp-card-body>
+</abp-card>

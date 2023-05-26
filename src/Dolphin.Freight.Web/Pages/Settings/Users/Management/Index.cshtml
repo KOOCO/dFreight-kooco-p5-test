@@ -1,0 +1,56 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Pages.Shared.Components.AbpPageToolbar
+@using Volo.Abp.Identity
+@using Volo.Abp.Identity.Localization
+@using Volo.Abp.Identity.Web.Navigation
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Microsoft.Extensions.Localization
+@using Dolphin.Freight.Web.Pages.User.Management
+@model Dolphin.Freight.Web.Pages.User.Management.IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/client-proxies/identity-proxy.js" />
+    <abp-script src="/Pages/AbpPermissionManagement/permission-management-modal.js" />
+    <abp-script src="/Pages/identity/users/index.js" />
+    <abp-script src="/Pages/Settings/Users/Management/Index.js" />
+    <abp-script src="/Pages/Account/Components/ProfileManagementGroup/Password/Default.js" />
+}
+@section styles {
+    <abp-style-bundle name="@typeof(IndexModel).FullName">
+        <abp-style src="/Pages/AbpPermissionManagement/permission-management-modal.css" />
+        <abp-style src="/Pages/identity/users/index.css" />
+    </abp-style-bundle>
+}
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Settings"] />
+            <abp-breadcrumb-item title=@L["Menu:UserManagement"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    @section content_toolbar {
+        @await Component.InvokeAsync(typeof(AbpPageToolbarViewComponent), new { pageName = typeof(IndexModel).FullName })
+    }
+    <abp-card id="IdentityUsersWrapper">
+        <abp-card-header>
+            <abp-row>
+                <abp-column size-md="_6">
+                    <abp-card-title>Users</abp-card-title>
+                </abp-column>
+                <abp-column size-md="_6">
+                    <abp-card-title><button name="CreateUser" class="mx-1 btn btn-primary btn-sm" type="button" data-busy-text="Processing..."><i class="fa fa-plus"></i> <span>New user</span></button></abp-card-title>
+                </abp-column>
+            </abp-row>
+        </abp-card-header>
+        <abp-card-body>
+            <abp-table striped-rows="true"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>

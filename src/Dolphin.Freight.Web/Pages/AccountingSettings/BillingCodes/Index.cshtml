@@ -1,0 +1,42 @@
+﻿@page
+@using Dolphin.Freight.Localization
+@using Dolphin.Freight.Permissions
+@using Dolphin.Freight.Web.Pages.Settings.PackageUnits
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model Dolphin.Freight.Web.Pages.AccountingSetting.BillingCodes.IndexModel
+@inject IStringLocalizer<FreightResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts{
+    <abp-script src="/Pages/AccountingSettings/BillingCodes/Index.js" />
+}
+<style type="text/css">
+    #BillingCodesTable th {
+        width: 200px;
+    }
+</style>
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:AccountingSettings"] />
+            <abp-breadcrumb-item title=@L["Menu:BillingCodes"] href="#" />
+        </abp-breadcrumb>
+    </div>
+</div>
+<div class="page-content-area">
+    <abp-card>
+        <abp-card-header>
+            <div class="title">
+                @L["Menu:BillingCodes"]
+            </div>
+            <abp-button id="NewBillingCodeButton"
+                        text="@L["Create"].Value"
+                        icon="plus"
+                        class="btn btn-add" />
+        </abp-card-header>
+        <abp-card-body style="overflow-x:scroll">
+            <abp-table striped-rows="true" id="BillingCodesTable" style="table-layout:auto;width:4096px;overflow:scroll"></abp-table>
+        </abp-card-body>
+    </abp-card>
+</div>
+
