@@ -268,14 +268,32 @@ namespace Dolphin.Freight.Web.Pages.Accounting
 
                 }
             }
-            var invoice = await _invoiceAppService.CreateAsync(InvoiceDto);
+
+            var invoice = new InvoiceDto();
+
+            if (InvoiceDto.Id == Guid.Empty)
+            {
+                invoice = await _invoiceAppService.CreateAsync(InvoiceDto);
+            }
+            else
+            {
+                invoice = await _invoiceAppService.UpdateAsync(InvoiceDto.Id, InvoiceDto);
+            }
             InvoiceDto.Id = invoice.Id;
+
             if (InvoiceBillDtos != null && InvoiceBillDtos.Count > 0) 
             {
                 foreach (var dto in InvoiceBillDtos) 
                 { 
                     dto.InvoiceId = invoice.Id;
-                    await _invoiceBillAppService.CreateAsync(dto);
+                    if(dto.Id == Guid.Empty) 
+                    {
+                        await _invoiceBillAppService.CreateAsync(dto);
+                    }
+                    else
+                    {
+                        await _invoiceBillAppService.UpdateAsync(dto.Id, dto);
+                    }
                 }
             }
             Dictionary<string, object> rs = new Dictionary<string, object>();
