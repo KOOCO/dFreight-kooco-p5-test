@@ -15,20 +15,6 @@
         var CurrencyItems = [];
         var InvoiceBills = [];
         $(document).ready(function () {
-            dolphin.freight.accounting.invoiceBills.invoiceBill.queryInvoiceBills({
-                InvoiceNo: '@Model.InvoiceId'
-            }).done(function (result) {
-                InvoiceBills = result;
-                result.forEach(function (bill) {
-                    addItems(bill);
-                })
-            });
-            dolphin.freight.accountingSettings.billingCodes.billingCode.queryListForTag({
-                IsUsed: true, BillType: @Model.InvoiceType, MethodType: @Model.MethodType
-                                }).done(function (result) {
-                    BillCodeItems = result;
-
-                });
             dolphin.freight.common.ajaxDropdown.getSysCodeDtosByType({ queryType: 'PPOrCC' }).done(function (result) {
                 if (result != null && result.length > 0) {
                     PPOrCCItems = result;
@@ -57,11 +43,17 @@
 
             dolphin.freight.common.ajaxDropdown.getAllTradePartners({}).done(function (result) {
                 var selectItems = result;
-                initTradePartnerSelect(selectItems, "InvoiceCompanyId", $("#mInvoiceCompanyId").val());
-                initTradePartnerSelect(selectItems, "ShipToId", $("#mShipToId").val());
-
-
+                //initTradePartnerSelect(selectItems, "InvoiceCompanyId", $("#mInvoiceCompanyId").val());
+                //initTradePartnerSelect(selectItems, "ShipToId", $("#mShipToId").val());
             });
+
+            dolphin.freight.accountingSettings.billingCodes.billingCode.queryListForTag({
+                IsUsed: true, BillType: @Model.InvoiceType, MethodType: @Model.MethodType
+                                }).done(function (result) {
+                    BillCodeItems = result;
+                    getInvoiceBills();
+                });
+
             $("#addBtn").click(function () {
                 addItems();
             });
@@ -93,7 +85,20 @@
             $("#deleteBtn").click(function () {
                 $(".checkItem").each(function () {
                     if ($(this).prop("checked")) {
-                        $(this).parent().parent().remove()
+                        let parent =  $(this).parent().parent();
+                        let id = parent.attr('id');
+                        let index = id.substr(id.lastIndexOf('_') + 1);
+                        let invoiceBillId = parent.find('[name="InvoiceBillDtos[' + index + '].Id"]').attr('value')
+
+                        if(invoiceBillId){
+                            dolphin.freight.accounting.invoiceBills.invoiceBill.delete(invoiceBillId).done(function (result) {
+                                parent.remove();
+                            });
+                        }
+                        else{
+                            parent.remove();
+                        }
+                        
                     }
                 })
             })
@@ -134,21 +139,45 @@
 
             });
         });
+
+        function onQuantityChange(e){
+            let target = e.currentTarget || e.srcElement || e.target;
+            let quantity = parseInt($(target).val() || 0);
+            let rate = parseInt($(target).parent().next().children().val() || 0);
+            $(target).parent().next().next().children().text(quantity * rate);
+        }
+
+        function onRateChange(e){
+            let target = e.currentTarget || e.srcElement || e.target;
+            let rate = parseInt($(target).val() || 0);
+            let quantity = parseInt($(target).parent().prev().children().val() || 0);
+            $(target).parent().next().children().text(quantity * rate);
+        }
+
+        function getInvoiceBills()
+        {
+            dolphin.freight.accounting.invoiceBills.invoiceBill.queryInvoiceBills({
+                InvoiceNo: '@Model.InvoiceId'
+            }).done(function (result) {
+                InvoiceBills = result;
+                result.forEach(function (bill) {
+                    addItems(bill);
+                })
+            });
+        }
+
         var index = 0;
         function addItems(bill) {
             bill = bill || {};
-            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' type='checkbox' name='InvoiceBillDtos[" + index + "].Id' id='InvoiceBillDtosId_" + index + "' value='new_" + index + "'/></td>";
+            let amount = parseInt(bill.quantity || 0) * parseInt(bill.rate || 0);
+            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' value="+(bill.id || '')+" type = 'checkbox' name = 'InvoiceBillDtos[" + index + "].BillId' id = 'InvoiceBillDtosId_" + index + "' value = 'new_" + index + "' /> </td>";
             trhtml = trhtml + "<td>" + getBillCodeSelect(index, '', (bill.code || '')) + "</td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Description' value='"+(bill.description || '')+"' id='Description_" + index + "' /></td>";
-            trhtml = trhtml + "<td>" + getPPOrCCSelect(index, '', (bill.ppOrCC || '')) + "</td>";
-            trhtml = trhtml + "<td>" + getBillTypeSelect(index, '', (bill.billType || '')) + "</td>";
-            trhtml = trhtml + "<td>" + getUnitSelect(index, '', (bill.unit || '')) + "</td>";
-            trhtml = trhtml + "<td>" + getCurrencySelect(index, '', (bill.currency || '')) + "</td>";
-            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' value='" + (bill.quantity || '')+ "' id='Quantity_" + index + "' /></td>";
-            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' value='" + (bill.rate || '')+ "' id='Rate_" + index + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' /></td>";
-            trhtml = trhtml + "<td id='td_Amount_" + index + "' value='" + (bill.amount || '') + "'></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' onchange='onQuantityChange(event)' value='" + (bill.quantity || '')+ "' id='Quantity_" + index + "' /></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' onchange='onRateChange(event)' value='" + (bill.rate || '')+ "' id='Rate_" + index + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' /></td>";
+            trhtml = trhtml + "<td id='td_Amount_" + index + "' value='" + (bill.amount || '') + "'><label name='InvoiceBillDtos[" + index + "].AmountLabel'>" + amount + "</label></td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].AmountToAgent' id='AmountToAgent_" + index + "' value='" + (bill.amountToAgent || '') + "' /></td>";
-            trhtml = trhtml + "<td  style='text-align:center'><input type='checkbox' name='InvoiceBillDtos[" + index + "].IsNonProfit' id='IsNonProfit_" + index + "'" + (bill.isNonProfit? "checked" : "")+" /></td>";
+            trhtml = trhtml + "<td  style='text-align:center'><input type='checkbox' name='InvoiceBillDtos[" + index + "].IsNonProfit' id='IsNonProfit_" + index + "'" + (bill.isNonProfit? "checked" : "")+" disabled /></td>";
             trhtml = trhtml + "<td><input type='hidden' name='InvoiceBillDtos[" + index + "].Id' value='" + (bill.id || '') + "'></td>";
             trhtml = trhtml + "<td></td></tr>";
             $("#trtbody").append(trhtml);
@@ -157,19 +186,16 @@
 
         function copyItems(id) {
             id = id.replace("new_", "");
-            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' type='checkbox' name='InvoiceBillDtos[" + index + "].Id' id='InvoiceBillDtosId_" + index + "' value='new_" + index + "'/></td>";
+            let amount = parseInt($("#Description_" + id).val() || 0) * ($("#Rate_" + id).val() || 0);
+            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' type='checkbox' name='InvoiceBillDtos[" + index + "].BillId' id='InvoiceBillDtosId_" + index + "' value='new_" + index + "'/></td>";
             trhtml = trhtml + "<td>" + getBillCodeSelect(index, '') + "</td>";
-            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Description' id='Description_" + index + "' value='" + $("#Description_" + id).val() + "' /></td>";
-            trhtml = trhtml + "<td>" + getPPOrCCSelect(index, '') + "</td>";
-            trhtml = trhtml + "<td>" + getBillTypeSelect(index, '') + "</td>";
-            trhtml = trhtml + "<td>" + getUnitSelect(index, '') + "</td>";
-            trhtml = trhtml + "<td>" + getCurrencySelect(index, '') + "</td>";
-            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' id='Quantity_" + index + "' value='" + $("#Quantity_" + id).val() + "' /></td>";
-            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' id='Rate_" + index + "' value='" + $("#Rate_" + id).val() + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' value='" + $("#Amount_" + id).val() + "'  /></td>";
-            trhtml = trhtml + "<td id='td_Amount_" + index + "'></td>";
-            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].AmountToAgent' id='AmountToAgent_" + index + "' value='" + $("#AmountToAgent_" + id).val() + "'  /></td>";
-            trhtml = trhtml + "<td  style='text-align:center'><input type='checkbox' name='InvoiceBillDtos[" + index + "].IsNonProfit' id='IsNonProfit_" + index + "'/></td>";
-            trhtml = trhtml + "<td><input type='hidden' name='InvoiceBillDtos[" + index + "].Id' value='" + (bill.id || '') + "'></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Description' id='Description_" + index + "' value='" + ($("#Description_" + id).val() || '') + "' /></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' id='Quantity_" + index + "' value='" + ($("#Quantity_" + id).val() || '') + "' /></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' id='Rate_" + index + "' value='" + ($("#Rate_" + id).val() || '') + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' value='" + $("#Amount_" + id).val() + "'  /></td>";
+            trhtml = trhtml + "<td id='td_Amount_" + index + "'><label name='InvoiceBillDtos[" + index + "].AmountLabel'>" + amount + "</label></td>";
+            trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].AmountToAgent' id='AmountToAgent_" + index + "' value='" + ($("#AmountToAgent_" + id).val() || '') + "'  /></td>";
+            trhtml = trhtml + "<td  style='text-align:center'><input type='checkbox' name='InvoiceBillDtos[" + index + "].IsNonProfit' id='IsNonProfit_" + index + "' disabled /></td>";
+            trhtml = trhtml + "<td><input type='hidden' name='InvoiceBillDtos[" + index + "].Id'></td>";
             trhtml = trhtml + "<td></td></tr>";
             $("#trtbody").append(trhtml);
             index++;
@@ -177,6 +203,7 @@
 
         function getBillCodeSelect(id, billCode, value) {
             var selectHtml = "<select name='InvoiceBillDtos[" + index + "].Code' id='Code_" + id + "' style=width:240px;margin-left:-40px>";
+            billCode = billCode || value;
             for (var i = 0; i < BillCodeItems.length; i++) {
                 var ovalue = BillCodeItems[i].code + ":" + BillCodeItems[i].billingName;
                 ovalue = ovalue || value;
@@ -189,9 +216,9 @@
         }
         function getPPOrCCSelect(id, pPOrCC, value) {
             var selectHtml = "<select name='InvoiceBillDtos[" + index + "].PPOrCC' id='PPOrCC_" + id + "'>";
+            pPOrCC = pPOrCC || value;
             for (var i = 0; i < PPOrCCItems.length; i++) {
                 selectHtml = selectHtml + "<option value='" + PPOrCCItems[i].codeValue + "'";
-                pPOrCC = pPOrCC || value;
                 if (PPOrCCItems[i].codeValue == pPOrCC) selectHtml = selectHtml + " selected ";
                 selectHtml = selectHtml + " > " + PPOrCCItems[i].showName + "</option>"
             }
@@ -200,9 +227,9 @@
         }
         function getBillTypeSelect(id, billType, value) {
             var selectHtml = "<select name='InvoiceBillDtos[" + index + "].BillType' id='BillType_" + id + "'>";
+            billType = billType || value;
             for (var i = 0; i < BillTypeItems.length; i++) {
                 selectHtml = selectHtml + "<option value='" + BillTypeItems[i].codeValue + "'";
-                billType = billType || value;
                 if (BillTypeItems[i].codeValue == billType) selectHtml = selectHtml + " selected ";
                 selectHtml = selectHtml + " > " + BillTypeItems[i].showName + "</option>"
             }
@@ -211,9 +238,9 @@
         }
         function getUnitSelect(id, unit, value) {
             var selectHtml = "<select name='InvoiceBillDtos[" + index + "].Unit' id='Unit_" + id + "'>";
+            unit = unit || value;
             for (var i = 0; i < UnitItems.length; i++) {
                 selectHtml = selectHtml + "<option value='" + UnitItems[i].codeValue + "'";
-                unit = unit || value;
                 if (UnitItems[i].codeValue == unit) selectHtml = selectHtml + " selected ";
                 selectHtml = selectHtml + " > " + UnitItems[i].showName + "</option>"
             }
@@ -222,9 +249,9 @@
         }
         function getCurrencySelect(id, currency, value) {
             var selectHtml = "<select name='InvoiceBillDtos[" + index + "].Currency' id='Currency_" + id + "'>";
+            currency = currency || value;
             for (var i = 0; i < CurrencyItems.length; i++) {
                 selectHtml = selectHtml + "<option value='" + CurrencyItems[i].codeValue + "'";
-                currency = currency || value;
                 if (CurrencyItems[i].codeValue == currency) selectHtml = selectHtml + " selected ";
                 selectHtml = selectHtml + " > " + CurrencyItems[i].showName + "</option>"
             }
@@ -736,10 +763,6 @@
                                     <th width="6%" style="text-align:center"><input type="checkbox" id="checkAll" /></th>
                                     <th width="8%">@L["Display:BillCode"]</th>
                                     <th width="8%">@L["Display:BillDescription"]</th>
-                                    <th width="8%">@L["Display:PPOrCC"]</th>
-                                    <th width="8%">@L["Display:BillType"]</th>
-                                    <th width="8%">@L["Display:BillUnit"]</th>
-                                    <th width="8%">@L["Display:BillCurrency"]</th>
                                     <th width="8%">@L["Display:BillQuantity"]</th>
                                     <th width="8%">@L["Display:BillRate"]</th>
                                     <th width="8%">@L["Display:BillAmount"]</th>
@@ -751,7 +774,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr border="1">
-                                        <th colspan="5" style="text-align:right;border-block-color:#333333;" border="1">小計</th>
+                                        <th colspan="2" style="text-align:right;border-block-color:#333333;" border="1">小計</th>
                                         <th>TWD</th>
                                         <th>0</th>
                                         <th>USD</th>
@@ -762,7 +785,7 @@
                                         <th>0</th>
                                     </tr>
                                     <tr border="1">
-                                        <th colspan="12" style="text-align:right;border-block-color:#333333;" border="1">總計</th>
+                                        <th colspan="9" style="text-align:right;border-block-color:#333333;" border="1">總計</th>
                                         <th>0</th>
                                     </tr>
                                 </tfoot>
