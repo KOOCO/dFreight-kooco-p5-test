@@ -43,8 +43,8 @@
 
             dolphin.freight.common.ajaxDropdown.getAllTradePartners({}).done(function (result) {
                 var selectItems = result;
-                //initTradePartnerSelect(selectItems, "InvoiceCompanyId", $("#mInvoiceCompanyId").val());
-                //initTradePartnerSelect(selectItems, "ShipToId", $("#mShipToId").val());
+                initTradePartnerSelect(selectItems, "InvoiceCompanyId", $("#mInvoiceCompanyId").val());
+                initTradePartnerSelect(selectItems, "ShipToId", $("#mShipToId").val());
             });
 
             dolphin.freight.accountingSettings.billingCodes.billingCode.queryListForTag({
@@ -105,7 +105,7 @@
             $("#copyBtn").click(function () {
                 $(".checkItem").each(function () {
                     if ($(this).prop("checked")) {
-                        var id = $(this).val();
+                        var id = $(this).data('val');
                         copyItems(id);
                     }
                 })
@@ -170,9 +170,13 @@
         function addItems(bill) {
             bill = bill || {};
             let amount = parseInt(bill.quantity || 0) * parseInt(bill.rate || 0);
-            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' value="+(bill.id || '')+" type = 'checkbox' name = 'InvoiceBillDtos[" + index + "].BillId' id = 'InvoiceBillDtosId_" + index + "' value = 'new_" + index + "' /> </td>";
+            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' value='"+(bill.id || '')+"' type = 'checkbox' name = 'InvoiceBillDtos[" + index + "].BillId' id = 'InvoiceBillDtosId_" + index + "' data-val= 'new_" + index + "' /> </td>";
             trhtml = trhtml + "<td>" + getBillCodeSelect(index, '', (bill.code || '')) + "</td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Description' value='"+(bill.description || '')+"' id='Description_" + index + "' /></td>";
+            trhtml = trhtml + "<td>" + getPPOrCCSelect(index, '', (bill.ppOrCC || '')) + "</td>";
+            trhtml = trhtml + "<td>" + getBillTypeSelect(index, '', (bill.billType || '')) + "</td>";
+            trhtml = trhtml + "<td>" + getUnitSelect(index, '', (bill.unit || '')) + "</td>";
+            trhtml = trhtml + "<td>" + getCurrencySelect(index, '', (bill.currency || '')) + "</td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' onchange='onQuantityChange(event)' value='" + (bill.quantity || '')+ "' id='Quantity_" + index + "' /></td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' onchange='onRateChange(event)' value='" + (bill.rate || '')+ "' id='Rate_" + index + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' /></td>";
             trhtml = trhtml + "<td id='td_Amount_" + index + "' value='" + (bill.amount || '') + "'><label name='InvoiceBillDtos[" + index + "].AmountLabel'>" + amount + "</label></td>";
@@ -186,10 +190,14 @@
 
         function copyItems(id) {
             id = id.replace("new_", "");
-            let amount = parseInt($("#Description_" + id).val() || 0) * ($("#Rate_" + id).val() || 0);
-            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' type='checkbox' name='InvoiceBillDtos[" + index + "].BillId' id='InvoiceBillDtosId_" + index + "' value='new_" + index + "'/></td>";
-            trhtml = trhtml + "<td>" + getBillCodeSelect(index, '') + "</td>";
+            let amount = parseInt($("#Quantity_" + id).val() || 0) * ($("#Rate_" + id).val() || 0);
+            var trhtml = "<tr id='_" + index + "'><td style='text-align:center'><input class='checkItem' type='checkbox' name='InvoiceBillDtos[" + index + "].BillId' id='InvoiceBillDtosId_" + index + "' data-val='new_" + index + "'/></td>";
+            trhtml = trhtml + "<td>" + getBillCodeSelect(index, '', ($('#Code_0').val() || '')) + "</td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Description' id='Description_" + index + "' value='" + ($("#Description_" + id).val() || '') + "' /></td>";
+            trhtml = trhtml + "<td>" + getPPOrCCSelect(index, '', ($('#PPOrCC_0').val() || '')) + "</td>";
+            trhtml = trhtml + "<td>" + getBillTypeSelect(index, '', ($('#BillType_0').val() || '')) + "</td>";
+            trhtml = trhtml + "<td>" + getUnitSelect(index, '', ($('#Unit_0').val() || '')) + "</td>";
+            trhtml = trhtml + "<td>" + getCurrencySelect(index, '', ($('#Currency_0').val() || '')) + "</td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Quantity' id='Quantity_" + index + "' value='" + ($("#Quantity_" + id).val() || '') + "' /></td>";
             trhtml = trhtml + "<td><input type='text' name='InvoiceBillDtos[" + index + "].Rate' id='Rate_" + index + "' value='" + ($("#Rate_" + id).val() || '') + "' /><input type='hidden' name='InvoiceBillDtos[" + index + "].Amount' id='Amount_" + index + "' value='" + $("#Amount_" + id).val() + "'  /></td>";
             trhtml = trhtml + "<td id='td_Amount_" + index + "'><label name='InvoiceBillDtos[" + index + "].AmountLabel'>" + amount + "</label></td>";
@@ -763,6 +771,10 @@
                                     <th width="6%" style="text-align:center"><input type="checkbox" id="checkAll" /></th>
                                     <th width="8%">@L["Display:BillCode"]</th>
                                     <th width="8%">@L["Display:BillDescription"]</th>
+                                    <th width="8%">@L["Display:PPOrCC"]</th>
+                                    <th width="8%">@L["Display:BillType"]</th>
+                                    <th width="8%">@L["Display:BillUnit"]</th>
+                                    <th width="8%">@L["Display:BillCurrency"]</th>
                                     <th width="8%">@L["Display:BillQuantity"]</th>
                                     <th width="8%">@L["Display:BillRate"]</th>
                                     <th width="8%">@L["Display:BillAmount"]</th>
@@ -774,7 +786,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr border="1">
-                                        <th colspan="2" style="text-align:right;border-block-color:#333333;" border="1">小計</th>
+                                        <th colspan="5" style="text-align:right;border-block-color:#333333;" border="1">小計</th>
                                         <th>TWD</th>
                                         <th>0</th>
                                         <th>USD</th>
@@ -785,7 +797,7 @@
                                         <th>0</th>
                                     </tr>
                                     <tr border="1">
-                                        <th colspan="9" style="text-align:right;border-block-color:#333333;" border="1">總計</th>
+                                        <th colspan="12" style="text-align:right;border-block-color:#333333;" border="1">總計</th>
                                         <th>0</th>
                                     </tr>
                                 </tfoot>
