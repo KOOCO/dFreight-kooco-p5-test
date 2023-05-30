@@ -17,6 +17,8 @@
 }
 @section scripts
     {
+    <script src="https://cdn.jsdelivr.net/npm/jquery-templates@1.0.0/jquery.tmpl.min.js"></script>
+   <abp-script src="/Pages/AirImports/EditMawb.js" />
     <script type="text/javascript">
         $(document).ready(function () {
             var l = abp.localization.getResource('Freight');
@@ -144,8 +146,24 @@
             //location.href = '/AirImports/EditMawb/' + rs.responseText.id + '/show';
         });
 
+        $('#hblMainCard').append('#mawbCard');
 
+        function onHawbCardClick(e) {
+            var element = e.currentTarget || e.target || e.srcElement;
+            var hawbNo = element.id.split('_')[1];
+
+            if($('#btnHawbCardCollapse_'+hawbNo).attr('aria-expanded') == 'true')
+            {    
+                $('.hblCardHawbNo').addClass('d-none');
+                $('#hblCard_' + hawbNo).removeClass('d-none');
+            }
+            else{
+                $('.btnHawbCardCollapse').click();
+            }
+        }
     </script>
+
+   
 }
 
 <div class="page-header">
@@ -173,11 +191,10 @@
     <div class="board-wrap">
 
         <form submit-button="true" data-ajaxForm="true" id="editForm">
-
-            <!-- MBL Card-->
             <abp-row>
-                <abp-column size-md="_9">
-                    <abp-card class="card board-item">
+                <abp-column size-md="_9" id="parentCard">
+                    <!-- MBL Card-->
+                    <abp-card class="card board-item" id="mawbCard">
                         <!-- 標題區域 -->
                         <abp-card-header style="background:#555555;color:#FFFFFF;">
                             <abp-card-title>
@@ -573,302 +590,12 @@
                         <button class="btn btn-block btn-add" type="button" id="addHBtn">
                             <i class="fa-solid fa-plus"></i>Add HAWB
                         </button>
+                        <div id="hblCards" class="hbl_sm_area">
+                            
+                        </div>
                     </div>
                 </abp-column>
             </abp-row>
-
-            <!-- HABL Card -->
-            <abp-row class="mt-4">
-                <abp-column size-md="_9">
-                    <abp-card class="card board-item d-none" id="hblCard">
-                        <!-- 標題區域 -->
-                        <abp-card-header style="background:#555555;color:#FFFFFF;">
-                            <abp-card-title>
-                                HAWB Information
-                            </abp-card-title>
-                            <button type="button" id="btnHawbCollapse" class="btn btn-collapse" data-bs-toggle="collapse" data-bs-target="#hawbDiv" aria-expanded="true" aria-controls="hawbDiv">
-                                <i class="fa fa-caret-down" style="color:#FFFFFF;"></i>
-                            </button>
-                        </abp-card-header>
-                        <!-- Mawb資訊欄 -->
-                        <abp-card-body id="hawbDiv">
-                            <!--第一列-->
-                            <abp-row>
-                                <abp-input asp-for="@Model.HawbModel.Id" type="hidden" />
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.HawbNo" readonly="true" size="Small" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.QuotationId" asp-items="@Model.TradePartnerLookupList" size="Small">
-                                    </abp-select>
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.Hsn" size="Small" type="text" abp-data-datepicker="false" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.ShipperId" asp-items="@Model.TradePartnerLookupList" size="Small">
-                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
-                                    </abp-select>
-                                </abp-column>
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.ConsigneeId" asp-items="@Model.TradePartnerLookupList" size="Small">
-                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
-                                    </abp-select>
-                                </abp-column>
-                            </abp-row>
-                            <!--第二列-->
-                            <abp-row>
-                             
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.SalesId" asp-items="@Model.TradePartnerLookupList" size="Small">
-                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
-                                    </abp-select>
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.OPId" asp-items="@Model.TradePartnerLookupList" disabled="true" size="Small">
-                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
-                                    </abp-select>
-                                </abp-column>
-                            </abp-row>
-                            <!--第三列-->
-                            <!--第四列-->
-                            <abp-row>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.FreightLocation" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.FinalDestination" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.FinalETA" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.DeliveryLocation" />
-                                </abp-column>
-                            </abp-row>
-                            <!--第五列-->
-                            <abp-row>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.Trucker" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.LastFreeDay" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.StorageStartDate" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.Freight" />
-                                </abp-column>
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.SalesType" />
-                                </abp-column>
-                            </abp-row>
-                            <!--第六列-->
-                            <abp-row>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.Package" size="Small" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.PackageUnit" size="Small" />
-                                </abp-column>
-                            </abp-row>
-                            <!--第七列-->
-                            <abp-row>
-                                <abp-column size-md="_2">
-                                    <abp-input asp-for="@Model.HawbModel.GrossWeightKG" size="Small" />
-                                </abp-column>
-                                <abp-column size-md="_2">
-                                    <abp-input asp-for="@Model.HawbModel.GrossWeightLB" size="Small" />
-                                </abp-column>
-                                <abp-column size-md="_2">
-                                    <abp-input asp-for="@Model.HawbModel.ChargeableWeightKG" size="Small" />
-                                </abp-column>
-                                <abp-column size-md="_2">
-                                    <abp-input asp-for="@Model.HawbModel.ChargeableWeightLB" size="Small" />
-                                </abp-column>
-                               
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md="_2">
-                                    <abp-input asp-for="@Model.HawbModel.VolumeWeightKG" size="Small" />
-                                </abp-column>
-                                <abp-column size-md="_2">
-                                    <abp-input asp-for="@Model.HawbModel.VolumeWeightCBM" size="Small" />
-                                </abp-column>
-                            </abp-row>
-                            <!--第八列-->
-                            <abp-row>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.ITNo" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.ClassOfEntry" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.ITDate" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.ITIssuedLocation" />
-                                </abp-column>
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.FrtRelease" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.ReleasedBy" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.CargoReleasedto" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.CReleasedDate" />
-                                </abp-column>
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md ="_12">
-                                    <abp-input asp-for="@Model.HawbModel.DoorDelivered" />
-                                </abp-column>
-                            </abp-row>
-
-                            <!--第10列-->
-                            <abp-row>  
-                                <abp-column size-md="_3">
-                                    <abp-input asp-for="@Model.HawbModel.ShipType" />
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.Incoterms" asp-items="Html.GetEnumSelectList(typeof(IncotermsType))" class="form-select-sm form-control">
-                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
-                                    </abp-select>
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.ServiceTermStart" asp-items="Html.GetEnumSelectList(typeof(ServiceTermType))" class="form-select-sm form-control">
-                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
-                                    </abp-select>
-                                </abp-column>
-                                <abp-column size-md="_3">
-                                    <abp-select asp-for="@Model.HawbModel.ServiceTermTo" asp-items="Html.GetEnumSelectList(typeof(ServiceTermType))" class="form-select-sm form-control">
-                                        <option value='' selected> @L["Display:Dropdownlist:Option:Select"] </option>
-                                    </abp-select>
-                                </abp-column>
-                            </abp-row>
-                            <!-- SUB HAWB -->
-                            <abp-row class="mt-4">
-                                <abp-column size-md="_2">
-                                    <h3>Sub HAWB</h3>
-                                </abp-column>
-                                <abp-column size-md="_1">
-                                    <button class="btn btn-success me-md-2" type="button" id="addSubHAWBBtn" data-busy-text="Processing...">+</button>
-                                </abp-column>
-                                <abp-column size-md="_1">
-                                    <button class="btn btn-danger me-md-2" type="button" id="deleteSubHAWBBtn">-</button>
-                                </abp-column>
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md="_12">
-                                    <abp-table border="1" class="w-100">
-                                        <thead border="1">
-                                        <th><input type="checkbox" /></th>
-                                        <th>SUB HAWB</th>
-                                        <th>Description / IT No.</th>
-                                        <th>PCS</th>
-                                        <th>PKG Unit</th>
-                                        <th>Amount</th>
-                                        </thead>
-                                        <tbody id="subHAWBBody">
-                                        </tbody>
-                                    </abp-table>
-                                </abp-column>
-                            </abp-row>
-                            <!-- P.O. No. -->
-                            <abp-row>
-                                <abp-column size-md="_12">
-                                    <abp-input asp-for="@Model.HawbModel.PONo" id="AwbCancelledOpId" />
-                                </abp-column>
-                            </abp-row>
-                            <!-- Commodity -->
-                            <abp-row class="mt-4">
-                                <abp-column size-md="_2">
-                                    <h3>Commodity</h3>
-                                </abp-column>
-                                <abp-column size-md="_1">
-                                    <button class="btn btn-success me-md-2" type="button" id="addCommodityBtn" data-busy-text="Processing...">+</button>
-                                </abp-column>
-                                <abp-column size-md="_1">
-                                    <button class="btn btn-danger me-md-2" type="button" id="deleteCommodityBtn">-</button>
-                                </abp-column>
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md="_12">
-                                    <abp-table border="1" class="w-100">
-                                        <thead border="1">
-                                        <th><input type="checkbox" /></th>
-                                        <th>Commodity Description</th>
-                                        <th>HTS Code</th>
-                                        <th>P.O. No.</th>
-                                        </thead>
-                                        <tbody id="commodityBody">
-                                        </tbody>
-                                    </abp-table>
-                                </abp-column>
-                            </abp-row>
-                            <!-- War house -->
-                            <abp-row>
-                                <abp-column size-md="_12">
-                                    <abp-table border="1" class="w-100">
-                                        <thead border="1">
-                                        <th><input type="checkbox" /></th>
-                                        <th>Receipt No</th>
-                                        <th>Length</th>
-                                        <th>Width</th>
-                                        <th>Height</th>
-                                        <th>Dimention</th>
-                                        <th>TOTAL PCS</th>
-                                        <th>Available PCS
-                                        <th>Allocated PCS</th>
-                                        <th>Unit</th>
-                                        <th>Gross Weight</th>
-                                        <th>Volume</th>
-                                        <th>Measurement</th>
-                                        </th>
-                                        </thead>
-                                        <tbody id="warhouseBody">
-                                            <tr>
-                                                <td>Load from warhouse</td>
-                                                <td><input type="checkbox" />Auto-sync package, weight and measuremennts</td>
-                                                <td><input type="checkbox" />Auto-sync dimentions</td>
-                                            </tr>
-                                        </tbody>
-                                    </abp-table>
-                                </abp-column>
-                            </abp-row>
-                            <abp-row class="mt-4">
-                                <abp-column size-md="_6">
-                                    <h3>Mark</h3>
-                                    <abp-input asp-for="@Model.HawbModel.Mark" />
-                                </abp-column>
-                                <abp-column size-md="_6">
-                                    <h3>Nature and Quantity Of Goods</h3>
-                                    <abp-input asp-for="@Model.HawbModel.Description" />
-                                </abp-column>
-                            </abp-row>
-                            <abp-row>
-                                <abp-column size-md="_12">
-                                    <h3>Handling Information</h3>
-                                    <abp-input asp-for="@Model.HawbModel.Remark" />
-                                </abp-column>
-                            </abp-row>
-
-                        </abp-card-body>
-                    </abp-card>
-                </abp-column>
-            </abp-row>
-
 
             <!-- 下方Save按鈕 -->
             <abp-row class="mt-3">
