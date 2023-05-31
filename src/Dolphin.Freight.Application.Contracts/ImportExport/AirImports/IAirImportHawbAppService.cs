@@ -17,5 +17,6 @@ namespace Dolphin.Freight.ImportExport.AirImports
         >
     {
         Task<List<AirImportHawbDto>> GetHblCardsById(Guid Id);
+        Task<AirImportHawbDto> GetHawbCardById(Guid Id);
     }
 }
