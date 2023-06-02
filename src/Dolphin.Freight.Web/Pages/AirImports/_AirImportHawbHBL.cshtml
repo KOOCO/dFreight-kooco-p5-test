@@ -15,7 +15,7 @@
         </button>
     </abp-card-header>
     <!-- Mawb資訊欄 -->
-    <abp-card-body id="hawbDiv">
+    <abp-card-body id="hawbDiv" class="card-body collapse show">
         <!--第一列-->
         <abp-row>
             <abp-input asp-for="@Model.Id" type="hidden" />
@@ -42,12 +42,8 @@
                     <option value='' selected> @L["Select"] </option>
                 </abp-select>
             </abp-column>
-        </abp-row>
-        <!--第二列-->
-        <abp-row>
-
             <abp-column size-md="_3">
-                <abp-select asp-for="@Model.HawbModel.SalesId" asp-items="@Model.TradePartnerLookupList" size="Small">
+                <abp-select asp-for="@Model.HawbModel.SalesId" asp-items="@Model.TradePartnerLookupList" disabled="true" size="Small">
                     <option value='' selected> @L["Select"] </option>
                 </abp-select>
             </abp-column>
@@ -56,13 +52,14 @@
                     <option value='' selected> @L["Select"] </option>
                 </abp-select>
             </abp-column>
-        </abp-row>
-        <!--第三列-->
-        <!--第四列-->
-        <abp-row>
             <abp-column size-md="_3">
                 <abp-input asp-for="@Model.HawbModel.FreightLocation" />
             </abp-column>
+        </abp-row>
+      
+        <!--第四列-->
+        <abp-row>
+            
             <abp-column size-md="_3">
                 <abp-input asp-for="@Model.HawbModel.FinalDestination" />
             </abp-column>
@@ -72,12 +69,13 @@
             <abp-column size-md="_3">
                 <abp-input asp-for="@Model.HawbModel.DeliveryLocation" />
             </abp-column>
-        </abp-row>
-        <!--第五列-->
-        <abp-row>
             <abp-column size-md="_3">
                 <abp-input asp-for="@Model.HawbModel.Trucker" />
             </abp-column>
+        </abp-row>
+        <!--第五列-->
+        <abp-row>
+           
             <abp-column size-md="_3">
                 <abp-input asp-for="@Model.HawbModel.LastFreeDay" />
             </abp-column>
@@ -87,12 +85,11 @@
             <abp-column size-md="_3">
                 <abp-input asp-for="@Model.HawbModel.Freight" />
             </abp-column>
-        </abp-row>
-        <abp-row>
             <abp-column size-md="_3">
                 <abp-input asp-for="@Model.HawbModel.SalesType" />
             </abp-column>
         </abp-row>
+     
         <!--第六列-->
         <abp-row>
             <abp-column size-md="_3">

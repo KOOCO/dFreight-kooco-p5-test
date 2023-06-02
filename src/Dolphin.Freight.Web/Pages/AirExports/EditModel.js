@@ -1,5 +1,7 @@
 ﻿$(function () {
-    dolphin.freight.importExport.airExports.airExportHawb.getHblCardsById('9a513dd6-edad-9650-7192-3a0b0dd14f3b')
+    var url = new URL(window.location.href);
+
+    dolphin.freight.importExport.airExports.airExportHawb.getHblCardsById(url.searchParams.get('Id'))
         .done(function (hblCards) {
             if (hblCards && hblCards.length) {
                 hblCards.forEach(function (hblCard, index) {

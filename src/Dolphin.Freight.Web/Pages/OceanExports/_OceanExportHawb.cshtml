@@ -10,13 +10,13 @@
 
     <abp-card-header id="hblCardHeader" class="card-header active @Model.OceanExportHbl.CardColorValue ">
         <abp-row>
-            <abp-column size-md="_9">
+            <abp-column size-md="_8">
                 <abp-card-title>
                     HB/L
                 </abp-card-title>
-
+                
             </abp-column>
-            <abp-column size-md="_3" class="text-end @Model.OceanExportHbl.CardColorValue'">
+            <abp-column size-md="_4" class="text-end @Model.OceanExportHbl.CardColorValue'" style="bottom: 8px; left: 8px;">
 
                 <div class="btn-group dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
@@ -68,19 +68,18 @@
                 </a>
                 </div>
                 </div>
-                <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#hblDiv" aria-expanded="false" aria-controls="hblDiv">
-                    <i class="fas fa-minus"></i>
+                <button class="btn btn-collapse" type="button" data-bs-toggle="collapse" data-bs-target="#hawbDiv" aria-expanded="false" aria-controls="hawbDiv">
                 </button>
             </abp-column>
-
+            
         </abp-row>
     </abp-card-header>
     @*<div id="hblDiv" class="collapse show customForm">*@
-    <abp-card-body id="hawbDiv">
+    <abp-card-body id="hawbDiv" class="card-body collapse show">
             <abp-row>
                 <abp-column size-md="_3">
-                    <input type="hidden" name="OceanExportHbl.Id" value="@Model.OceanExportHbl.Id" required/>
-                    <abp-input asp-for="OceanExportHbl.HblNo" />
+                    <input type="hidden" name="OceanExportHbl.Id" value="@Model.OceanExportHbl.Id"/>
+                    <abp-input asp-for="OceanExportHbl.HblNo" required />
                 </abp-column>
                 <abp-column size-md="_3">
                     <abp-input asp-for="OceanExportHbl.SoNo" />
@@ -154,6 +153,9 @@
                 </abp-column>
                 <abp-column size-md="_3">
                     <abp-input asp-for="OceanExportHbl.PorEtd" type="text" abp-data-datepicker="false" />
+                </abp-column>
+                <abp-column size-md="_3">
+                    <abp-input asp-for="OceanExportHbl.PolEtd" type="text" abp-data-datepicker="true" />
                 </abp-column>
                 <abp-column size-md="_3">
                     @await Component.InvokeAsync(typeof(SelectComponent),new {TagName =  "HPodId", FieldName = "HPodId",DefaultValue="" , IsShowLabel = true , IsRequired = false })
