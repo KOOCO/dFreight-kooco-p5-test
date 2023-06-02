@@ -177,18 +177,18 @@ namespace Dolphin.Freight.ImportExport.OceanImports
         }
         public async Task<CreateUpdateOceanImportHblDto> GetHblById(QueryHblDto query)
         {
-            var SysCodes = await _sysCodeRepository.GetListAsync();
-            Dictionary<Guid, string> dictionary = new Dictionary<Guid, string>();
-            if (SysCodes != null)
-            {
-                foreach (var syscode in SysCodes)
-                {
-                    dictionary.Add(syscode.Id, syscode.CodeValue);
-                }
-            }
+            //var SysCodes = await _sysCodeRepository.GetListAsync();
+            //Dictionary<Guid, string> dictionary = new Dictionary<Guid, string>();
+            //if (SysCodes != null)
+            //{
+            //    foreach (var syscode in SysCodes)
+            //    {
+            //        dictionary.Add(syscode.Id, syscode.CodeValue);
+            //    }
+            //}
             var oceanImportHbl = await _repository.GetAsync(query.Id.Value);
             var rs = ObjectMapper.Map<OceanImportHbl, CreateUpdateOceanImportHblDto>(oceanImportHbl);
-            if (rs.CardColorId != null) rs.CardColorValue = dictionary[rs.CardColorId.Value];
+            //if (rs.CardColorId != null) rs.CardColorValue = dictionary[rs.CardColorId.Value];
             return rs;
         }
         public async void LockedOrUnLockedOceanImportHblAsync(QueryHblDto query)

@@ -1,5 +1,6 @@
 ﻿using Dolphin.Freight.ImportExport.AirExports;
 using Dolphin.Freight.ImportExport.AirImports;
+using Dolphin.Freight.ImportExport.OceanExports;
 using Dolphin.Freight.Settinngs.PackageUnits;
 using Dolphin.Freight.Settinngs.Substations;
 using Dolphin.Freight.TradePartners;
@@ -27,17 +28,22 @@ namespace Dolphin.Freight.Web.Controllers
         private readonly IPackageUnitAppService _packageUnitAppService;
         private readonly IAirImportMawbAppService _airImportMawbAppService;
         private readonly IAirImportHawbAppService _airImportHawbAppService;
+        private readonly IAirExportHawbAppService _airExportHawbAppService;
+        private readonly IOceanExportHblAppService _oceanExportHblAppService;
 
         public List<SelectListItem> TradePartnerLookupList { get; set; }
         public List<SelectListItem> SubstationLookupList { get; set; }
         public List<SelectListItem> AirportLookupList { get; set; }
         public List<SelectListItem> PackageUnitLookupList { get; set; }
+        public List<SelectListItem> WtValOtherList { get; set; }
         public ImportExportController(ITradePartnerAppService tradePartnerAppService,
             ISubstationAppService substationAppService,
             IAirportAppService airportAppService,
             IPackageUnitAppService packageUnitAppService,
             IAirImportMawbAppService airImportMawbAppService,
-            IAirImportHawbAppService airImportHawbAppService
+            IAirImportHawbAppService airImportHawbAppService,
+            IAirExportHawbAppService airExportHawbAppService,
+            IOceanExportHblAppService oceanExportHblAppService
             )
         {
             _tradePartnerAppService = tradePartnerAppService;
@@ -46,7 +52,8 @@ namespace Dolphin.Freight.Web.Controllers
             _packageUnitAppService = packageUnitAppService;
             _airImportMawbAppService = airImportMawbAppService;
             _airImportHawbAppService = airImportHawbAppService;
-
+            _airExportHawbAppService = airExportHawbAppService;
+            _oceanExportHblAppService = oceanExportHblAppService;
 
             FillTradePartnerAsync().Wait();
             FillSubstationAsync().Wait();
@@ -67,8 +74,44 @@ namespace Dolphin.Freight.Web.Controllers
 
             model.HawbModel = await _airImportHawbAppService.GetHawbCardById(Id);
 
-            return PartialView("_HawbHBL", model);
+            return PartialView("~/Pages/AirImports/_AirImportHawbHBL.cshtml", model);
         }
+
+        [HttpGet]
+        [Route("ExportHawbhblPartial")]
+        public async Task<PartialViewResult> GetAirExportHawbHBL(Guid Id)
+        {
+            HawbHblViewModel model = new();
+
+            model.SubstationLookupList = SubstationLookupList;
+            model.AirportLookupList = AirportLookupList;
+            model.TradePartnerLookupList = TradePartnerLookupList;
+            model.PackageUnitLookupList = PackageUnitLookupList;
+
+            FillWtValOther();
+
+            model.WtValOtherList = WtValOtherList;
+
+            model.AirExportHawbDto = await _airExportHawbAppService.GetHawbCardById(Id);
+
+            return PartialView("~/Pages/AirExports/_AirExportHawbHBL.cshtml", model);
+        }
+
+        [HttpGet]
+        [Route("OceanExportHawb")]
+        public async Task<PartialViewResult> GetOceanExportHawbHBL(Guid Id)
+        {
+            HawbHblViewModel model = new();
+
+            model.SubstationLookupList = SubstationLookupList;
+            model.AirportLookupList = AirportLookupList;
+            model.TradePartnerLookupList = TradePartnerLookupList;
+            model.PackageUnitLookupList = PackageUnitLookupList;
+
+            model.OceanExportHbl = await _oceanExportHblAppService.GetHawbCardById(Id);
+            return PartialView("~/Pages/OceanExports/_OceanExportHawb.cshtml", model);
+        }
+
 
         #region FillTradePartnerAsync()
         private async Task FillTradePartnerAsync()
@@ -107,6 +150,17 @@ namespace Dolphin.Freight.Web.Controllers
             PackageUnitLookupList = packageUnitLookup.Items
                                                 .Select(x => new SelectListItem(x.PackageName, x.Id.ToString(), false))
                                                 .ToList();
+        }
+        #endregion
+
+        #region FillWtVal()
+        private void FillWtValOther()
+        {
+            WtValOtherList = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "PPD", Text = "PPD"},
+                new SelectListItem { Value = "COLL", Text = "COLL"}
+            };
         }
         #endregion
 

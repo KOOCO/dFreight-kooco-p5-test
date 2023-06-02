@@ -165,7 +165,7 @@
         $('#hblMainCard').append('#mawbCard');
 
         function onHawbCardClick(e, hawbId) {
-
+            debugger;
             var element = e.currentTarget || e.target || e.srcElement;
             var hawbNo = element.id.split('_')[1];
 
@@ -253,9 +253,9 @@
         function showAlert(funName, buttonName){
           Swal.fire({
                     icon: 'error',
-                    text: 'The data has not been saved, are you sure you want to continue?',
+                    text: 'The data has not been saved, are you sure you want to ' + buttonName.toLowerCase() + '?',
                     showCancelButton: true,
-                confirmButtonText: buttonName,
+                    confirmButtonText: buttonName,
                 }).then(funName)
         }
 
