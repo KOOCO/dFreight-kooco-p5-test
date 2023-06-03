@@ -1,6 +1,7 @@
 ﻿using Dolphin.Freight.ImportExport.AirExports;
 using Dolphin.Freight.ImportExport.AirImports;
 using Dolphin.Freight.ImportExport.OceanExports;
+using Dolphin.Freight.ImportExport.OceanImports;
 using Dolphin.Freight.Settinngs.PackageUnits;
 using Dolphin.Freight.Settinngs.Substations;
 using Dolphin.Freight.TradePartners;
@@ -30,6 +31,7 @@ namespace Dolphin.Freight.Web.Controllers
         private readonly IAirImportHawbAppService _airImportHawbAppService;
         private readonly IAirExportHawbAppService _airExportHawbAppService;
         private readonly IOceanExportHblAppService _oceanExportHblAppService;
+        private readonly IOceanImportHblAppService _oceanImportHblAppService;
 
         public List<SelectListItem> TradePartnerLookupList { get; set; }
         public List<SelectListItem> SubstationLookupList { get; set; }
@@ -43,7 +45,8 @@ namespace Dolphin.Freight.Web.Controllers
             IAirImportMawbAppService airImportMawbAppService,
             IAirImportHawbAppService airImportHawbAppService,
             IAirExportHawbAppService airExportHawbAppService,
-            IOceanExportHblAppService oceanExportHblAppService
+            IOceanExportHblAppService oceanExportHblAppService,
+            IOceanImportHblAppService oceanImportHblAppService
             )
         {
             _tradePartnerAppService = tradePartnerAppService;
@@ -54,6 +57,7 @@ namespace Dolphin.Freight.Web.Controllers
             _airImportHawbAppService = airImportHawbAppService;
             _airExportHawbAppService = airExportHawbAppService;
             _oceanExportHblAppService = oceanExportHblAppService;
+            _oceanImportHblAppService = oceanImportHblAppService;
 
             FillTradePartnerAsync().Wait();
             FillSubstationAsync().Wait();
@@ -112,6 +116,20 @@ namespace Dolphin.Freight.Web.Controllers
             return PartialView("~/Pages/OceanExports/_OceanExportHawb.cshtml", model);
         }
 
+        [HttpGet]
+        [Route("OceanImportHawb")]
+        public async Task<PartialViewResult> GetOceanImportHawbHBL(Guid Id)
+        {
+            HawbHblViewModel model = new();
+
+            model.SubstationLookupList = SubstationLookupList;
+            model.AirportLookupList = AirportLookupList;
+            model.TradePartnerLookupList = TradePartnerLookupList;
+            model.PackageUnitLookupList = PackageUnitLookupList;
+
+            model.OceanImportHbl = await _oceanImportHblAppService.GetHawbCardById(Id);
+            return PartialView("~/Pages/OceanImports/_OceanImportHawb.cshtml", model);
+        }
 
         #region FillTradePartnerAsync()
         private async Task FillTradePartnerAsync()

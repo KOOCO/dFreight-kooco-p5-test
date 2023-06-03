@@ -1,4 +1,5 @@
 ﻿using AutoMapper.Internal.Mappers;
+using Dolphin.Freight.ImportExport.OceanExports;
 using Dolphin.Freight.Permissions;
 using Dolphin.Freight.Settings.Ports;
 using Dolphin.Freight.Settings.Substations;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 
 namespace Dolphin.Freight.ImportExport.OceanImports
 {
@@ -177,18 +179,18 @@ namespace Dolphin.Freight.ImportExport.OceanImports
         }
         public async Task<CreateUpdateOceanImportHblDto> GetHblById(QueryHblDto query)
         {
-            //var SysCodes = await _sysCodeRepository.GetListAsync();
-            //Dictionary<Guid, string> dictionary = new Dictionary<Guid, string>();
-            //if (SysCodes != null)
-            //{
-            //    foreach (var syscode in SysCodes)
-            //    {
-            //        dictionary.Add(syscode.Id, syscode.CodeValue);
-            //    }
-            //}
+            var SysCodes = await _sysCodeRepository.GetListAsync();
+            Dictionary<Guid, string> dictionary = new Dictionary<Guid, string>();
+            if (SysCodes != null)
+            {
+                foreach (var syscode in SysCodes)
+                {
+                    dictionary.Add(syscode.Id, syscode.CodeValue);
+                }
+            }
             var oceanImportHbl = await _repository.GetAsync(query.Id.Value);
             var rs = ObjectMapper.Map<OceanImportHbl, CreateUpdateOceanImportHblDto>(oceanImportHbl);
-            //if (rs.CardColorId != null) rs.CardColorValue = dictionary[rs.CardColorId.Value];
+            if (rs.CardColorId != null) rs.CardColorValue = dictionary[rs.CardColorId.Value];
             return rs;
         }
         public async void LockedOrUnLockedOceanImportHblAsync(QueryHblDto query)
@@ -196,6 +198,24 @@ namespace Dolphin.Freight.ImportExport.OceanImports
             var Hbl = await _repository.GetAsync(query.HblId.Value);
             Hbl.IsLocked = !Hbl.IsLocked;
             await _repository.UpdateAsync(Hbl);
+        }
+        public async Task<List<OceanImportHblDto>> GetHblCardsById(Guid Id)
+        {
+            var data = await _repository.GetListAsync(f => f.MblId == Id);
+            var retVal = ObjectMapper.Map<List<OceanImportHbl>, List<OceanImportHblDto>>(data);
+
+            return retVal;
+        }
+        public async Task<OceanImportHblDto> GetHawbCardById(Guid Id)
+        {
+            if (await _repository.AnyAsync(f => f.Id == Id))
+            {
+                var data = await _repository.GetAsync(f => f.Id == Id);
+                var retVal = ObjectMapper.Map<OceanImportHbl, OceanImportHblDto>(data);
+                return retVal;
+            }
+
+            return new OceanImportHblDto();
         }
     }
 }

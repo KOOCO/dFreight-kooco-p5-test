@@ -6,6 +6,7 @@ using System;
 using Dolphin.Freight.ImportExport.AirExports;
 using Org.BouncyCastle.Asn1.Mozilla;
 using Dolphin.Freight.ImportExport.OceanExports;
+using Dolphin.Freight.ImportExport.OceanImports;
 
 namespace Dolphin.Freight.Web.ViewModels.ImportExport
 {
@@ -19,6 +20,7 @@ namespace Dolphin.Freight.Web.ViewModels.ImportExport
         [BindProperty]
         public AirImportHawbDto HawbModel { get; set; }
         public OceanExportHblDto OceanExportHbl { get; set; }
+        public OceanImportHblDto OceanImportHbl { get; set; }
         public AirExportHawbDto AirExportHawbDto { get; set; }
         public List<SelectListItem> TradePartnerLookupList { get; set; }
         public List<SelectListItem> SubstationLookupList { get; set; }
