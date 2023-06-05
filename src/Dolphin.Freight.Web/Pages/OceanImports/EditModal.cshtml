@@ -157,7 +157,46 @@
                                 }
                             </abp-card-title>
 
-
+                            <div class="btn-group dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                    @L["Display:Function"]
+                                </button>
+                                <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                                    </a>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-files-o"></i> @L["Btn:Copy"]
+                                    </a>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-trash"></i> @L["Btn:Delete"]
+                                    </a>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-file-text-o"></i> @L["Btn:Batch Printing"]
+                                    </a>
+                                    <li class="dropdown-divider"></li>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest"]
+                                    </a>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-file-text-o"></i> @L["Btn:Arrival Notice (Consolidated by consignee)"]
+                                    </a>
+                                     <li class="dropdown-divider"></li>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Summary"]
+                                    </a>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Detailed"]
+                                    </a>
+                                    <li class="dropdown-divider"></li>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-file-text-o"></i> @L["Btn:Electronic Customs Declaration Status"]
+                                    </a>
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-cube"></i> @L["Btn:Open in Track-Trace"]
+                                    </a>
+                                </div>
+                        </div>
 
                             @*                            <div class="btn-group dropdown">
                             <button class="btn btn-secondary dropdown-toggle"  type="button" id="ActionDrop" data-bs-toggle="dropdown">
@@ -178,7 +217,7 @@
                             </div>
                             </div>*@
 
-                            <button class="btn btn-collapse " type="button" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
+                            <button class="btn btn-collapse collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
                             </button>
 
                         </abp-card-header>
@@ -446,18 +485,73 @@
                         </abp-card-body>
                     </abp-card>
 
-                    <br />
 
                     <abp-card class="card board-item" id="hblCard">
                         <abp-card-header id="hblCardHeader" class="@Model.OceanImportHbl.CardColorValue">
                             <abp-row>
                                 <abp-column size-md="_9">
                                     <abp-card-title>
-                                        HB/L
+                                        HB/L 
                                     </abp-card-title>
 
                                 </abp-column>
-                                <abp-column size-md="_3" class="text-end @Model.OceanImportHbl.CardColorValue'">
+                            <abp-column size-md="_3" class="text-end">
+                                    <div class="btn-group dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" style="position: relative; bottom: 7px;" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                                                @L["Display:Function"]
+                                        </button>
+                                        <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-files-o"></i> @L["Btn:Copy"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-trash"></i> @L["Btn:Delete"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-files-o"></i> @L["Btn:Copy to"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-share"></i> @L["Btn:Move"]
+                                            </a>
+                                            <li class="dropdown-divider"></li>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["Btn:Arrival Notice"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["Btn:Authority (ATME)"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["Btn:Delivery Order"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["I.T/T.E"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["Btn:Release Order"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["Btn:Preliminary Claim"]
+                                            </a>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["Btn:Carrier Certificate"]
+                                            </a>
+                                            <li class="dropdown-divider"></li>
+                                            <a class='dropdown-item' href='#'>
+                                                <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report"]
+                                            </a>
+                                            <li class="dropdown-divider"></li>
+                                            <a class='dropdown-item' href='#' style="color: #4B77BE; font-weight: 500;">
+                                                <i class="fa fa-location-arrow"></i> @L["Btn:Tracking"]
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-collapse collapsed" data-bs-toggle="collapse" style="position: relative; left: 8px; top: 0px;" data-bs-target="#hblDiv" aria-expanded="false" aria-controls="hblDiv">
+                                    </button>
+
                                     <!--
                                     <div class="btn-group dropdown">
                                         <button class="btn btn-secondary dropdown-toggle"  type="button" id="ActionDrop" data-bs-toggle="dropdown">
@@ -478,12 +572,9 @@
                                         </div>
                                     </div>
                                     -->
-                                    <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#hblDiv" aria-expanded="false" aria-controls="hblDiv">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                </abp-column>
+        </abp-column>
 
-                            </abp-row>
+        </abp-row>
                         </abp-card-header>
                         <abp-card-body class="collapse show customForm" id="hblDiv">
                             <abp-row>
