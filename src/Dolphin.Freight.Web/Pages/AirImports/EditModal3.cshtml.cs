@@ -21,6 +21,9 @@ namespace Dolphin.Freight.Web.Pages.AirImports
         public Guid Hid { get; set; }
         
         [BindProperty]
+        public CreateUpdateAirImportHawbDto AirImportHawb { get; set; }
+        
+        [BindProperty]
         public AirImportMawbDto AirImportMawbDto { get; set; }
         
         [BindProperty(SupportsGet = true)]
@@ -77,6 +80,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports
                     }
                 }
             }
+            AirImportHawb = new();
         }
     }
 }

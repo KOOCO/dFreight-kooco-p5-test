@@ -72,7 +72,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports
             }
             AirImportMawbDto airImportDto = await _airImportMawbAppService.GetAsync(Id);
 
-            HawbModel = await _airImportHawbAppService.GetHblById(Id);
+            HawbModel = new();
 
             if (airImportDto == null)
             {
