@@ -239,8 +239,71 @@
                             <abp-card-title>
                                         MAWB Information
                              </abp-card-title>
+                             <div class="btn-group dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                    @L["Display:Function"]
+                                </button>
+                            <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                                </a>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-files-o"></i> @L["Btn:Copy"]
+                                </a>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-trash-o"></i> @L["Btn:Delete"]
+                                </a>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-file-text-o"></i> @L["GoFreight EDI"]
+                                </a>
+                                <li class="dropdown-divider"></li>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-files-o"></i> @L["Btn:File Package"]
+                            </a>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Print MAWB"]
+                            </a>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest (Comprehensive)"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest (by agent)"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:S/O Confirmation"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:MAWB Packaging Label"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:All HAWB Packaging Labels"]
+                            </a>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Package Label List"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Dispatch List"]
+                            </a>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Security Endorsement"]
+                            </a>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:On Hand Report"]
+                            </a>
+                                <li class="dropdown-divider"></li>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Summary"]
+                            </a>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Detailed"]
+                            </a>
+                                <li class="dropdown-divider"></li>
+                                <a class='dropdown-item' href='#'>
+                                <i class="fa fa-cube"></i> @L["Btn:Open in Track-Trace"]
+                            </a>
+                            </div>
+                            </div>
                             <button type="button" id="btnMawbCollapse" class="btn btn-collapse" data-bs-toggle="collapse" data-bs-target="#mawbDiv" aria-expanded="true" aria-controls="mawbDiv">
-                                        <i class="fa fa-caret-down" style="color:#FFFFFF;"></i>
                              </button>
                         </abp-card-header>
                         <!-- Mawb資訊欄 -->
@@ -890,8 +953,79 @@
                             <abp-card-title>
                                 HAWB Information
                             </abp-card-title>
-                            <button type="button" id="btnHawbCollapse" class="btn btn-collapse" data-bs-toggle="collapse" data-bs-target="#hawbDiv" aria-expanded="true" aria-controls="hawbDiv">
-                                <i class="fa fa-caret-down" style="color:#FFFFFF;"></i>
+
+                            <div class="btn-group dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                    @L["Display:Function"]
+            </button>
+            <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                <a class='dropdown-item' href='#'>
+                    <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                </a>
+                <a class='dropdown-item' href='#'>
+                            <i class="fa fa-files-o"></i> @L["Btn:Copy"]
+                </a>
+                <a class='dropdown-item' href='#'>
+                    <i class="fa fa-trash-o"></i> @L["Btn:Delete"]
+                </a>
+                <a class='dropdown-item' href='#'>
+                    <i class="fa fa-files-o"></i> @L["Btn:Copy to"]
+                </a>
+                <a class='dropdown-item' href='#'>
+                    <i class="fa fa-share"></i> @L["Btn:Move"]
+                </a>
+                <a class='dropdown-item' href='#'>
+                    <i class="fa fa-unlink"></i> @L["Btn:Remove"]
+                </a>
+        <li class="dropdown-divider"></li>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-files-o"></i> @L["Btn:File Package"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Print HAWB"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Commercial Invoice"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Packing List"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Certificate of Origin"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:S/O Confirmation"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Bank Draft"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Packaging Label"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Package Label List"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Pre-Alert"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Dispatch List"]
+        </a>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Dangerous Goods Declaration"]
+        </a>
+        <li class="dropdown-divider"></li>
+        <a class='dropdown-item' href='#'>
+            <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report"]
+        </a>
+        <li class="dropdown-divider"></li>
+        <a class='dropdown-item' href='#' style="color: #4B77BE; font-weight: 500;">
+            <i class="fa fa-location-arrow"></i> @L["Btn:Tracking"]
+        </a>
+        </div>
+        </div>
+
+                            <button type="button" id="btnHawbCollapse" class="btn btn-collapse collapsed" data-bs-toggle="collapse" data-bs-target="#hawbDiv" aria-expanded="true" aria-controls="hawbDiv"> 
                             </button>
                         </abp-card-header>
                         <!-- Mawb資訊欄 -->

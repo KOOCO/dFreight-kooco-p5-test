@@ -42,7 +42,7 @@ namespace Dolphin.Freight.ImportExport.AirExports
         public string OverseaAgent { get; set; }
         public string IssuingCarrier { get; set; }
         public string Trucker { get; set; }
-
+        public string CardColorValue { get; set; }
         // <summary>
         /// 操作員Id
         /// </summary>
