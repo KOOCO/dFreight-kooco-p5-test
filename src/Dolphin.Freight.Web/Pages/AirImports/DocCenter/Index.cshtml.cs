@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System;
 using Volo.Abp.AspNetCore.Mvc.UI.RazorPages;
 using System.Xml.Linq;
+using Dolphin.Freight.ImportExport.AirImports;
 
 namespace Dolphin.Freight.Web.Pages.AirImports.DocCenter
 {
@@ -16,6 +17,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports.DocCenter
     {
         public Guid Id { get; set; }
         public List<AttachmentDto> FileList { get; set; }
+        public AirImportMawbDto AirImportMawbDto { get; set; }
 
         private readonly int fileType = 10;
         private readonly string url = "/AirImports/DocCenter/";
@@ -58,7 +60,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports.DocCenter
                 QueryId = Id,
                 QueryType = fileType,
             };
-
+            AirImportMawbDto = new();
             FileList = await _attachmentAppService.QueryListAsync(dto);
 
             return Page();

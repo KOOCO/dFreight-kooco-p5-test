@@ -47,31 +47,87 @@
     </script>
 }
 
-<nav class="submenu">
-    <ol>
-        <li class="menu-item ">
-            <a class="nav-link " href="/AirImports/EditMawb?Id=@Model.Id">@L["Tab:Basic"]</a>
-        </li>
-        <li class="menu-item ">
-            <a class="nav-link  " href="/AirImports/EditModal3?Id=@Model.Id">@L["Tab:Accounting"]</a>
-        </li>
-        <li class="menu-item ">
-            <a class="nav-link  " href="javascript:void(0)">@L["Tab:Doc"]</a>
-        </li>
-    </ol>
-</nav>
+<div class="page-header">
+    <div class="breadcrumb-wrapper">
+        <abp-breadcrumb>
+            <abp-breadcrumb-item title=@L["Menu:Home"] />
+            <abp-breadcrumb-item title=@L["Menu:AirImport"] />
+            <abp-breadcrumb-item title=@L["Tab:Doc"] href="#" />
+        </abp-breadcrumb>
+    </div>
+    <nav class="submenu">
+        <ol>
+            <li class="menu-item ">
+                <a class="nav-link " href="/AirImports/EditMawb?Id=@Model.Id">@L["Tab:Basic"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link  " href="/AirImports/EditModal3?Id=@Model.Id">@L["Tab:Accounting"]</a>
+            </li>
+            <li class="menu-item ">
+                <a class="nav-link  " href="javascript:void(0)">@L["Tab:Doc"]</a>
+            </li>
+            <li class="menu-item">
+                <a class="nav-link " href="/AirImports/EditModel4?Id=@Model.Id">@L["Tab:Status"]</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="page-content-area">
+    <abp-row>
+        <abp-column size-md="_9">
+            <div class="board-wrap">
+                <abp-card>
+                    <abp-card-header style="background:#555555;color:#FFFFFF;">
+                        <abp-card-title>
+                            MAWB
+                            <span id="title0">@Model.AirImportMawbDto.MawbNo </span>
+                        </abp-card-title>
+                        
+                        <div class="btn-group dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                @L["Display:Function"]
+                            </button>
+                            <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                                </a>
+                                <li class="dropdown-divider"></li>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest"]
+                                </a>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-file-text-o"></i> @L["Btn:Arrival Notice (Consolidated by consignee)"]
+                                </a>
+                                <li class="dropdown-divider"></li>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Summary"]
+                                </a>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Detailed"]
+                                </a>
+                                <li class="dropdown-divider"></li>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-file-text-o"></i> @L["Btn:Electronic Customs Declaration Status"]
+                                </a>
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-cube"></i> @L["Btn:Open in Track-Trace"]
+                                </a>
+                            </div>
+                        </div>
 
-<abp-card>
-    <abp-card-body>
-        <abp-row>
-            <abp-column>
-                <abp-button id="add-file"
-                            text=@L["Display:Button:New"]
-                            icon="plus"
-                            button-type="Outline_Secondary" />
-            </abp-column>
-        </abp-row>
-        <abp-row class="default-freight-block">
+                        <button type="button" class="btn btn-collapse collapsed" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
+                        </button>
+                    </abp-card-header>
+                    <abp-card-body class="collapse show" id="mblDiv">
+                        <abp-row>
+                            <abp-column>
+                                <abp-button id="add-file"
+                                            text=@L["Display:Button:New"]
+                                            icon="plus"
+                                            button-type="Outline_Secondary" />
+                            </abp-column>
+                        </abp-row>
+                        <abp-row class="default-freight-block">
             <abp-column>
                 <table class="table file-list">
                     <thead class="thead-dark">
@@ -93,25 +149,80 @@
                                         </button>
                                         <div class="dropdown-menu" id="ActionDrop_div_0">
                                             <a class="dropdown-item button-download" href="javascript:void(0)" data-filename="@dto.FileName">
-                    <li class="fa fa-file"></li>下載
-                    </a>
-                    <a class="dropdown-item button-delete" href="javascript:void(0)" data-id="@dto.Id" data-filename="@dto.FileName">
-                        <i class="fa fa-trash"></i> 刪除
-                    </a>
-                    </div>
-                    </div>
-                    </th>
-                    <td>@dto.FileName</td>
-                    <td>@dto.CreationTime</td>
-                    <td>@Model.GetFileSize(dto.FileName)</td>
-                    </tr>
+                                                <i class="fa fa-file"></i>下載
+                                            </a>
+                                            <a class="dropdown-item button-delete" href="javascript:void(0)" data-id="@dto.Id" data-filename="@dto.FileName">
+                                                <i class="fa fa-trash"></i> 刪除
+                                            </a>
+                                        </div>
+                                    </div>
+                                </th>
+                                <td>@dto.FileName</td>
+                                <td>@dto.CreationTime</td>
+                                <td>@Model.GetFileSize(dto.FileName)</td>
+                            </tr>
                         }
-                </tbody>
+                    </tbody>
                 </table>
             </abp-column>
         </abp-row>
-    </abp-card-body>
-</abp-card>
+                    </abp-card-body>
+                </abp-card>
+            </div>
+        </abp-column>
+        <abp-column size-md="_3">
+            <div class="card-wrap">
+
+                <button class="btn btn-block btn-add" type="button" id="addHBtn">
+                    <i class="fa-solid fa-plus"></i>@L["Btn:AddHawb"].Value
+                </button>
+
+                <div class="function-wrap">
+
+                    <div class="form">
+                        <div class="form-group">
+                            <label for="cardOrderSet">卡片排序</label>
+                            <select class="form-control  " id="cardOrderSet">
+                                <option selected>請選擇</option>
+                                <option value="建立日期">建立日期</option>
+                                <option value="HAWB 號碼">HAWB 號碼</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only" for="cardOrder">Preference</label>
+                            <select class="form-control " id="cardOrder">
+                                <option selected>請選擇</option>
+                                <option value="遞增">遞增</option>
+                                <option value="遞減">遞減</option>
+                            </select>
+                        </div>
+                        <fieldset class="form-group">
+                            <legend class="col-form-label">卡片顯示</legend>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox"
+                                       id="inlineCheckbox1" value="option1">
+                                <label class="form-check-label"
+                                       for="inlineCheckbox1">託運人與收貨人</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox"
+                                       id="inlineCheckbox2" value="option2">
+                                <label class="form-check-label"
+                                       for="inlineCheckbox2">名稱標籤</label>
+                            </div>
+                        </fieldset>
+
+                        <button type="submit" class="btn btn-dark btn-block btn-update">
+                            <i class="fa-solid fa-arrows-rotate"></i>更新
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </abp-column>
+    </abp-row>
+</div>
+
 <form method="get" asp-page-handler="download" id="form-download" target="_blank">
     <input type="text" name="id" value="@Model.Id" />
     <input type="text" name="filename" />
