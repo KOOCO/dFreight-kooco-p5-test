@@ -1,4 +1,3 @@
-using Dolphin.Freight.ImportExport.OceanImports;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Threading.Tasks;
@@ -8,6 +7,8 @@ using System.Collections.Generic;
 using Dolphin.Freight.Common;
 using Dolphin.Freight.Settinngs.SysCodes;
 using Dolphin.Freight.ImportExport.AirImports;
+using Volo.Abp.ObjectMapping;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Dolphin.Freight.Web.Pages.AirImports
 {
@@ -19,10 +20,19 @@ namespace Dolphin.Freight.Web.Pages.AirImports
         
         [BindProperty(SupportsGet = true)]
         public Guid Hid { get; set; }
-        
+
+        [BindProperty]
+        public AirImportHawbDto AirImportHawbDto { get; set; }
         [BindProperty]
         public AirImportMawbDto AirImportMawbDto { get; set; }
-        
+        [BindProperty]
+        public CreateUpdateAirImportMawbDto AirImportMawb { get; set; }
+        [BindProperty]
+        public CreateUpdateAirImportHawbDto AirImportHawb { get; set; }
+        public List<SelectListItem> TradePartnerLookupList { get; set; }
+        public List<SelectListItem> SubstationLookupList { get; set; }
+        public List<SelectListItem> AirportLookupList { get; set; }
+        public List<SelectListItem> PackageUnitLookupList { get; set; }
         [BindProperty(SupportsGet = true)]
         public IList<InvoiceDto> m0invoiceDtos { get; set; }
         
@@ -40,12 +50,15 @@ namespace Dolphin.Freight.Web.Pages.AirImports
         public bool IsShowHbl { get; set; } = false;
         
         private readonly IAirImportMawbAppService _airImportMawbAppService;
+        private readonly IAirImportHawbAppService _airImportHawbAppService;
         private readonly IInvoiceAppService _invoiceAppService;
         private readonly ISysCodeAppService _sysCodeAppService;
 
-        public EditModal3(IAirImportMawbAppService airImportMawbAppService, IInvoiceAppService invoiceAppService, ISysCodeAppService sysCodeAppService)
+        public EditModal3(IAirImportMawbAppService airImportMawbAppService, IInvoiceAppService invoiceAppService, ISysCodeAppService sysCodeAppService
+                        ,IAirImportHawbAppService airImportHawbAppService)
         {
             _airImportMawbAppService = airImportMawbAppService;
+            _airImportHawbAppService = airImportHawbAppService;
             _invoiceAppService = invoiceAppService;
             _sysCodeAppService = sysCodeAppService;
         }
@@ -55,28 +68,50 @@ namespace Dolphin.Freight.Web.Pages.AirImports
             AirImportMawbDto = await _airImportMawbAppService.GetAsync(Id);
 
             QueryInvoiceDto qidto = new QueryInvoiceDto() { QueryType = 3, ParentId = Id };
-            var invoiceDtos = await _invoiceAppService.QueryInvoicesAsync(qidto);
-            m0invoiceDtos = new List<InvoiceDto>();
-            m1invoiceDtos = new List<InvoiceDto>();
-            m2invoiceDtos = new List<InvoiceDto>();
-            if (invoiceDtos != null && invoiceDtos.Count > 0) 
+            //var invoiceDtos = await _invoiceAppService.QueryInvoicesAsync(qidto);
+            //m0invoiceDtos = new List<InvoiceDto>();
+            //m1invoiceDtos = new List<InvoiceDto>();
+            //m2invoiceDtos = new List<InvoiceDto>();
+            //if (invoiceDtos != null && invoiceDtos.Count > 0) 
+            //{
+            //    foreach (var dto in invoiceDtos) 
+            //    {
+            //        switch (dto.InvoiceType) 
+            //        { 
+            //            default:
+            //                m0invoiceDtos.Add(dto);
+            //                break;
+            //            case 1:
+            //                m1invoiceDtos.Add(dto);
+            //                break;
+            //            case 2:
+            //                m2invoiceDtos.Add(dto);
+            //                break;
+            //        }
+            //    }
+            //}
+            qidto.ParentId = Id;
+            AirImportHawbDto = new();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            var updateItem = ObjectMapper.Map<AirImportMawbDto, CreateUpdateAirImportMawbDto>(AirImportMawbDto);
+            await _airImportMawbAppService.UpdateAsync(AirImportMawbDto.Id, updateItem);
+
+            if (AirImportHawbDto is not null)
             {
-                foreach (var dto in invoiceDtos) 
+                AirImportHawb.MawbId = AirImportMawbDto.Id;
+                if (AirImportHawb.Id != Guid.Empty)
                 {
-                    switch (dto.InvoiceType) 
-                    { 
-                        default:
-                            m0invoiceDtos.Add(dto);
-                            break;
-                        case 1:
-                            m1invoiceDtos.Add(dto);
-                            break;
-                        case 2:
-                            m2invoiceDtos.Add(dto);
-                            break;
-                    }
+                    await _airImportHawbAppService.UpdateAsync(AirImportHawb.Id, AirImportHawb);
+                }
+                else
+                {
+                    await _airImportHawbAppService.CreateAsync(AirImportHawb);
                 }
             }
+            return new ObjectResult(new { id = AirImportMawbDto.Id });
         }
     }
 }

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Users;
 
 namespace Dolphin.Freight.ImportExport.AirImports
 {
-    public class CreateUpdateAirImportHawbDto
+    public class CreateUpdateAirImportHawbDto : AuditedEntityDto<Guid>
     {
         public Guid? MawbId { get; set; }
                                     
