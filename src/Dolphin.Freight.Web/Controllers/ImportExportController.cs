@@ -1,5 +1,6 @@
 ﻿using Dolphin.Freight.ImportExport.AirExports;
 using Dolphin.Freight.ImportExport.AirImports;
+using Dolphin.Freight.ImportExport.Attachments;
 using Dolphin.Freight.Settinngs.PackageUnits;
 using Dolphin.Freight.Settinngs.Substations;
 using Dolphin.Freight.TradePartners;
@@ -28,17 +29,21 @@ namespace Dolphin.Freight.Web.Controllers
         private readonly IPackageUnitAppService _packageUnitAppService;
         private readonly IAirImportMawbAppService _airImportMawbAppService;
         private readonly IAirImportHawbAppService _airImportHawbAppService;
+        private readonly IAttachmentAppService _attachmentAppService;
 
         public List<SelectListItem> TradePartnerLookupList { get; set; }
         public List<SelectListItem> SubstationLookupList { get; set; }
         public List<SelectListItem> AirportLookupList { get; set; }
         public List<SelectListItem> PackageUnitLookupList { get; set; }
+
+        private readonly int fileType = 10;
         public ImportExportController(ITradePartnerAppService tradePartnerAppService,
             ISubstationAppService substationAppService,
             IAirportAppService airportAppService,
             IPackageUnitAppService packageUnitAppService,
             IAirImportMawbAppService airImportMawbAppService,
-            IAirImportHawbAppService airImportHawbAppService
+            IAirImportHawbAppService airImportHawbAppService,
+            IAttachmentAppService attachmentAppService
             )
         {
             _tradePartnerAppService = tradePartnerAppService;
@@ -47,13 +52,15 @@ namespace Dolphin.Freight.Web.Controllers
             _packageUnitAppService = packageUnitAppService;
             _airImportMawbAppService = airImportMawbAppService;
             _airImportHawbAppService = airImportHawbAppService;
-
+            _attachmentAppService = attachmentAppService;
 
             FillTradePartnerAsync().Wait();
             FillSubstationAsync().Wait();
             FillAirportAsync().Wait();
             FillPackageUnitAsync().Wait();
         }
+
+        
 
         [HttpGet]
         [Route("AirHBL")]
@@ -65,8 +72,8 @@ namespace Dolphin.Freight.Web.Controllers
             model.AirportLookupList = AirportLookupList;
             model.TradePartnerLookupList = TradePartnerLookupList;
             model.PackageUnitLookupList = PackageUnitLookupList;
-
-            model.HawbModel = await _airImportHawbAppService.GetAirHawbCardById(Id);
+            model.AirImportHawbDto = new AirImportHawbDto();
+            model.AirImportHawbDto = await _airImportHawbAppService.GetDocCenterCardById(Id);
 
             return PartialView("~/Pages/AirImports/_AirImportHBL.cshtml", model);
         }
@@ -81,8 +88,15 @@ namespace Dolphin.Freight.Web.Controllers
             model.AirportLookupList = AirportLookupList;
             model.TradePartnerLookupList = TradePartnerLookupList;
             model.PackageUnitLookupList = PackageUnitLookupList;
+            model.AirImportHawbDto = await _airImportHawbAppService.GetDocCenterCardById(Id);
 
-            model.HawbModel = await _airImportHawbAppService.GetDocCenterCardById(Id);
+            QueryAttachmentDto dto = new()
+            {
+                QueryId = Id,
+                QueryType = fileType,
+            };
+
+            model.FileList = await _attachmentAppService.QueryListAsync(dto);
 
             return PartialView("~/Pages/AirImports/DocCenter/_AirIndexHawb.cshtml", model);
         }

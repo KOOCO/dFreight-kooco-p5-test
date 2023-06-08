@@ -20,7 +20,7 @@
         
                 <abp-card-title>
                     HAWB
-                    <span id="title0">@Model.HawbModel.HawbNo </span>
+            <span id="title0">@Model.AirImportHawbDto.HawbNo </span>
                 </abp-card-title>
 
         <div class="btn-group dropdown">
@@ -222,7 +222,7 @@
                 </abp-card-header>
                 <abp-card>
                     <abp-card-body>
-                        <partial name="Memos/_Memo" model="new _MemoModel(Model.HawbModel.Id, Dolphin.Freight.Common.FreightPageType.AIMBL)" />
+                        <partial name="Memos/_Memo" model="new _MemoModel(Model.Id, Dolphin.Freight.Common.FreightPageType.AIMBL)" />
                     </abp-card-body>
                 </abp-card>
             </abp-column>

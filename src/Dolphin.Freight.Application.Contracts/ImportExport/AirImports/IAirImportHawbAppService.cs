@@ -16,8 +16,7 @@ namespace Dolphin.Freight.ImportExport.AirImports
             CreateUpdateAirImportHawbDto
         >
     {
-        Task<List<AirImportHawbDto>> GetHblById(Guid Id);
-        Task<AirImportHawbDto> GetAirHawbCardById(Guid Id);
         Task<AirImportHawbDto> GetDocCenterCardById(Guid Id);
+        Task<List<AirImportHawbDto>> GetDocCenterCardsById(Guid Id);
     }
 }

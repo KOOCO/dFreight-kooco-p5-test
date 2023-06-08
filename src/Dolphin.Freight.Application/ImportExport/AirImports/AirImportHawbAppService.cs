@@ -52,26 +52,6 @@ namespace Dolphin.Freight.ImportExport.AirImports
 
         }
 
-        public async Task<List<AirImportHawbDto>> GetHblById(Guid Id)
-        {
-            var data = await _repository.GetListAsync(f => f.MawbId == Id);
-            var retVal = ObjectMapper.Map<List<AirImportHawb>, List<AirImportHawbDto>>(data);
-
-            return retVal;
-        }
-
-        public async Task<AirImportHawbDto> GetAirHawbCardById(Guid Id)
-        {
-            if (await _repository.AnyAsync(f => f.Id == Id))
-            {
-                var data = await _repository.GetAsync(f => f.Id == Id);
-                var retVal = ObjectMapper.Map<AirImportHawb, AirImportHawbDto>(data);
-                return retVal;
-            }
-
-            return new AirImportHawbDto();
-        }
-
         public async Task<AirImportHawbDto> GetDocCenterCardById(Guid Id)
         {
             if (await _repository.AnyAsync(f => f.Id == Id))
@@ -82,6 +62,14 @@ namespace Dolphin.Freight.ImportExport.AirImports
             }
 
             return new AirImportHawbDto();
+        }
+
+        public async Task<List<AirImportHawbDto>> GetDocCenterCardsById(Guid Id)
+        {
+            var data = await _repository.GetListAsync(f => f.MawbId == Id);
+            var retVal = ObjectMapper.Map<List<AirImportHawb>, List<AirImportHawbDto>>(data);
+
+            return retVal;
         }
 
         public async Task<PagedResultDto<AirImportHawbDto>> QueryListAsync(QueryHblDto query)

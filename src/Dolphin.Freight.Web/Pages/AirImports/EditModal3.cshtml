@@ -177,13 +177,13 @@
     <nav class="submenu">
         <ol>
             <li class="menu-item ">
-                <a class="nav-link " href="/AirImports/EditMawb?Id=@Model.Id">@L["Tab:Basic"]</a>
+                <a href="/AirImports/EditMawb?Id=@Model.Id">@L["Tab:Basic"]</a>
+            </li>
+            <li class="menu-item active">
+                <a href="javascript:void(0)">@L["Tab:Accounting"]</a>
             </li>
             <li class="menu-item ">
-                <a class="nav-link  " href="javascript:void(0)">@L["Tab:Accounting"]</a>
-            </li>
-            <li class="menu-item ">
-                <a class="nav-link  " href="/AirImports/DocCenter/@Model.Id">@L["Tab:Doc"]</a>
+                <a href="/AirImports/DocCenter/@Model.Id">@L["Tab:Doc"]</a>
             </li>
         </ol>
     </nav>
@@ -200,6 +200,42 @@
                                     MAWB
                                     <span id="title0">@Model.AirImportMawbDto.MawbNo </span>
                                 </abp-card-title>
+
+                            <div class="btn-group dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                    @L["Display:Function"]
+                                </button>
+
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                                    </a>
+                            <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Arrival Notice (Consolidated by consignee)"]
+                            </a>
+                            <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Summary"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Detailed"]
+                            </a>
+                            <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Electronic Customs Declaration Status"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-cube"></i> @L["Btn:Open in Track-Trace"]
+                            </a>
+
+
+
+    </div>
+</div>
 
                                     <button type="button" class="btn btn-collapse" data-bs-toggle="collapse" data-bs-target="#mawbDiv" aria-expanded="false" aria-controls="mawbDiv">
                                 </button>

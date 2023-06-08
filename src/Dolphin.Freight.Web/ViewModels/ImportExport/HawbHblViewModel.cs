@@ -21,7 +21,10 @@ namespace Dolphin.Freight.Web.ViewModels.ImportExport
         public List<AttachmentDto> FileList { get; set; }
 
         [BindProperty]
-        public AirImportHawbDto HawbModel { get; set; }
+        public List<AirImportHawbDto> HawbModel { get; set; }
+
+        public AirImportHawbDto AirImportHawbDto { get; set; }
+
         [BindProperty(SupportsGet = true)]
         public IList<InvoiceDto> m0invoiceDtos { get; set; }
 
