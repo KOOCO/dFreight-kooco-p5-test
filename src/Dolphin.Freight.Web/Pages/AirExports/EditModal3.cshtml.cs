@@ -19,7 +19,10 @@ namespace Dolphin.Freight.Web.Pages.AirExports
         
         [BindProperty(SupportsGet = true)]
         public Guid Hid { get; set; }
-        
+
+        [BindProperty]
+        public AirExportHawbDto AirExportHawbDto { get; set; }
+
         [BindProperty]
         public AirExportMawbDto AirExportMawbDto { get; set; }
         
@@ -77,6 +80,7 @@ namespace Dolphin.Freight.Web.Pages.AirExports
                     }
                 }
             }
+            AirExportHawbDto = new();
         }
     }
 }

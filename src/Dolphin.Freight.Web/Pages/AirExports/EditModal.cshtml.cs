@@ -157,7 +157,7 @@ namespace Dolphin.Freight.Web.Pages.AirExports
 
         #region SetAirExportFileNo() 
         /// <summary>
-        /// ³]©wAir ExportªºFile No
+        /// ï¿½]ï¿½wAir Exportï¿½ï¿½File No
         /// </summary>
         private string SetAirExportFileNo()
         {
