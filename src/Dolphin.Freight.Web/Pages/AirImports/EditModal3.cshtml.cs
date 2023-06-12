@@ -89,7 +89,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports
             //    }
             //}
             qidto.ParentId = Id;
-            AirImportHawbDto = new();
+            AirImportHawb = new();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -97,7 +97,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports
             var updateItem = ObjectMapper.Map<AirImportMawbDto, CreateUpdateAirImportMawbDto>(AirImportMawbDto);
             await _airImportMawbAppService.UpdateAsync(AirImportMawbDto.Id, updateItem);
 
-            if (AirImportHawbDto is not null)
+            if (AirImportHawb is not null)
             {
                 AirImportHawb.MawbId = AirImportMawbDto.Id;
                 if (AirImportHawb.Id != Guid.Empty)
@@ -110,6 +110,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports
                 }
             }
             AirImportHawb = new();
+            return new JsonResult(new { }) { };
         }
     }
 }

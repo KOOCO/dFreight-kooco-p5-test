@@ -113,7 +113,7 @@ namespace Dolphin.Freight.Web.Pages.OceanExports
  
             //}
             //else {
-                queryHbl.Id = Hid;
+                //queryHbl.Id = Hid;
                 OceanExportHbl = new();
                 //IsShowHbl = true;
                 //
