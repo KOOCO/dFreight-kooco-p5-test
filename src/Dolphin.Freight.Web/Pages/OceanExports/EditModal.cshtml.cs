@@ -73,15 +73,54 @@ namespace Dolphin.Freight.Web.Pages.OceanExports
         {
             ViewData["HAVEHBL"] = "N";
             OceanExportMbl = await _oceanExportMblAppService.GetCreateUpdateOceanExportMblDtoById(Id);
-            ImportExport.OceanExports.QueryHblDto query = new ImportExport.OceanExports.QueryHblDto() { MblId = Id };
-            
-            query.Id = Hid;
-            OceanExportHbl = new();
-            IsShowHbl = true;
-
-            ViewData["HAVEHBL"] = "Y";
+            QueryHblDto query = new QueryHblDto() { MblId = Id };
+            OceanExportHbls = await _oceanExportHblAppService.QueryListByMidAsync(query);
+            QueryHblDto queryHbl = new QueryHblDto();
+            //if (Hid == null)
+            //{
+            //    if (NewHbl == 1)
+            //    {
+            //        OceanExportHbl = new CreateUpdateOceanExportHblDto();
+            //        QueryDto cquery = new QueryDto();
+            //        cquery.QueryType = "CardColorId";
+            //        var syscodes = await _sysCodeAppService.GetSysCodeDtosByTypeAsync(cquery);
+            //        if (OceanExportHbls != null && OceanExportHbls.Count > 0)
+            //        {
+            //            int index =  OceanExportHbls.Count % syscodes.Count ;
+            //            OceanExportHbl.CardColorId = syscodes[index].Id;
+            //            OceanExportHbl.CardColorValue = syscodes[index].CodeValue;
+            //            CardClass = syscodes[index].CodeValue;
+            //        }
+            //        else 
+            //        {
+            //            OceanExportHbl.CardColorId = syscodes[0].Id;
+            //            OceanExportHbl.CardColorValue = syscodes[0].CodeValue;
+            //            CardClass = syscodes[0].CodeValue;
+            //        }
+                    
+            //    }
+            //    else 
+            //    {
+            //        OceanExportHbl = new CreateUpdateOceanExportHblDto();
+            //        if (OceanExportHbls != null && OceanExportHbls.Count > 0)
+            //        {
+            //            OceanExportHbl = ObjectMapper.Map<OceanExportHblDto, CreateUpdateOceanExportHblDto>(OceanExportHbls[0]);
+            //            IsShowHbl = true;
+            //            ViewData["HAVEHBL"] = "Y";
+            //        }
+                    
+            //    }
+ 
+            //}
+            //else {
+                queryHbl.Id = Hid;
+                OceanExportHbl = new();
+                //IsShowHbl = true;
+                //
+                //ViewData["HAVEHBL"] = "Y";
+            //}
+            //TempData["PrintData"] = JsonConvert.SerializeObject(OceanExportMbl);
         }
-
         public async Task<IActionResult> OnPostAsync()
         {
             var updateItem = ObjectMapper.Map<OceanExportMblDto, CreateUpdateOceanExportMblDto>(OceanExportMblDto);
