@@ -28,7 +28,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports
         private readonly IAirImportMawbAppService _airImportMawbAppService;
         private readonly IAirImportHawbAppService _airImportHawbAppService;
 
-        // 用來接受CreateMawb redirect過來的資訊
+        // 嚙諄來梧蕭嚙踝蕭CreateMawb redirect嚙盤嚙諉迎蕭嚙踝蕭T
         [HiddenInput]
         [BindProperty(SupportsGet = true)]
         public Guid Id { get; set; }
@@ -176,7 +176,7 @@ namespace Dolphin.Freight.Web.Pages.AirImports
 
         #region SetAirImportFileNo() 
         /// <summary>
-        /// 設定Air Import的File No
+        /// 嚙稽嚙緩Air Import嚙踝蕭File No
         /// </summary>
         private string SetAirImportFileNo()
         {

@@ -42,21 +42,45 @@
             <div class="board-wrap">
                 <abp-card border="Dark">
                     <abp-card-header style="background:#555555;color:#FFFFFF;">
-                        <abp-row>
-                            <abp-column size-md="_9">
-                                <abp-card-title>
-                                    MAWB
-                                    <span id="title0">@Model.AirImportMawbDto.MawbNo </span>
-                                </abp-card-title>
+                        <abp-card-title>
+                            MAWB
+                            <span id="title0">@Model.AirImportMawbDto.MawbNo </span>
+                        </abp-card-title>
 
-                            </abp-column>
-                            <abp-column size-md="_3" class="text-end">
-                                <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                            </abp-column>
-
-                        </abp-row>
+                        <div class="btn-group dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                @L["Display:Function"]
+                            </button>
+                            <div class="dropdown-menu " aria-labelledby="dropdownMenuButton1" id="ActionDrop">
+                                <a class='dropdown-item' href='#'>
+                                    <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                                </a>
+                        <li class="dropdown-divider"></li>
+                        <a class='dropdown-item' href='#'>
+                            <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest"]
+                        </a>
+                        <a class='dropdown-item' href='#'>
+                            <i class="fa fa-file-text-o"></i> @L["Btn:Arrival Notice (Consolidated by consignee)"]
+                        </a>
+                        <li class="dropdown-divider"></li>
+                        <a class='dropdown-item' href='#'>
+                            <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Summary"]
+                        </a>
+                        <a class='dropdown-item' href='#'>
+                            <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Detailed"]
+                        </a>
+                        <li class="dropdown-divider"></li>
+                        <a class='dropdown-item' href='#'>
+                            <i class="fa fa-file-text-o"></i> @L["Btn:Electronic Customs Declaration Status"]
+                        </a>
+                        <a class='dropdown-item' href='#'>
+                            <i class="fa fa-cube"></i> @L["Btn:Open in Track-Trace"]
+                        </a>
+            </div>
+</div>
+                    
+                        <button type="button" class="btn btn-collapse collapsed" data-bs-toggle="collapse" data-bs-target="#mblDiv" aria-expanded="false" aria-controls="mblDiv">
+                        </button>
                     </abp-card-header>
                     <abp-card-body class="collapse show" id="mblDiv">
 
