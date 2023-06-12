@@ -30,12 +30,10 @@ namespace Dolphin.Freight.Web.Controllers
         private readonly ISubstationAppService _substationAppService;
         private readonly IAirportAppService _airportAppService;
         private readonly IPackageUnitAppService _packageUnitAppService;
-        private readonly IAirImportMawbAppService _airImportMawbAppService;
         private readonly IAirImportHawbAppService _airImportHawbAppService;
         private readonly IAirExportHawbAppService _airExportHawbAppService;
         private readonly IOceanExportHblAppService _oceanExportHblAppService;
         private readonly IOceanImportHblAppService _oceanImportHblAppService;
-        private readonly IOceanExportMblAppService _oceanExportMblAppService;
         private readonly IAttachmentAppService _attachmentAppService;
         private readonly IInvoiceAppService _invoiceAppService;
 
@@ -50,12 +48,10 @@ namespace Dolphin.Freight.Web.Controllers
             ISubstationAppService substationAppService,
             IAirportAppService airportAppService,
             IPackageUnitAppService packageUnitAppService,
-            IAirImportMawbAppService airImportMawbAppService,
             IAirImportHawbAppService airImportHawbAppService,
             IAirExportHawbAppService airExportHawbAppService,
             IOceanExportHblAppService oceanExportHblAppService,
             IOceanImportHblAppService oceanImportHblAppService,
-            IOceanExportMblAppService oceanExportMblAppService,
             IAttachmentAppService attachmentAppService,
             IInvoiceAppService invoiceAppService
             )
@@ -64,12 +60,10 @@ namespace Dolphin.Freight.Web.Controllers
             _substationAppService = substationAppService;
             _airportAppService = airportAppService;
             _packageUnitAppService = packageUnitAppService;
-            _airImportMawbAppService = airImportMawbAppService;
             _airImportHawbAppService = airImportHawbAppService;
             _airExportHawbAppService = airExportHawbAppService;
             _oceanExportHblAppService = oceanExportHblAppService;
             _oceanImportHblAppService = oceanImportHblAppService;
-            _oceanExportMblAppService = oceanExportMblAppService;
             _attachmentAppService = attachmentAppService;
             _invoiceAppService = invoiceAppService;
 
@@ -169,6 +163,30 @@ namespace Dolphin.Freight.Web.Controllers
 
         #endregion
 
+        #region AirExports
+
+        [HttpGet]
+        [Route("AirExportBasicHawb")]
+        public async Task<PartialViewResult> GetAirExportBasicHawb(Guid Id)
+        {
+            FillWtValOther();
+
+            HawbHblViewModel model = new();
+
+            model.SubstationLookupList = SubstationLookupList;
+            model.AirportLookupList = AirportLookupList;
+            model.TradePartnerLookupList = TradePartnerLookupList;
+            model.PackageUnitLookupList = PackageUnitLookupList;
+            model.WtValOtherList = WtValOtherList;
+
+            model.AirExportHawbDto = await _airExportHawbAppService.GetHawbCardById(Id);
+            
+
+            return PartialView("~/Pages/AirExports/_AirExportBasicHawb.cshtml", model);
+        }
+
+        #endregion
+
 
         [Route("OceanHBL")]
         public async Task<PartialViewResult> GetOceanExportHBL(Guid Id)
@@ -187,22 +205,7 @@ namespace Dolphin.Freight.Web.Controllers
 
         
 
-        [HttpGet]
-        [Route("ExportHawbhblPartial")]
-        public async Task<PartialViewResult> GetAirExportHawbHBL(Guid Id)
-        {
-            HawbHblViewModel model = new();
-
-            model.SubstationLookupList = SubstationLookupList;
-            model.AirportLookupList = AirportLookupList;
-            model.TradePartnerLookupList = TradePartnerLookupList;
-            model.PackageUnitLookupList = PackageUnitLookupList;
-
-            model.AirImportHawbDto = new AirImportHawbDto();
-            model.AirImportHawbDto = await _airImportHawbAppService.GetDocCenterCardById(Id);
-
-            return PartialView("~/Pages/AirImports/_AirImportHBL.cshtml", model);
-        }
+        
 
         [HttpGet]
         [Route("AirDocCenterHBL")]
