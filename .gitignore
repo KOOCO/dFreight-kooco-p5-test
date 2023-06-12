@@ -261,3 +261,5 @@ src/Dolphin.Freight.DbMigrator/Logs/*
 src/Dolphin.Freight.Blazor.Server/Logs/*
 src/Dolphin.Freight.Blazor.Server.Tiered/Logs/*
 
+# Use abp install-libs to restore.
+**/wwwroot/libs/*
