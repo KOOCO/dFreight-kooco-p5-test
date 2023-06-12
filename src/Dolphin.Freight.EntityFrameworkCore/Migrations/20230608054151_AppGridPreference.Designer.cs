@@ -4,6 +4,7 @@ using Dolphin.Freight.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -12,9 +13,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Dolphin.Freight.Migrations
 {
     [DbContext(typeof(FreightDbContext))]
-    partial class FreightDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230608054151_AppGridPreference")]
+    partial class AppGridPreference
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -396,9 +398,6 @@ namespace Dolphin.Freight.Migrations
 
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("VesselScheduleId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -1675,6 +1674,7 @@ namespace Dolphin.Freight.Migrations
 
                     b.ToTable("AppAirImportHawbs", (string)null);
                 });
+
             modelBuilder.Entity("Dolphin.Freight.ImportExport.AirImports.AirImportMawb", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2226,7 +2226,7 @@ namespace Dolphin.Freight.Migrations
                     b.ToTable("AppWarehouseReceipts", (string)null);
                 });
 
-                  modelBuilder.Entity("Dolphin.Freight.ImportExport.Configuration.GridPreference", b =>
+            modelBuilder.Entity("Dolphin.Freight.ImportExport.Configuration.GridPreference", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -2244,7 +2244,6 @@ namespace Dolphin.Freight.Migrations
 
                     b.ToTable("AppGridPreference", (string)null);
                 });
-
 
             modelBuilder.Entity("Dolphin.Freight.ImportExport.Containers.Container", b =>
                 {
@@ -2303,9 +2302,6 @@ namespace Dolphin.Freight.Migrations
                     b.Property<bool>("IsAvailableForPickup")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsCTF")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsCarrierRelease")
                         .HasColumnType("bit");
 
@@ -2320,9 +2316,6 @@ namespace Dolphin.Freight.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
-
-                    b.Property<bool>("IsPP")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("LastFreeDate")
                         .HasColumnType("datetime2");
@@ -5162,72 +5155,6 @@ namespace Dolphin.Freight.Migrations
                     b.ToTable("AppCurrencies", (string)null);
                 });
 
-            modelBuilder.Entity("Dolphin.Freight.Settings.CurrencySetting.CurrencySetting", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<string>("CurrencyDepartment")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("CustomerShortCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("EffectDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EndCurrency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("ExChangeRate")
-                        .HasColumnType("real");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("StartingCurrency")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppCurrencySetting", (string)null);
-                });
-
             modelBuilder.Entity("Dolphin.Freight.Settings.DisplaySetting.DisplaySetting", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5506,70 +5433,6 @@ namespace Dolphin.Freight.Migrations
                     b.ToTable("AppPorts", (string)null);
                 });
 
-            modelBuilder.Entity("Dolphin.Freight.Settings.PortsManagement.PortsManagement", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CountryId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<bool>("IsPort")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("Locode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PortName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubDiv")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppPortsManagements", (string)null);
-                });
             modelBuilder.Entity("Dolphin.Freight.Settings.Substations.Substation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -8513,6 +8376,27 @@ namespace Dolphin.Freight.Migrations
                     b.Navigation("GlType");
                 });
 
+            modelBuilder.Entity("Dolphin.Freight.ImportExport.AirExports.AirExportHawb", b =>
+                {
+                    b.HasOne("Dolphin.Freight.ImportExport.AirExports.AirExportMawb", "Mawb")
+                        .WithMany()
+                        .HasForeignKey("MawbId");
+
+                    b.HasOne("Volo.Abp.Users.UserData", "OP")
+                        .WithMany()
+                        .HasForeignKey("OPId");
+
+                    b.HasOne("Volo.Abp.Users.UserData", "Sales")
+                        .WithMany()
+                        .HasForeignKey("SalesId");
+
+                    b.Navigation("Mawb");
+
+                    b.Navigation("OP");
+
+                    b.Navigation("Sales");
+                });
+
             modelBuilder.Entity("Dolphin.Freight.ImportExport.AirExports.AirExportMawb", b =>
                 {
                     b.HasOne("Dolphin.Freight.TradePartners.TradePartner", "AwbAcctCarrier")
@@ -8640,6 +8524,33 @@ namespace Dolphin.Freight.Migrations
                     b.Navigation("RouteTrans3");
 
                     b.Navigation("RouteTrans3Carrier");
+
+                    b.Navigation("Shipper");
+                });
+
+            modelBuilder.Entity("Dolphin.Freight.ImportExport.AirImports.AirImportHawb", b =>
+                {
+                    b.HasOne("Dolphin.Freight.TradePartners.TradePartner", "Consignee")
+                        .WithMany()
+                        .HasForeignKey("ConsigneeId");
+
+                    b.HasOne("Volo.Abp.Users.UserData", "OP")
+                        .WithMany()
+                        .HasForeignKey("OPId");
+
+                    b.HasOne("Volo.Abp.Users.UserData", "Sales")
+                        .WithMany()
+                        .HasForeignKey("SalesId");
+
+                    b.HasOne("Dolphin.Freight.TradePartners.TradePartner", "Shipper")
+                        .WithMany()
+                        .HasForeignKey("ShipperId");
+
+                    b.Navigation("Consignee");
+
+                    b.Navigation("OP");
+
+                    b.Navigation("Sales");
 
                     b.Navigation("Shipper");
                 });
