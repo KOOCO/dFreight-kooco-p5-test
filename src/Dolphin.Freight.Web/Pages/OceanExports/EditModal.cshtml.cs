@@ -28,6 +28,7 @@ using Dolphin.Freight.Web.ViewModels.Hbl;
 using Volo.Abp.ObjectMapping;
 using Dolphin.Freight.ImportExport.OceanImports;
 using static Dolphin.Freight.Permissions.OceanExportPermissions;
+using QueryHblDto = Dolphin.Freight.ImportExport.OceanExports.QueryHblDto;
 
 namespace Dolphin.Freight.Web.Pages.OceanExports
 {
@@ -75,7 +76,6 @@ namespace Dolphin.Freight.Web.Pages.OceanExports
             OceanExportMbl = await _oceanExportMblAppService.GetCreateUpdateOceanExportMblDtoById(Id);
             QueryHblDto query = new QueryHblDto() { MblId = Id };
             OceanExportHbls = await _oceanExportHblAppService.QueryListByMidAsync(query);
-            QueryHblDto queryHbl = new QueryHblDto();
             //if (Hid == null)
             //{
             //    if (NewHbl == 1)

@@ -235,14 +235,6 @@ namespace Dolphin.Freight.ImportExport.OceanExports
             await _repository.UpdateAsync(Hbl);
         }
 
-        public async Task<List<OceanExportHblDto>> GetHblCardsById(Guid Id)
-        {
-            var data = await _repository.GetListAsync(f => f.MblId == Id);
-            var retVal = ObjectMapper.Map<List<OceanExportHbl>, List<OceanExportHblDto>>(data);
-            
-            return retVal;
-        }
-
         public async Task<OceanExportHblDto> GetHawbCardById(Guid Id)
         {
             if (await _repository.AnyAsync(f => f.Id == Id))

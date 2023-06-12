@@ -1,17 +1,11 @@
 ﻿using Dolphin.Freight.ImportExport.AirExports;
 using Dolphin.Freight.ImportExport.AirImports;
 using Dolphin.Freight.ImportExport.OceanExports;
-<<<<<<< HEAD
 using Dolphin.Freight.ImportExport.OceanImports;
 using Dolphin.Freight.Settinngs.PackageUnits;
 using Dolphin.Freight.Settinngs.Substations;
 using Dolphin.Freight.TradePartners;
-=======
-using Dolphin.Freight.Settinngs.PackageUnits;
-using Dolphin.Freight.Settinngs.Substations;
-using Dolphin.Freight.TradePartners;
 using Dolphin.Freight.Web.Pages.AirImports;
->>>>>>> DFreight-124
 using Dolphin.Freight.Web.Pages.Sales.TradePartner;
 using Dolphin.Freight.Web.ViewModels.ImportExport;
 using Microsoft.AspNetCore.Mvc;
@@ -34,57 +28,41 @@ namespace Dolphin.Freight.Web.Controllers
         private readonly ISubstationAppService _substationAppService;
         private readonly IAirportAppService _airportAppService;
         private readonly IPackageUnitAppService _packageUnitAppService;
-<<<<<<< HEAD
         private readonly IAirImportMawbAppService _airImportMawbAppService;
         private readonly IAirImportHawbAppService _airImportHawbAppService;
         private readonly IAirExportHawbAppService _airExportHawbAppService;
         private readonly IOceanExportHblAppService _oceanExportHblAppService;
         private readonly IOceanImportHblAppService _oceanImportHblAppService;
-=======
         private readonly IOceanExportMblAppService _oceanExportMblAppService;
-        private readonly IOceanExportHblAppService _oceanExportHblAppService;
->>>>>>> DFreight-124
 
         public List<SelectListItem> TradePartnerLookupList { get; set; }
         public List<SelectListItem> SubstationLookupList { get; set; }
         public List<SelectListItem> AirportLookupList { get; set; }
         public List<SelectListItem> PackageUnitLookupList { get; set; }
-<<<<<<< HEAD
         public List<SelectListItem> WtValOtherList { get; set; }
-=======
->>>>>>> DFreight-124
         public ImportExportController(ITradePartnerAppService tradePartnerAppService,
             ISubstationAppService substationAppService,
             IAirportAppService airportAppService,
             IPackageUnitAppService packageUnitAppService,
-<<<<<<< HEAD
             IAirImportMawbAppService airImportMawbAppService,
             IAirImportHawbAppService airImportHawbAppService,
             IAirExportHawbAppService airExportHawbAppService,
             IOceanExportHblAppService oceanExportHblAppService,
-            IOceanImportHblAppService oceanImportHblAppService
-=======
-            IOceanExportMblAppService oceanExportMblAppService,
-            IOceanExportHblAppService oceanExportHblAppService
->>>>>>> DFreight-124
+            IOceanImportHblAppService oceanImportHblAppService,
+            IOceanExportMblAppService oceanExportMblAppService
             )
         {
             _tradePartnerAppService = tradePartnerAppService;
             _substationAppService = substationAppService;
             _airportAppService = airportAppService;
             _packageUnitAppService = packageUnitAppService;
-<<<<<<< HEAD
             _airImportMawbAppService = airImportMawbAppService;
             _airImportHawbAppService = airImportHawbAppService;
             _airExportHawbAppService = airExportHawbAppService;
             _oceanExportHblAppService = oceanExportHblAppService;
             _oceanImportHblAppService = oceanImportHblAppService;
-=======
             _oceanExportMblAppService = oceanExportMblAppService;
-            _oceanExportHblAppService = oceanExportHblAppService;
-
->>>>>>> DFreight-124
-
+            
             FillTradePartnerAsync().Wait();
             FillSubstationAsync().Wait();
             FillAirportAsync().Wait();
@@ -92,13 +70,13 @@ namespace Dolphin.Freight.Web.Controllers
         }
 
         [HttpGet]
-<<<<<<< HEAD
         [Route("hawbhblpartial")]
         public async Task<PartialViewResult> GetHawbHBL(Guid Id)
-=======
+        {
+            return PartialView("~/Pages/AirImports/_AirImportHawbHBL.cshtml", new HawbHblViewModel());
+        }
         [Route("OceanHBL")]
         public async Task<PartialViewResult> GetOceanExportHBL(Guid Id)
->>>>>>> DFreight-124
         {
             HawbHblViewModel model = new();
 
@@ -107,7 +85,6 @@ namespace Dolphin.Freight.Web.Controllers
             model.TradePartnerLookupList = TradePartnerLookupList;
             model.PackageUnitLookupList = PackageUnitLookupList;
 
-<<<<<<< HEAD
             model.HawbModel = await _airImportHawbAppService.GetHawbCardById(Id);
 
             return PartialView("~/Pages/AirImports/_AirImportHawbHBL.cshtml", model);
@@ -116,16 +93,6 @@ namespace Dolphin.Freight.Web.Controllers
         [HttpGet]
         [Route("ExportHawbhblPartial")]
         public async Task<PartialViewResult> GetAirExportHawbHBL(Guid Id)
-=======
-            model.OceanExportHblDto = await _oceanExportHblAppService.GetHblCardById(Id);
-
-            return PartialView("~/Pages/OceanExports/_OceanExportAccountingHawb.cshtml", model);
-        }
-
-        [HttpGet]
-        [Route("AirDocCenterHBL")]
-        public async Task<PartialViewResult> GetDocCenterHBL(Guid Id)
->>>>>>> DFreight-124
         {
             HawbHblViewModel model = new();
 
@@ -134,7 +101,22 @@ namespace Dolphin.Freight.Web.Controllers
             model.TradePartnerLookupList = TradePartnerLookupList;
             model.PackageUnitLookupList = PackageUnitLookupList;
 
-<<<<<<< HEAD
+            model.OceanExportHbl = await _oceanExportHblAppService.GetHblCardById(Id);
+
+            return PartialView("~/Pages/OceanExports/_OceanExportAccountingHawb.cshtml", model);
+        }
+
+        [HttpGet]
+        [Route("AirDocCenterHBL")]
+        public async Task<PartialViewResult> GetDocCenterHBL(Guid Id)
+        {
+            HawbHblViewModel model = new();
+
+            model.SubstationLookupList = SubstationLookupList;
+            model.AirportLookupList = AirportLookupList;
+            model.TradePartnerLookupList = TradePartnerLookupList;
+            model.PackageUnitLookupList = PackageUnitLookupList;
+
             FillWtValOther();
 
             model.WtValOtherList = WtValOtherList;
@@ -155,7 +137,7 @@ namespace Dolphin.Freight.Web.Controllers
             model.TradePartnerLookupList = TradePartnerLookupList;
             model.PackageUnitLookupList = PackageUnitLookupList;
 
-            model.OceanExportHbl = await _oceanExportHblAppService.GetHawbCardById(Id);
+            model.OceanExportHbl = await _oceanExportHblAppService.GetHblCardById(Id);
             return PartialView("~/Pages/OceanExports/_OceanExportHawb.cshtml", model);
         }
 
@@ -171,12 +153,8 @@ namespace Dolphin.Freight.Web.Controllers
             model.PackageUnitLookupList = PackageUnitLookupList;
 
             model.OceanImportHbl = await _oceanImportHblAppService.GetHawbCardById(Id);
-            return PartialView("~/Pages/OceanImports/_OceanImportHawb.cshtml", model);
-=======
-            model.HawbModel = await _oceanExportHblAppService.GetHblCardById(Id);
 
-            return PartialView("~/Pages/AirImports/DocCenter/_AirIndexHawb.cshtml", model);
->>>>>>> DFreight-124
+            return PartialView("~/Pages/OceanImports/_OceanImportHawb.cshtml", model);
         }
 
         #region FillTradePartnerAsync()
@@ -219,7 +197,6 @@ namespace Dolphin.Freight.Web.Controllers
         }
         #endregion
 
-<<<<<<< HEAD
         #region FillWtVal()
         private void FillWtValOther()
         {
@@ -231,8 +208,6 @@ namespace Dolphin.Freight.Web.Controllers
         }
         #endregion
 
-=======
->>>>>>> DFreight-124
         #region SetAirImportFileNo() 
         /// <summary>
         /// ³]©wAir ImportªºFile No
@@ -245,8 +220,4 @@ namespace Dolphin.Freight.Web.Controllers
         }
         #endregion
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> DFreight-124
