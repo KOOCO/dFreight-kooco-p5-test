@@ -225,103 +225,105 @@
 </div>
 <div class="page-content-area">
     <div class="board-wrap">
-        <abp-row>
-            <abp-column size-md="_9" id="parentCard">
-                <abp-card class="card board-item">
-                    <abp-card-header style="background:#555555;color:#FFFFFF;">
-                        <abp-card-title>
-                            MAWB
-                            <span id="title0">@Model.AirImportMawbDto.MawbNo </span>
-                        </abp-card-title>
+   <abp-row>
+                <abp-column size-md="_9" id="parentCard">
+                    <abp-card class="card board-item" id="mawbCard">
+                        <abp-card-header style="background:#555555;color:#FFFFFF;">
+                            <abp-card-title>
+                                MAWB
+                                <span id="title0">@Model.AirImportMawbDto.MawbNo </span>
+                            </abp-card-title>
 
-                        <div class="btn-group dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
-                                @L["Display:Function"]
-                            </button>
+                            <div class="btn-group dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop" data-bs-toggle="dropdown">
+                                    @L["Display:Function"]
+                                </button>
 
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <a class='dropdown-item' href='#'>
-                                    <i class="fa fa-lock"></i> @L["Btn:Lock"]
-                                </a>
-                                <p class="dropdown-divider"></p>
-                                <a class='dropdown-item' href='#'>
-                                    <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest"]
-                                </a>
-                                <a class='dropdown-item' href='#'>
-                                    <i class="fa fa-file-text-o"></i> @L["Btn:Arrival Notice (Consolidated by consignee)"]
-                                </a>
-                                <p class="dropdown-divider"></p>
-                                <a class='dropdown-item' href='#'>
-                                    <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Summary"]
-                                </a>
-                                <a class='dropdown-item' href='#'>
-                                    <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Detailed"]
-                                </a>
-                                <p class="dropdown-divider"></p>
-                                <a class='dropdown-item' href='#'>
-                                    <i class="fa fa-file-text-o"></i> @L["Btn:Electronic Customs Declaration Status"]
-                                </a>
-                                <a class='dropdown-item' href='#'>
-                                    <i class="fa fa-cube"></i> @L["Btn:Open in Track-Trace"]
-                                </a>
-
-                            </div>
-                        </div>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                    <a class='dropdown-item' href='#'>
+                                        <i class="fa fa-lock"></i> @L["Btn:Lock"]
+                                    </a>
+                            <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Cargo Manifest"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Arrival Notice (Consolidated by consignee)"]
+                            </a>
+                            <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Summary"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Profit Report - Detailed"]
+                            </a>
+                            <li class="dropdown-divider"></li>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-file-text-o"></i> @L["Btn:Electronic Customs Declaration Status"]
+                            </a>
+                            <a class='dropdown-item' href='#'>
+                                <i class="fa fa-cube"></i> @L["Btn:Open in Track-Trace"]
+                            </a>
 
 
 
-                        <button type="button" class="btn btn-collapse" data-bs-toggle="collapse" data-bs-target="#mawbCard" aria-expanded="true" aria-controls="mawbCard">
-                        </button>
+    </div>
+</div>
+
+
+
+<button type="button" class="btn btn-collapse" data-bs-toggle="collapse" data-bs-target="#mawbcard" aria-expanded="false" aria-controls="mawbcard">
+</button>
                     </abp-card-header>
-                    <abp-card-body class="collapse show" id="mawbCard">
-                        <abp-row>
-                            <abp-column>
-                                <abp-button id="add-file"
-                                            text=@L["Display:Button:New"]
-                                            icon="plus"
-                                            button-type="Outline_Secondary" />
-                            </abp-column>
-                        </abp-row>
-                        <abp-row class="default-freight-block">
-                            <abp-column>
-                                <table class="table file-list">
-                                    <thead class="thead-dark">
-                                        <tr>
-                                            <th scope="Column">@L["Actions"]</th>
-                                            <th scope="Column">@L["Display:TradePartner:Document:THead:AttachmentName"]</th>
-                                            <th scope="Column">@L["Display:TradePartner:Document:THead:AttachmentUploadDate"]</th>
-                                            <th scope="Column">@L["Display:TradePartner:Document:THead:AttachmentSize"]</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (AttachmentDto dto in Model.FileList)
-                                        {
-                                            <tr>
-                                                <th scope="Row">
-                                                    <div class="btn-group dropdown">
-                                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop_0" data-bs-toggle="dropdown">
-                                                            @L["Actions"]
-                                                        </button>
-                                                        <div class="dropdown-menu" id="ActionDrop_div_0">
-                                                            <a class="dropdown-item button-download" href="javascript:void(0)" data-filename="@dto.FileName">
-                                                                <i class="fa fa-file"></i>下載
-                                                            </a>
-                                                            <a class="dropdown-item button-delete" href="javascript:void(0)" data-id="@dto.Id" data-filename="@dto.FileName">
-                                                                <i class="fa fa-trash"></i> 刪除
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </th>
-                                                <td>@dto.FileName</td>
-                                                <td>@dto.CreationTime</td>
-                                                <td>@Model.GetFileSize(dto.FileName)</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </abp-column>
-                        </abp-row>
-                    </abp-card-body>
+<abp-card-body class="collapse show" id="mawbcard">
+    <abp-row>
+        <abp-column>
+            <abp-button id="add-file"
+                        text=@L["Display:Button:New"]
+                        icon="plus"
+                        button-type="Outline_Secondary" />
+        </abp-column>
+    </abp-row>
+    <abp-row class="default-freight-block">
+        <abp-column>
+            <table class="table file-list">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="Column">@L["Actions"]</th>
+                        <th scope="Column">@L["Display:TradePartner:Document:THead:AttachmentName"]</th>
+                        <th scope="Column">@L["Display:TradePartner:Document:THead:AttachmentUploadDate"]</th>
+                        <th scope="Column">@L["Display:TradePartner:Document:THead:AttachmentSize"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                                            @foreach (AttachmentDto dto in Model.FileList)
+                                            {
+                        <tr>
+                            <th scope="Row">
+                                <div class="btn-group dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionDrop_0" data-bs-toggle="dropdown">
+                                                                @L["Actions"]
+                                    </button>
+                                    <div class="dropdown-menu" id="ActionDrop_div_0">
+                                        <a class="dropdown-item button-download" href="javascript:void(0)" data-filename="@dto.FileName">
+                                            <i class="fa fa-file"></i>下載
+                                        </a>
+                                        <a class="dropdown-item button-delete" href="javascript:void(0)" data-id="@dto.Id" data-filename="@dto.FileName">
+                                            <i class="fa fa-trash"></i> 刪除
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
+                            <td>@dto.FileName</td>
+                            <td>@dto.CreationTime</td>
+                            <td>@Model.GetFileSize(dto.FileName)</td>
+                        </tr>
+                                            }
+                </tbody>
+            </table>
+        </abp-column>
+    </abp-row>
+</abp-card-body>
                 </abp-card>
 
                 <div id="partialContainer">
