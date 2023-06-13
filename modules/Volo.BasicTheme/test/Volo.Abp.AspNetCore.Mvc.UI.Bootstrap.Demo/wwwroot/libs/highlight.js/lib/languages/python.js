@@ -3,10 +3,9 @@ module.exports = function(hljs) {
     keyword:
       'and elif is global as in if from raise for except finally print import pass return ' +
       'exec else break not with class assert yield try while continue del or def lambda ' +
-      'async await nonlocal|10',
+      'async await nonlocal|10 None True False',
     built_in:
-      'Ellipsis NotImplemented',
-    literal: 'False None True'
+      'Ellipsis NotImplemented'
   };
   var PROMPT = {
     className: 'meta',  begin: /^(>>>|\.\.\.) /
@@ -16,10 +15,6 @@ module.exports = function(hljs) {
     begin: /\{/, end: /\}/,
     keywords: KEYWORDS,
     illegal: /#/
-  };
-  var LITERAL_BRACKET = {
-    begin: /\{\{/,
-    relevance: 0
   };
   var STRING = {
     className: 'string',
@@ -37,11 +32,11 @@ module.exports = function(hljs) {
       },
       {
         begin: /(fr|rf|f)'''/, end: /'''/,
-        contains: [hljs.BACKSLASH_ESCAPE, PROMPT, LITERAL_BRACKET, SUBST]
+        contains: [hljs.BACKSLASH_ESCAPE, PROMPT, SUBST]
       },
       {
         begin: /(fr|rf|f)"""/, end: /"""/,
-        contains: [hljs.BACKSLASH_ESCAPE, PROMPT, LITERAL_BRACKET, SUBST]
+        contains: [hljs.BACKSLASH_ESCAPE, PROMPT, SUBST]
       },
       {
         begin: /(u|r|ur)'/, end: /'/,
@@ -59,11 +54,11 @@ module.exports = function(hljs) {
       },
       {
         begin: /(fr|rf|f)'/, end: /'/,
-        contains: [hljs.BACKSLASH_ESCAPE, LITERAL_BRACKET, SUBST]
+        contains: [hljs.BACKSLASH_ESCAPE, SUBST]
       },
       {
         begin: /(fr|rf|f)"/, end: /"/,
-        contains: [hljs.BACKSLASH_ESCAPE, LITERAL_BRACKET, SUBST]
+        contains: [hljs.BACKSLASH_ESCAPE, SUBST]
       },
       hljs.APOS_STRING_MODE,
       hljs.QUOTE_STRING_MODE
@@ -80,19 +75,16 @@ module.exports = function(hljs) {
   var PARAMS = {
     className: 'params',
     begin: /\(/, end: /\)/,
-    contains: ['self', PROMPT, NUMBER, STRING, hljs.HASH_COMMENT_MODE]
+    contains: ['self', PROMPT, NUMBER, STRING]
   };
   SUBST.contains = [STRING, NUMBER, PROMPT];
   return {
-    aliases: ['py', 'gyp', 'ipython'],
+    aliases: ['py', 'gyp'],
     keywords: KEYWORDS,
     illegal: /(<\/|->|\?)|=>/,
     contains: [
       PROMPT,
       NUMBER,
-      // eat "if" prior to string so that it won't accidentally be
-      // labeled as an f-string as in:
-      { beginKeywords: "if", relevance: 0 },
       STRING,
       hljs.HASH_COMMENT_MODE,
       {
